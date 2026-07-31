@@ -6,7 +6,7 @@ Selah is a secure, AI-assisted spiritual support platform and prayer companion d
 
 ---
 
-## ✨ Core Features (Phase 1 MVP)
+## Core Features (Phase 1 MVP)
 
 *   **Secure Prayer Requests** — Submit named or fully anonymous requests tagged by struggle profiles (e.g., anxiety, grief, finance).
 *   **Priestess Dashboard** — A live administrative queue tracking requests across structural stages (`Pending` → `Praying` → `Answered`).
@@ -17,7 +17,7 @@ Selah is a secure, AI-assisted spiritual support platform and prayer companion d
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 *   **Frontend & Logic**: React 18, TypeScript, Vite, Tailwind CSS
 *   **Backend & Infrastructure**: Supabase (PostgreSQL, Realtime, and Edge Functions)
@@ -26,7 +26,7 @@ Selah is a secure, AI-assisted spiritual support platform and prayer companion d
 
 ---
 
-## 💾 Core Data Model Blueprint (PostgreSQL / Supabase)
+## Core Data Model Blueprint (PostgreSQL / Supabase)
 
 *   `users`: Principal profiles synced with Supabase Auth handling access control and roles (`seeker`, `counselor`, `admin`).
 *   `prayer_requests`: Structural ledger containing intent tags, anonymous flags, and workflow statuses protected by Row Level Security (RLS).
@@ -37,9 +37,9 @@ Selah is a secure, AI-assisted spiritual support platform and prayer companion d
 
 ---
 
-## 🚀 Local Development Setup
+## Local Development Setup
 
-### 📦 Prerequisites
+### Prerequisites
 *   Node.js (v18+) & npm
 *   Supabase CLI (Recommended for running migrations locally)
 
