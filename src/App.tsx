@@ -1,4 +1,4 @@
-import { useState, Suspense, lazy } from 'react';
+import { useState, useEffect, Suspense, lazy } from 'react';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import type { Page } from '@/components/Nav';
@@ -9,6 +9,7 @@ import Testimonies from '@/pages/Testimonies';
 import WhatsPopping from '@/pages/WhatsPopping';
 import Priestess from '@/pages/Priestess';
 import Bible from '@/pages/Bible';
+import Login from '@/pages/Login';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { CardSkeleton } from '@/components/Skeletons';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
@@ -40,12 +41,28 @@ const PageErrorFallback = ({ page }: { page: string }) => (
   </div>
 );
 
-type ExtendedPage = Page | 'my requests';
+type ExtendedPage = Page | 'my requests' | 'login';
 
 function AppContent() {
   const [page, setPage] = useState<ExtendedPage>('home');
   const [showAccount, setShowAccount] = useState(false);
-  const { user, loading, signOut } = useAuth();
+  const { user, loading, isAdmin, signOut } = useAuth();
+
+  useEffect(() => {
+    if (!loading && page !== 'home' && page !== 'login' && !user) {
+      setShowAccount(true);
+    }
+    if (!loading && page === 'priestess' && !isAdmin) {
+      setPage('home');
+    }
+    if (!loading && page === 'login' && user) {
+      if (isAdmin) {
+        setPage('priestess');
+      } else {
+        setPage('home');
+      }
+    }
+  }, [user, loading, isAdmin, page]);
 
   const navigateTo = (p: ExtendedPage) => {
     if (p === 'home') {
@@ -55,6 +72,10 @@ function AppContent() {
     }
     if (loading) return;
     if (user) {
+      if (p === 'priestess' && !isAdmin) {
+        setPage('home');
+        return;
+      }
       setPage(p);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
@@ -108,6 +129,8 @@ function AppContent() {
             <LazyMyRequests />
           </Suspense>
         );
+      case 'login':
+        return <Login />;
       default:
         return <Home onNavigate={navigateTo} />;
     }
@@ -115,7 +138,7 @@ function AppContent() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Nav page={page} onNavigate={navigateTo} user={user} onAccountClick={() => setShowAccount(true)} onSignOut={signOut} />
+      <Nav page={page} onNavigate={navigateTo} user={user} isAdmin={isAdmin} onAccountClick={() => setShowAccount(true)} onSignOut={signOut} />
       <main className="flex-1">
         <ErrorBoundary fallback={<PageErrorFallback page={page} />}>
           {renderPage()}

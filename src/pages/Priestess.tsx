@@ -23,6 +23,7 @@ import { supabase, PRAYER_CATEGORIES } from '@/lib/supabase';
 import type { PrayerRequest, Testimony, Appointment, PrayerStatus, PrayerCategory, PriestessPost } from '@/lib/supabase';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { CardSkeleton, VerseSkeleton } from '@/components/Skeletons';
+import { useAuth } from '@/contexts/AuthContext';
 
 type Tab = 'prayer' | 'appointments' | 'testimonies' | 'posts';
 
@@ -292,6 +293,7 @@ function AppointmentList({ appointments, onUpdate }: { appointments: Appointment
 }
 
 function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate: () => void }) {
+  const { session } = useAuth();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [busy, setBusy] = useState(false);
@@ -304,6 +306,14 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
+  const getHeaders = () => {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (session?.access_token) {
+      headers.Authorization = `Bearer ${session.access_token}`;
+    }
+    return headers;
+  };
+
   const submitPost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !body.trim()) return;
@@ -312,7 +322,7 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
     try {
       const res = await fetch('/api/posts', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({ title: title.trim(), message: body.trim() }),
       });
       const json = await res.json();
@@ -347,7 +357,7 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
     try {
       const res = await fetch(`/api/posts/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: getHeaders(),
         body: JSON.stringify({ title: editTitle.trim(), message: editBody.trim() }),
       });
       const json = await res.json();
@@ -364,7 +374,10 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
   const deletePost = async (id: string) => {
     setDeleteBusy(id);
     try {
-      const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+      const res = await fetch(`/api/posts/${id}`, {
+        method: 'DELETE',
+        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
+      });
       if (!res.ok) {
         const json = await res.json();
         throw new Error(json.error);

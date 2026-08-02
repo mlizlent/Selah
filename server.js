@@ -1,26 +1,17 @@
+import express from 'express';
 import http from 'http';
 import { readFile, writeFile } from 'fs/promises';
 import { pathToFileURL } from 'url';
+import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
+import { isAdmin } from '@/middleware/isAdmin';
 
+const app = express();
 const PORT = Number(process.env.PORT || 5178);
 let GROQ_API_KEY = process.env.GROQ_API_KEY;
 let GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
 let ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
 
 const POSTS_FILE = new URL('./posts.json', import.meta.url);
-
-async function loadPosts() {
-  try {
-    const raw = await readFile(POSTS_FILE, 'utf8');
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-}
-
-async function savePosts(posts) {
-  await writeFile(POSTS_FILE, JSON.stringify(posts, null, 2), 'utf8');
-}
 
 async function loadDotEnv() {
   try {
@@ -40,7 +31,7 @@ async function loadDotEnv() {
   }
 }
 
-function getAllowedOrigin(origin) {
+function getAllowedOrigin(origin: string | undefined): string {
   if (!origin) {
     return ALLOWED_ORIGIN;
   }
@@ -53,21 +44,11 @@ function getAllowedOrigin(origin) {
   return ALLOWED_ORIGIN;
 }
 
-function sendJson(req, res, status, payload) {
-  const body = JSON.stringify(payload);
-  const origin = Array.isArray(req.headers.origin) ? req.headers.origin[0] : req.headers.origin;
-  const allowedOrigin = getAllowedOrigin(origin);
-
-  res.writeHead(status, {
-    'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': allowedOrigin,
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-  });
-  res.end(body);
+function sendJson(res: express.Response, status: number, payload: unknown) {
+  res.status(status).json(payload);
 }
 
-function parseJsonResponse(text) {
+function parseJsonResponse(text: string) {
   const trimmed = text.trim();
   try {
     return JSON.parse(trimmed);
@@ -81,7 +62,7 @@ function parseJsonResponse(text) {
   }
 }
 
-export function buildPrompt(userText) {
+export function buildPrompt(userText: string) {
   return `You are a gentle, compassionate Bible-study companion and spiritual guide. The user may be asking about a struggle, a life question, a word, a symbol, a passage, or a theme in Scripture.
 
 Do not use any hard-coded verse list. Use your knowledge of Scripture to answer the user’s prompt directly and suggest relevant Bible verses from memory.\n\nRespond with a JSON object and nothing else. The object must include the following fields exactly:
@@ -95,32 +76,53 @@ When the user asks about Bible study, meanings, symbols, themes, or passages, ex
 User message: ${userText}`;
 }
 
-async function readRequestBody(req) {
-  const chunks = [];
-  for await (const chunk of req) {
-    chunks.push(chunk);
-  }
-  return Buffer.concat(chunks).toString('utf8');
+async function readRequestBody(req: express.Request): Promise<string> {
+  return new Promise((resolve, reject) => {
+    let data = '';
+    req.on('data', (chunk: Buffer) => {
+      data += chunk;
+    });
+    req.on('end', () => resolve(data));
+    req.on('error', reject);
+  });
 }
 
-async function handleCompanion(req, res) {
+async function loadPosts() {
+  try {
+    const raw = await readFile(POSTS_FILE, 'utf8');
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+async function savePosts(posts: unknown[]) {
+  await writeFile(POSTS_FILE, JSON.stringify(posts, null, 2), 'utf8');
+}
+
+app.use(express.json());
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  const allowedOrigin = getAllowedOrigin(origin);
+  res.header('Access-Control-Allow-Origin', allowedOrigin);
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(204);
+  }
+  next();
+});
+
+app.post('/api/companion', async (req, res) => {
   if (!GROQ_API_KEY) {
-    return sendJson(req, res, 500, {
+    return sendJson(res, 500, {
       error: 'GROQ_API_KEY is required to run the LLM companion. Set it in the environment or .env file.',
     });
   }
 
-  const rawBody = await readRequestBody(req);
-  let body;
-  try {
-    body = JSON.parse(rawBody);
-  } catch {
-    return sendJson(req, res, 400, { error: 'Invalid JSON body.' });
-  }
-
-  const text = typeof body.text === 'string' ? body.text.trim() : '';
+  const text = typeof req.body.text === 'string' ? req.body.text.trim() : '';
   if (!text) {
-    return sendJson(req, res, 400, { error: 'Missing text field.' });
+    return sendJson(res, 400, { error: 'Missing text field.' });
   }
 
   const prompt = buildPrompt(text);
@@ -147,7 +149,7 @@ async function handleCompanion(req, res) {
     });
   } catch (error) {
     console.error('Groq request failed:', error);
-    return sendJson(req, res, 502, {
+    return sendJson(res, 502, {
       error: 'The Groq API could not be reached. Check your network connection or Groq API key.',
       detail: error instanceof Error ? error.message : String(error),
     });
@@ -155,7 +157,7 @@ async function handleCompanion(req, res) {
 
   if (!response.ok) {
     const errorText = await response.text();
-    return sendJson(req, res, response.status, {
+    return sendJson(res, response.status, {
       error: `Groq request failed: ${errorText}`,
     });
   }
@@ -163,39 +165,34 @@ async function handleCompanion(req, res) {
   const data = await response.json();
   const messageText = data.choices?.[0]?.message?.content;
   if (!messageText) {
-    return sendJson(req, res, 502, { error: 'Groq returned no completion content.' });
+    return sendJson(res, 502, { error: 'Groq returned no completion content.' });
   }
 
   let parsed;
   try {
     parsed = parseJsonResponse(messageText);
   } catch (error) {
-    return sendJson(req, res, 502, {
+    return sendJson(res, 502, {
       error: 'Unable to parse Groq response as JSON.',
       raw: messageText,
     });
   }
 
-  return sendJson(req, res, 200, parsed);
-}
+  return sendJson(res, 200, parsed);
+});
 
-async function handleListPosts(req, res) {
+// Public: read posts
+app.get('/api/posts', async (_req, res) => {
   const posts = await loadPosts();
-  return sendJson(req, res, 200, { posts: posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) });
-}
+  return sendJson(res, 200, { posts: posts.sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()) });
+});
 
-async function handleCreatePost(req, res) {
-  const rawBody = await readRequestBody(req);
-  let body;
-  try {
-    body = JSON.parse(rawBody);
-  } catch {
-    return sendJson(req, res, 400, { error: 'Invalid JSON body.' });
-  }
-  const title = typeof body.title === 'string' ? body.title.trim() : '';
-  const message = typeof body.message === 'string' ? body.message.trim() : '';
+// Admin only: create post
+app.post('/api/posts', isAdmin, async (req, res) => {
+  const title = typeof req.body.title === 'string' ? req.body.title.trim() : '';
+  const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
   if (!title || !message) {
-    return sendJson(req, res, 400, { error: 'Title and message are required.' });
+    return sendJson(res, 400, { error: 'Title and message are required.' });
   }
   const posts = await loadPosts();
   const post = {
@@ -206,106 +203,56 @@ async function handleCreatePost(req, res) {
   };
   posts.push(post);
   await savePosts(posts);
-  return sendJson(req, res, 201, { post });
-}
+  return sendJson(res, 201, { post });
+});
 
-async function handleUpdatePost(req, res, id) {
-  const rawBody = await readRequestBody(req);
-  let body;
-  try {
-    body = JSON.parse(rawBody);
-  } catch {
-    return sendJson(req, res, 400, { error: 'Invalid JSON body.' });
-  }
-  const title = typeof body.title === 'string' ? body.title.trim() : '';
-  const message = typeof body.message === 'string' ? body.message.trim() : '';
+// Admin only: update post
+app.put('/api/posts/:id', isAdmin, async (req, res) => {
+  const id = req.params.id;
+  const title = typeof req.body.title === 'string' ? req.body.title.trim() : '';
+  const message = typeof req.body.message === 'string' ? req.body.message.trim() : '';
   if (!title || !message) {
-    return sendJson(req, res, 400, { error: 'Title and message are required.' });
+    return sendJson(res, 400, { error: 'Title and message are required.' });
   }
   const posts = await loadPosts();
-  const index = posts.findIndex((p) => p.id === id);
+  const index = posts.findIndex((p: any) => p.id === id);
   if (index === -1) {
-    return sendJson(req, res, 404, { error: 'Post not found.' });
+    return sendJson(res, 404, { error: 'Post not found.' });
   }
   posts[index] = { ...posts[index], title, body: message };
   await savePosts(posts);
-  return sendJson(req, res, 200, { post: posts[index] });
-}
+  return sendJson(res, 200, { post: posts[index] });
+});
 
-async function handleDeletePost(req, res, id) {
+// Admin only: delete post
+app.delete('/api/posts/:id', isAdmin, async (req, res) => {
+  const id = req.params.id;
   const posts = await loadPosts();
-  const index = posts.findIndex((p) => p.id === id);
+  const index = posts.findIndex((p: any) => p.id === id);
   if (index === -1) {
-    return sendJson(req, res, 404, { error: 'Post not found.' });
+    return sendJson(res, 404, { error: 'Post not found.' });
   }
   posts.splice(index, 1);
   await savePosts(posts);
-  return sendJson(req, res, 204, null);
-}
+  return sendJson(res, 204, null);
+});
 
-async function main() {
-  await loadDotEnv();
-  GROQ_API_KEY = process.env.GROQ_API_KEY;
-  GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
-  ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok' });
+});
 
-  const server = http.createServer(async (req, res) => {
-    const url = new URL(req.url || '', `http://${req.headers.host}`);
-
-    if (req.method === 'OPTIONS') {
-      const origin = Array.isArray(req.headers.origin) ? req.headers.origin[0] : req.headers.origin;
-      const allowedOrigin = getAllowedOrigin(origin);
-      res.writeHead(204, {
-        'Access-Control-Allow-Origin': allowedOrigin,
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-      });
-      res.end();
-      return;
-    }
-
-    if (req.method === 'POST' && url.pathname === '/api/companion') {
-      await handleCompanion(req, res);
-      return;
-    }
-
-    if (req.method === 'GET' && url.pathname === '/api/posts') {
-      await handleListPosts(req, res);
-      return;
-    }
-
-    if (req.method === 'POST' && url.pathname === '/api/posts') {
-      await handleCreatePost(req, res);
-      return;
-    }
-
-    if (req.method === 'PUT' && url.pathname.match(/^\/api\/posts\/[^\/]+$/)) {
-      await handleUpdatePost(req, res, url.pathname.split('/')[3]);
-      return;
-    }
-
-    if (req.method === 'DELETE' && url.pathname.match(/^\/api\/posts\/[^\/]+$/)) {
-      await handleDeletePost(req, res, url.pathname.split('/')[3]);
-      return;
-    }
-
-    const origin = Array.isArray(req.headers.origin) ? req.headers.origin[0] : req.headers.origin;
-    const allowedOrigin = getAllowedOrigin(origin);
-    res.writeHead(404, {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': allowedOrigin,
-    });
-    res.end(JSON.stringify({ error: 'Not found' }));
-  });
-
-  server.listen(PORT, () => {
-    console.log(`LLM companion server running on http://localhost:${PORT}`);
-  });
-}
+const server = http.createServer(app);
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  main().catch((error) => {
-    console.error(error);
-    process.exit(1);
+  loadDotEnv().then(() => {
+    GROQ_API_KEY = process.env.GROQ_API_KEY;
+    GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
+    ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
+
+    server.listen(PORT, () => {
+      console.log(`LLM companion server running on http://localhost:${PORT}`);
+    });
   });
 }
+
+export default app;
