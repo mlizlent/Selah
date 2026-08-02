@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   BookOpen,
   ChevronLeft,
@@ -11,6 +11,7 @@ import {
   ArrowRight,
   X,
   Star,
+  Play,
 } from 'lucide-react';
 import {
   BIBLE_BOOKS,
@@ -48,6 +49,9 @@ export default function Bible() {
   const [copiedVerse, setCopiedVerse] = useState<number | null>(null);
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
   const [showBookmarks, setShowBookmarks] = useState(false);
+  const [lastRead, setLastRead] = useState<{ book: string; chapter: number } | null>(null);
+  const [progress, setProgress] = useState(0);
+  const versesRef = useRef<HTMLDivElement>(null);
 
   const loadChapter = useCallback(async (book: BibleBook, ch: number) => {
     setLoading(true);
@@ -75,6 +79,39 @@ export default function Bible() {
       // ignore
     }
   }, []);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('selah-bible-last-read');
+      if (stored) setLastRead(JSON.parse(stored));
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const el = versesRef.current;
+      if (!el) return;
+      const scrollTop = el.scrollTop;
+      const scrollHeight = el.scrollHeight - el.clientHeight;
+      if (scrollHeight > 0) {
+        setProgress(Math.min(100, Math.round((scrollTop / scrollHeight) * 100)));
+      }
+    };
+    const el = versesRef.current;
+    if (el) {
+      el.addEventListener('scroll', handleScroll);
+      handleScroll();
+    }
+    return () => el?.removeEventListener('scroll', handleScroll);
+  }, [verses]);
+
+  const saveLastRead = (book: string, ch: number) => {
+    const entry = { book, chapter: ch };
+    setLastRead(entry);
+    localStorage.setItem('selah-bible-last-read', JSON.stringify(entry));
+  };
 
   const saveBookmarks = (next: Bookmark[]) => {
     setBookmarks(next);
@@ -108,6 +145,7 @@ export default function Bible() {
     setSearchQuery('');
     setShowBookPicker(false);
     setShowChapterPicker(false);
+    saveLastRead(book.name, ch);
   };
 
   const toggleBookmark = (v: BibleVerse) => {
@@ -351,6 +389,22 @@ export default function Bible() {
         </div>
       )}
 
+      {/* Continue reading */}
+      {lastRead && !showBookPicker && !showChapterPicker && (
+        <div className="mb-6">
+          <button
+            onClick={() => {
+              const book = BIBLE_BOOKS.find((b) => b.name === lastRead.book);
+              if (book) goToChapter(book, lastRead.chapter);
+            }}
+            className="inline-flex items-center gap-2 rounded-full bg-lavender-50 px-5 py-2.5 text-sm font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
+          >
+            <Play className="h-4 w-4" strokeWidth={1.5} />
+            Continue reading {lastRead.book} {lastRead.chapter}
+          </button>
+        </div>
+      )}
+
       {/* Chapter quick-select */}
       {!showBookPicker && !showChapterPicker && (
         <div className="mb-6">
@@ -405,6 +459,14 @@ export default function Bible() {
         </div>
       ) : (
         <div className="card p-6 sm:p-10">
+          {/* Progress bar */}
+          <div className="mb-6 h-1 w-full overflow-hidden rounded-full bg-parchment-200">
+            <div
+              className="h-full rounded-full bg-lavender-600 transition-all duration-300"
+              style={{ width: `${progress}%` }}
+            />
+          </div>
+
           <div className="mb-6 border-b border-parchment-200 pb-4 text-center">
             <h2 className="font-display text-2xl font-semibold text-ink-800">
               {selectedBook.name} {chapter}
@@ -412,7 +474,7 @@ export default function Bible() {
             <p className="mt-1 text-xs uppercase tracking-wide text-ink-400">King James Version</p>
           </div>
 
-          <div className="space-y-4">
+          <div ref={versesRef} className="max-h-[60vh] overflow-y-auto space-y-4 pr-1">
             {verses.map((v) => (
               <div
                 key={v.verse}

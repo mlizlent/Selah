@@ -2,6 +2,25 @@ import { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import type { PriestessPost } from '@/lib/supabase';
 
+function timeAgo(dateString: string): string {
+  const date = new Date(dateString);
+  const now = new Date();
+  const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  if (seconds < 60) return 'Just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes}m ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days < 7) return `${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  if (weeks < 4) return `${weeks}w ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(days / 365)}y ago`;
+}
+
 export default function WhatsPopping() {
   const [posts, setPosts] = useState<PriestessPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -52,7 +71,7 @@ export default function WhatsPopping() {
               <h3 className="font-display text-lg font-semibold text-ink-800 line-clamp-2">{post.title}</h3>
               <p className="mt-3 text-sm leading-relaxed text-ink-500 line-clamp-3">{post.body}</p>
               <p className="mt-4 text-xs uppercase tracking-[0.24em] text-ink-400">
-                {new Date(post.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                {timeAgo(post.created_at)}
               </p>
             </button>
           ))}
@@ -74,7 +93,7 @@ export default function WhatsPopping() {
             </div>
             <div className="px-6 py-6">
               <p className="text-xs uppercase tracking-wide text-ink-400 mb-4">
-                {new Date(activePost.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                {timeAgo(activePost.created_at)}
               </p>
               <p className="whitespace-pre-line text-base leading-relaxed text-ink-700">{activePost.body}</p>
             </div>

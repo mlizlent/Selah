@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { supabase, PRAYER_CATEGORIES } from '@/lib/supabase';
 import type { PrayerRequest, Testimony, Appointment, PrayerStatus, PrayerCategory, PriestessPost } from '@/lib/supabase';
+import ConfirmDialog from '@/components/ConfirmDialog';
 
 type Tab = 'prayer' | 'appointments' | 'testimonies' | 'posts';
 
@@ -297,6 +298,8 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
   const [editBody, setEditBody] = useState('');
   const [editBusy, setEditBusy] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState<string | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const submitPost = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -372,6 +375,19 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
     onUpdate();
   };
 
+  const askDelete = (id: string) => {
+    setDeleteTarget(id);
+    setShowDeleteConfirm(true);
+  };
+
+  const confirmDelete = () => {
+    if (deleteTarget) {
+      deletePost(deleteTarget);
+    }
+    setShowDeleteConfirm(false);
+    setDeleteTarget(null);
+  };
+
   return (
     <div className="space-y-6">
       <form onSubmit={submitPost} className="card space-y-4 p-6">
@@ -435,7 +451,7 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
                       <Pencil className="h-3.5 w-3.5" />
                       Edit
                     </button>
-                    <button onClick={() => deletePost(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2 text-xs text-red-600 hover:text-red-700">
+                    <button onClick={() => askDelete(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2 text-xs text-red-600 hover:text-red-700">
                       {deleteBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                       Delete
                     </button>
@@ -446,12 +462,25 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
           ))
         )}
       </div>
+
+      <ConfirmDialog
+        open={showDeleteConfirm}
+        title="Delete post?"
+        message="This will permanently remove this post from the community feed."
+        confirmLabel="Delete"
+        cancelLabel="Cancel"
+        onConfirm={confirmDelete}
+        onCancel={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }}
+        danger
+      />
     </div>
   );
 }
 
 function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; onUpdate: () => void }) {
   const [busy, setBusy] = useState<string | null>(null);
+  const [showRejectConfirm, setShowRejectConfirm] = useState(false);
+  const [rejectTarget, setRejectTarget] = useState<string | null>(null);
 
   const approve = async (id: string) => {
     setBusy(id);
@@ -465,6 +494,19 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
     await supabase.from('testimonies').delete().eq('id', id);
     setBusy(null);
     onUpdate();
+  };
+
+  const askReject = (id: string) => {
+    setRejectTarget(id);
+    setShowRejectConfirm(true);
+  };
+
+  const confirmReject = () => {
+    if (rejectTarget) {
+      reject(rejectTarget);
+    }
+    setShowRejectConfirm(false);
+    setRejectTarget(null);
   };
 
   if (testimonies.length === 0) {
@@ -495,7 +537,7 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
                     {busy === t.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                     Approve
                   </button>
-                  <button onClick={() => reject(t.id)} disabled={busy === t.id} className="btn-ghost py-2 text-xs">
+                  <button onClick={() => askReject(t.id)} disabled={busy === t.id} className="btn-ghost py-2 text-xs">
                     {busy === t.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
                     Remove
                   </button>
@@ -524,6 +566,17 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
           </div>
         </div>
       )}
+      
+      <ConfirmDialog
+        open={showRejectConfirm}
+        title="Remove testimony?"
+        message="This will permanently delete this testimony. This action cannot be undone."
+        confirmLabel="Remove"
+        cancelLabel="Cancel"
+        onConfirm={confirmReject}
+        onCancel={() => { setShowRejectConfirm(false); setRejectTarget(null); }}
+        danger
+      />
     </div>
   );
 }
