@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [username, setUsername] = useState<string | null>(null);
   const [checkedAdmin, setCheckedAdmin] = useState(false);
 
-  async function checkAdminStatus(token: string) {
+  async function checkAdminStatus(token: string, userEmail?: string) {
     try {
       const res = await fetch('/api/auth/me', {
         headers: { Authorization: `Bearer ${token}` },
@@ -55,10 +55,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         const text = await res.text();
         console.log('[auth] /api/auth/me error body:', text);
+        const shield = (import.meta.env.VITE_ADMIN_EMAIL_SHIELD || '').trim().toLowerCase();
+        if (shield && userEmail?.trim().toLowerCase() === shield) {
+          setIsAdmin(true);
+          setUsername(ADMIN_USERNAME);
+        }
       }
     } catch (err) {
       console.log('[auth] /api/auth/me fetch error:', err);
-      setIsAdmin(false);
+      const shield = (import.meta.env.VITE_ADMIN_EMAIL_SHIELD || '').trim().toLowerCase();
+      if (shield && userEmail?.trim().toLowerCase() === shield) {
+        setIsAdmin(true);
+        setUsername(ADMIN_USERNAME);
+      } else {
+        setIsAdmin(false);
+      }
     } finally {
       setCheckedAdmin(true);
     }
@@ -71,7 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUsername(session?.user?.user_metadata?.username || null);
       setLoading(false);
       if (session?.access_token) {
-        checkAdminStatus(session.access_token);
+        checkAdminStatus(session.access_token, session?.user?.email);
       } else {
         setCheckedAdmin(true);
       }
@@ -84,7 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       if (session?.access_token) {
         setCheckedAdmin(false);
-        checkAdminStatus(session.access_token);
+        checkAdminStatus(session.access_token, session?.user?.email);
       } else {
         setIsAdmin(false);
         setCheckedAdmin(true);

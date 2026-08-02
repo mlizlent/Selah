@@ -55,14 +55,14 @@ function AppContent() {
     if (checkedAdmin && page === 'priestess' && !isAdmin) {
       setPage('home');
     }
-    if (!loading && page === 'login' && user) {
+    if (checkedAdmin && !loading && page === 'login' && user) {
       if (isAdmin) {
         setPage('priestess');
       } else {
         setPage('home');
       }
     }
-  }, [user, loading, isAdmin, page]);
+  }, [user, loading, isAdmin, checkedAdmin, page]);
 
   const navigateTo = (p: ExtendedPage) => {
     if (p === 'home') {
@@ -71,9 +71,8 @@ function AppContent() {
       return;
     }
     if (loading) return;
-    if (!checkedAdmin) return;
     if (user) {
-      if (p === 'priestess' && !isAdmin) {
+      if (p === 'priestess' && !isAdmin && checkedAdmin) {
         setPage('home');
         return;
       }
