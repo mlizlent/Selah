@@ -32,7 +32,7 @@ export default function Testimonies() {
   };
 
   return (
-    <div className="mx-auto max-w-5xl px-6 pt-32 pb-24">
+    <div className="mx-auto max-w-5xl px-6 pt-8 pb-24">
       <div className="mb-12 text-center">
         <p className="eyebrow mb-3">Stories of hope</p>
         <h1 className="font-display text-4xl font-medium text-ink-800 sm:text-5xl">Testimonies</h1>
