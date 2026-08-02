@@ -16,7 +16,7 @@ interface HomeProps {
 }
 
 const HERO_IMG =
-  'https://images.pexels.com/photos/34742289/pexels-photo-34742289.jpeg?auto=compress&cs=tinysrgb&h=650&w=940';
+  'https://images.pexels.com/photos/2901209/pexels-photo-2901209.jpeg?auto=compress&cs=tinysrgb&h=1200&w=1800';
 
 const FEATURES = [
   {
@@ -56,31 +56,36 @@ export default function Home({ onNavigate }: HomeProps) {
   return (
     <div>
       {/* Hero */}
-      <section className="relative flex min-h-screen items-center justify-center overflow-hidden">
+      <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-ink-950">
         <div className="absolute inset-0">
           <img
             src={HERO_IMG}
-            alt="Misty mountains at sunrise"
+            alt="A warm candlelit scene with a spiritual atmosphere"
             className="h-full w-full object-cover"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-ink-900/40 via-ink-900/30 to-parchment-50/0" />
-          <div className="absolute inset-0 bg-gradient-to-r from-ink-900/30 to-transparent" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(230,197,117,0.22),_transparent_34%),linear-gradient(120deg,rgba(6,10,18,0.92)_0%,rgba(6,10,18,0.82)_45%,rgba(6,10,18,0.68)_100%)]" />
+          <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/20 to-transparent" />
         </div>
 
         <div
-          className={`relative z-10 mx-auto max-w-3xl px-6 text-center ${
+          className={`relative z-10 mx-auto max-w-4xl px-6 py-24 text-center ${
             mounted ? 'animate-fade-up' : 'opacity-0'
           }`}
         >
-          <p className="eyebrow mb-6 text-parchment-200/90">A pause for the soul</p>
-          <h1 className="font-display text-5xl font-medium leading-[1.1] text-white sm:text-6xl md:text-7xl">
-            Bring what you carry.
+          <div className="mb-8 flex justify-center">
+            <div className="inline-flex items-center gap-2 rounded-full border border-gold-400/30 bg-gold-400/15 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.28em] text-gold-200 shadow-[0_0_30px_rgba(230,197,117,0.16)] backdrop-blur-md">
+              <BookOpen className="h-4 w-4" />
+              A sacred pause for your soul
+            </div>
+          </div>
+          <h1 className="font-display text-5xl font-medium leading-[1.05] text-white sm:text-6xl md:text-7xl">
+            Find peace in the Word.
             <br />
-            <span className="italic text-gold-400">Be heard. Be prayed for.</span>
+            <span className="italic text-gold-400">Let Scripture meet your heart.</span>
           </h1>
-          <p className="mx-auto mt-7 max-w-xl text-lg leading-relaxed text-white/90">
-            Selah is a quiet place to lay down your burden — anxiety, grief, stress, conflict — and
-            find empathy, scripture, and the care of a real person praying on your behalf.
+          <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/90">
+            Selah is a calm place to bring your burdens — fear, grief, confusion, or hope — and meet
+            gentle guidance, comforting scripture, and prayerful care rooted in the Bible.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <button onClick={() => onNavigate('companion')} className="btn-primary group">
