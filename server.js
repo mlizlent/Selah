@@ -113,6 +113,83 @@ app.use((req, res, next) => {
   next();
 });
 
+app.get('/api/auth/me', async (req, res) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return sendJson(res, 401, { error: 'Authentication token missing or invalid.' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return sendJson(res, 401, { error: 'Malformed authentication credentials.' });
+    }
+
+    const admin = await getSupabaseAdmin();
+    if (!admin) {
+      return sendJson(res, 500, { error: 'Server misconfigured.' });
+    }
+
+    const { data, error } = await admin.auth.getUser(token);
+    if (error || !data.user) {
+      return sendJson(res, 401, { error: 'Session expired or invalid user token.' });
+    }
+
+    const user = data.user;
+    const ADMIN_EMAIL_SHIELD = process.env.ADMIN_EMAIL_SHIELD?.trim().toLowerCase();
+    const ADMIN_USERNAME = 'RoyalDiadem';
+
+    console.log('[auth/me] user.email:', user.email, 'ADMIN_EMAIL_SHIELD:', ADMIN_EMAIL_SHIELD, 'match:', user.email?.trim().toLowerCase() === ADMIN_EMAIL_SHIELD);
+
+    const profileResult = await admin
+      .from('profiles')
+      .select('role, username')
+      .eq('id', user.id)
+      .maybeSingle();
+
+    let role = profileResult.data?.role;
+    let username = profileResult.data?.username || user.user_metadata?.username || null;
+    const isAdminUser = ADMIN_EMAIL_SHIELD && user.email?.trim().toLowerCase() === ADMIN_EMAIL_SHIELD;
+    if (isAdminUser) {
+      role = 'admin';
+      username = ADMIN_USERNAME;
+    }
+
+    console.log('[auth/me] isAdminUser:', isAdminUser, 'role:', role, 'final isAdmin:', isAdminUser || role === 'priestess' || role === 'admin');
+
+    return sendJson(res, 200, {
+      isAdmin: isAdminUser || role === 'priestess' || role === 'admin',
+      username,
+      email: user.email,
+    });
+  } catch {
+    return sendJson(res, 500, { error: 'Internal security authentication failure.' });
+  }
+});
+
+app.post('/api/admin/clear-all', isAdmin, async (_req, res) => {
+  try {
+    const admin = await getSupabaseAdmin();
+    if (!admin) {
+      return sendJson(res, 500, { error: 'Server misconfigured.' });
+    }
+
+    await admin.from('prayer_requests').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await admin.from('appointments').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await admin.from('testimonies').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await admin.from('profiles').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await admin.from('priestess_posts').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+    const emptyPosts: unknown[] = [];
+    await savePosts(emptyPosts);
+
+    return sendJson(res, 200, { success: true, message: 'All data cleared successfully.' });
+  } catch (error) {
+    console.error('Clear all error:', error);
+    return sendJson(res, 500, { error: 'Failed to clear data.' });
+  }
+});
+
 app.post('/api/companion', async (req, res) => {
   if (!GROQ_API_KEY) {
     return sendJson(res, 500, {
@@ -248,6 +325,10 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     GROQ_API_KEY = process.env.GROQ_API_KEY;
     GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
     ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
+
+    console.log('[server] ADMIN_EMAIL_SHIELD:', process.env.ADMIN_EMAIL_SHIELD || 'NOT SET');
+    console.log('[server] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
+    console.log('[server] SUPABASE_URL:', process.env.SUPABASE_URL || 'NOT SET');
 
     server.listen(PORT, () => {
       console.log(`LLM companion server running on http://localhost:${PORT}`);

@@ -14,7 +14,8 @@ export default function Login() {
 
   useEffect(() => {
     if (!loading && user) {
-      if (user.email === 'lizwasonga36@gmail.com') {
+      const shield = import.meta.env.VITE_ADMIN_EMAIL_SHIELD?.trim().toLowerCase();
+      if (shield && user.email?.trim().toLowerCase() === shield) {
         navigate('/priestess', { replace: true });
       } else {
         navigate('/feed', { replace: true });
@@ -39,7 +40,8 @@ export default function Login() {
       return;
     }
 
-    if (email.trim() === 'lizwasonga36@gmail.com') {
+    const shield = import.meta.env.VITE_ADMIN_EMAIL_SHIELD?.trim().toLowerCase();
+    if (shield && email.trim().toLowerCase() === shield) {
       navigate('/priestess', { replace: true });
     } else {
       navigate('/feed', { replace: true });

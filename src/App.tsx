@@ -46,13 +46,13 @@ type ExtendedPage = Page | 'my requests' | 'login';
 function AppContent() {
   const [page, setPage] = useState<ExtendedPage>('home');
   const [showAccount, setShowAccount] = useState(false);
-  const { user, loading, isAdmin, username, signOut } = useAuth();
+  const { user, loading, isAdmin, checkedAdmin, username, signOut } = useAuth();
 
   useEffect(() => {
     if (!loading && page !== 'home' && page !== 'login' && !user) {
       setShowAccount(true);
     }
-    if (!loading && page === 'priestess' && !isAdmin) {
+    if (checkedAdmin && page === 'priestess' && !isAdmin) {
       setPage('home');
     }
     if (!loading && page === 'login' && user) {
@@ -71,6 +71,7 @@ function AppContent() {
       return;
     }
     if (loading) return;
+    if (!checkedAdmin) return;
     if (user) {
       if (p === 'priestess' && !isAdmin) {
         setPage('home');
