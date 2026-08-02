@@ -38,7 +38,7 @@ const SUGGESTIONS = [
 ];
 
 export default function Companion() {
-  const [meslavenders, setMessages] = useState<Message[]>([
+  const [messages, setMessages] = useState<Message[]>([
     { id: 'greet', role: 'companion', text: GREETING },
   ]);
   const [input, setInput] = useState('');
@@ -49,7 +49,7 @@ export default function Companion() {
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
-  }, [meslavenders, thinking]);
+  }, [messages, thinking]);
 
   const send = async (text: string) => {
     const trimmed = text.trim();
@@ -102,10 +102,10 @@ export default function Companion() {
             {apiNotice}
           </div>
         )}
-        {/* meslavenders */}
+        {/* messages */}
         <div ref={scrollRef} className="flex-1 space-y-5 overflow-y-auto p-5 sm:p-6">
-          {meslavenders.map((m) => (
-            <MessageBubble key={m.id} meslavender={m} onEscalate={(t) => setEscalation(t)} />
+          {messages.map((m) => (
+            <MessageBubble key={m.id} message={m} onEscalate={(t) => setEscalation(t)} />
           ))}
           {thinking && (
             <div className="flex items-center gap-2 text-ink-400">
@@ -122,7 +122,7 @@ export default function Companion() {
         </div>
 
         {/* suggestions (only at start) */}
-        {meslavenders.length <= 1 && (
+        {messages.length <= 1 && (
           <div className="border-t border-parchment-200 px-5 pt-4 sm:px-6">
             <p className="mb-2 text-xs text-ink-400">Not sure where to start? Try one of these:</p>
             <div className="flex flex-wrap gap-2 pb-3">
@@ -176,7 +176,7 @@ export default function Companion() {
         <EscalationModal
           type={escalation}
           onClose={() => setEscalation(null)}
-          lastUserText={meslavenders.filter((m) => m.role === 'user').slice(-1)[0]?.text ?? ''}
+          lastUserText={messages.filter((m) => m.role === 'user').slice(-1)[0]?.text ?? ''}
         />
       )}
     </div>
@@ -184,19 +184,19 @@ export default function Companion() {
 }
 
 function MessageBubble({
-  meslavender,
+  message,
   onEscalate,
 }: {
-  meslavender: Message;
+  message: Message;
   onEscalate: (t: 'prayer' | 'appointment') => void;
 }) {
-  const isUser = meslavender.role === 'user';
+  const isUser = message.role === 'user';
 
   if (isUser) {
     return (
       <div className="flex justify-end animate-fade-up">
         <div className="max-w-[85%] rounded-2xl rounded-br-md bg-lavender-600 px-4 py-3 text-sm leading-relaxed text-parchment-50">
-          {meslavender.text}
+          {message.text}
         </div>
       </div>
     );
@@ -209,10 +209,10 @@ function MessageBubble({
       </span>
       <div className="max-w-[85%] space-y-3">
         <div className="rounded-2xl rounded-bl-md bg-parchment-100 px-4 py-3 text-sm leading-relaxed text-ink-700">
-          {meslavender.text}
+          {message.text}
         </div>
 
-        {meslavender.isCrisis && (
+        {message.isCrisis && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4">
             <div className="flex items-center gap-2 text-red-700">
               <AlertCircle className="h-4 w-4" />
@@ -231,13 +231,13 @@ function MessageBubble({
           </div>
         )}
 
-        {meslavender.verses && meslavender.verses.length > 0 && (
+        {message.verses && message.verses.length > 0 && (
           <div className="space-y-2">
             <p className="flex items-center gap-1.5 text-xs uppercase tracking-wide2 text-gold-600">
               <BookOpen className="h-3.5 w-3.5" />
               Scripture for this moment
             </p>
-            {meslavender.verses.map((v) => (
+            {message.verses.map((v) => (
               <div key={v.reference} className="verse-card">
                 <p className="font-display text-base italic leading-relaxed text-ink-700">"{v.text}"</p>
                 <p className="mt-1.5 text-xs font-medium uppercase tracking-wide2 text-gold-600">{v.reference}</p>
@@ -246,7 +246,7 @@ function MessageBubble({
           </div>
         )}
 
-        {meslavender.showEscalation && !meslavender.isCrisis && (
+        {message.showEscalation && !message.isCrisis && (
           <div className="flex flex-wrap gap-2 pt-1">
             <button
               onClick={() => onEscalate('prayer')}

@@ -81,12 +81,12 @@ export default function PrayerRequestPage() {
 
   if (submitted) {
     return (
-      <div className="mx-auto max-w-2xl px-6 pt-8 pb-24">
-        <div className="card animate-fade-up p-10 text-center">
+    <div className="mx-auto max-w-2xl px-6 pt-8 pb-24">
+      <div className="card animate-fade-up p-6 text-center sm:p-10">
           <span className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
             <CheckCircle2 className="h-8 w-8" strokeWidth={1.5} />
           </span>
-          <h2 className="font-display text-3xl font-medium text-ink-800">Your request was received</h2>
+          <h2 className="font-display text-2xl sm:text-3xl font-medium text-ink-800">Your request was received</h2>
           <p className="mt-4 text-ink-500">
             A spiritual leader will pray over what you shared. You can check back any time with the
             reference below to see when your request has been prayed for.
@@ -163,7 +163,7 @@ export default function PrayerRequestPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="card space-y-7 p-8">
+      <form onSubmit={handleSubmit} className="card space-y-7 p-6 sm:p-8">
         {/* anonymity toggle */}
         <div>
           <label className="mb-3 block text-sm font-medium text-ink-700">How would you like to sign it?</label>

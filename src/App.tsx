@@ -13,6 +13,11 @@ import ErrorBoundary from '@/components/ErrorBoundary';
 import { CardSkeleton } from '@/components/Skeletons';
 
 const LazyBible = lazy(() => import('@/pages/Bible'));
+const LazyCompanion = lazy(() => import('@/pages/Companion'));
+const LazyTestimonies = lazy(() => import('@/pages/Testimonies'));
+const LazyPriestess = lazy(() => import('@/pages/Priestess'));
+const LazyWhatsPopping = lazy(() => import('@/pages/WhatsPopping'));
+const LazyPrayerRequest = lazy(() => import('@/pages/PrayerRequest'));
 
 const PageErrorFallback = ({ page }: { page: string }) => (
   <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
@@ -40,13 +45,29 @@ export default function App() {
       case 'home':
         return <Home onNavigate={setPage} />;
       case 'request':
-        return <PrayerRequestPage />;
+        return (
+          <Suspense fallback={<div className="py-12"><CardSkeleton /></div>}>
+            <LazyPrayerRequest />
+          </Suspense>
+        );
       case 'companion':
-        return <Companion />;
+        return (
+          <Suspense fallback={<div className="py-12"><CardSkeleton /></div>}>
+            <LazyCompanion />
+          </Suspense>
+        );
       case 'testimonies':
-        return <Testimonies />;
+        return (
+          <Suspense fallback={<div className="py-12"><CardSkeleton /></div>}>
+            <LazyTestimonies />
+          </Suspense>
+        );
       case 'whats popping':
-        return <WhatsPopping />;
+        return (
+          <Suspense fallback={<div className="py-12"><CardSkeleton /></div>}>
+            <LazyWhatsPopping />
+          </Suspense>
+        );
       case 'bible':
         return (
           <Suspense fallback={<div className="py-12"><CardSkeleton /></div>}>
@@ -54,7 +75,11 @@ export default function App() {
           </Suspense>
         );
       case 'priestess':
-        return <Priestess />;
+        return (
+          <Suspense fallback={<div className="py-12"><CardSkeleton /></div>}>
+            <LazyPriestess />
+          </Suspense>
+        );
       default:
         return <Home onNavigate={setPage} />;
     }

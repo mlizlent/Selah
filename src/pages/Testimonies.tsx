@@ -51,7 +51,7 @@ export default function Testimonies() {
           <Loader2 className="h-8 w-8 animate-spin text-lavender-400" />
         </div>
       ) : testimonies.length === 0 ? (
-        <div className="card flex flex-col items-center gap-3 p-16 text-center">
+        <div className="card flex flex-col items-center gap-3 p-8 text-center sm:p-16">
           <span className="flex h-14 w-14 items-center justify-center rounded-full bg-lavender-100 text-lavender-500">
             <Quote className="h-6 w-6" strokeWidth={1.5} />
           </span>

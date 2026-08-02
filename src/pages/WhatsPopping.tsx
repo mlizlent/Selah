@@ -59,7 +59,7 @@ export default function WhatsPopping() {
           <PostCardSkeleton />
         </div>
       ) : posts.length === 0 ? (
-        <div className="card flex flex-col items-center gap-3 p-16 text-center">
+        <div className="card flex flex-col items-center gap-3 p-8 text-center sm:p-16">
           <h3 className="font-display text-xl font-medium text-ink-700">No updates yet</h3>
           <p className="max-w-sm text-sm text-ink-500">Check back soon for community updates.</p>
         </div>
