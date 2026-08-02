@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Loader2, Mail, Lock, UserPlus, LogIn } from 'lucide-react';
+import { X, Loader2, Mail, Lock, UserPlus, LogIn, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface AccountModalProps {
@@ -10,7 +10,9 @@ interface AccountModalProps {
 export default function AccountModal({ open, onClose }: AccountModalProps) {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -25,7 +27,12 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
     setSubmitting(true);
 
     if (isSignUp) {
-      const { error } = await signUp(email, password);
+      if (password !== confirmPassword) {
+        setError('Passwords do not match.');
+        setSubmitting(false);
+        return;
+      }
+      const { error } = await signUp(email, password, username);
       if (error) {
         setError(error.message);
       } else {
@@ -44,7 +51,9 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
 
   const resetForm = () => {
     setEmail('');
+    setUsername('');
     setPassword('');
+    setConfirmPassword('');
     setError(null);
     setMessage(null);
     setIsSignUp(!isSignUp);
@@ -88,6 +97,24 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
             </div>
           </div>
 
+          {isSignUp && (
+            <div>
+              <label className="mb-2 block text-sm font-medium text-ink-700">Username</label>
+              <div className="relative">
+                <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+                <input
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="Choose a username"
+                  className="input-field pl-11"
+                  required
+                  minLength={3}
+                />
+              </div>
+            </div>
+          )}
+
           <div>
             <label className="mb-2 block text-sm font-medium text-ink-700">Password</label>
             <div className="relative">
@@ -103,6 +130,24 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
               />
             </div>
           </div>
+
+          {isSignUp && (
+            <div>
+              <label className="mb-2 block text-sm font-medium text-ink-700">Confirm Password</label>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Repeat your password"
+                  className="input-field pl-11"
+                  required
+                  minLength={6}
+                />
+              </div>
+            </div>
+          )}
 
           {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{error}</p>}
           {message && <p className="rounded-lg bg-lavender-50 px-4 py-3 text-sm text-lavender-700">{message}</p>}

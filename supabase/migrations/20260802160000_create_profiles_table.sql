@@ -1,6 +1,7 @@
 -- Create profiles table for role-based access
 CREATE TABLE IF NOT EXISTS profiles (
   id uuid PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+  username text UNIQUE,
   role text NOT NULL DEFAULT 'user',
   created_at timestamptz NOT NULL DEFAULT now()
 );

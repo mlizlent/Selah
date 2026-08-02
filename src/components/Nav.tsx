@@ -7,6 +7,7 @@ interface NavProps {
   page: Page;
   onNavigate: (p: Page) => void;
   user: { email?: string } | null;
+  username: string | null;
   isAdmin: boolean;
   onAccountClick: () => void;
   onSignOut: () => void;
@@ -21,7 +22,7 @@ const LINKS: { id: Exclude<Page, 'my requests' | 'login'>; label: string; icon: 
   { id: 'bible', label: 'Bible', icon: BookOpen },
 ];
 
-export default function Nav({ page, onNavigate, user, isAdmin, onAccountClick, onSignOut }: NavProps) {
+export default function Nav({ page, onNavigate, user, username, isAdmin, onAccountClick, onSignOut }: NavProps) {
   const [open, setOpen] = useState(false);
 
   const go = (p: Page) => {
@@ -130,7 +131,7 @@ export default function Nav({ page, onNavigate, user, isAdmin, onAccountClick, o
           <div className="border-t border-parchment-200 p-4">
             {user ? (
               <div className="space-y-2">
-                <p className="truncate px-3 text-xs text-ink-500">{user.email}</p>
+                <p className="truncate px-3 text-xs text-ink-500">{username || user.email}</p>
                 <button
                   onClick={() => {
                     onSignOut();

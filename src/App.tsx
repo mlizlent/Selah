@@ -46,7 +46,7 @@ type ExtendedPage = Page | 'my requests' | 'login';
 function AppContent() {
   const [page, setPage] = useState<ExtendedPage>('home');
   const [showAccount, setShowAccount] = useState(false);
-  const { user, loading, isAdmin, signOut } = useAuth();
+  const { user, loading, isAdmin, username, signOut } = useAuth();
 
   useEffect(() => {
     if (!loading && page !== 'home' && page !== 'login' && !user) {
@@ -138,7 +138,7 @@ function AppContent() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Nav page={page} onNavigate={navigateTo} user={user} isAdmin={isAdmin} onAccountClick={() => setShowAccount(true)} onSignOut={signOut} />
+      <Nav page={page} onNavigate={navigateTo} user={user} username={username} isAdmin={isAdmin} onAccountClick={() => setShowAccount(true)} onSignOut={signOut} />
       <main className="flex-1">
         <ErrorBoundary fallback={<PageErrorFallback page={page} />}>
           {renderPage()}

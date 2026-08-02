@@ -37,7 +37,7 @@ export default function Testimonies() {
         <p className="eyebrow mb-3">Stories of hope</p>
         <h1 className="font-display text-4xl font-medium text-ink-800 sm:text-5xl">Testimonies</h1>
         <p className="mx-auto mt-4 max-w-xl text-ink-500">
-          What happened after a prayer was answered. Read what others have shared — and when the
+          What happened after a prayer was answered. Read what others have shared and when the
           time is right, share your own.
         </p>
         <button onClick={() => setShowForm(true)} className="btn-primary mt-8">
