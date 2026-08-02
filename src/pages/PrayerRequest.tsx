@@ -7,6 +7,8 @@ import {
   Clock,
   HandHeart,
   AlertCircle,
+  CalendarHeart,
+  Mail,
 } from 'lucide-react';
 import { supabase, PRAYER_CATEGORIES } from '@/lib/supabase';
 import type { PrayerCategory, PrayerRequest } from '@/lib/supabase';
@@ -30,6 +32,14 @@ export default function PrayerRequestPage() {
   const [error, setError] = useState<string | null>(null);
   const [trackedRequests, setTrackedRequests] = useState<PrayerRequest[]>([]);
   const [loadingStatus, setLoadingStatus] = useState(false);
+
+  const [apptName, setApptName] = useState('');
+  const [apptContact, setApptContact] = useState('');
+  const [apptReason, setApptReason] = useState('');
+  const [apptAnonymous, setApptAnonymous] = useState(true);
+  const [apptSubmitting, setApptSubmitting] = useState(false);
+  const [apptSubmitted, setApptSubmitted] = useState<string | null>(null);
+  const [apptError, setApptError] = useState<string | null>(null);
 
   const crisis = body.length > 8 ? detectCrisis(body) : { isCrisis: false };
 
@@ -72,6 +82,37 @@ export default function PrayerRequestPage() {
       setAnonymous(true);
     }
   }, [user]);
+
+  const handleAppointmentSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!apptContact.trim() || !apptReason.trim()) return;
+    setApptSubmitting(true);
+    setApptError(null);
+
+    const { data, error } = await supabase
+      .from('appointments')
+      .insert({
+        name: apptAnonymous ? null : apptName.trim() || null,
+        contact: apptContact.trim(),
+        reason: apptReason.trim(),
+      })
+      .select()
+      .single();
+
+    setApptSubmitting(false);
+    if (error) {
+      console.error('Appointment submit error:', error);
+      const message = typeof error.message === 'string' ? error.message : 'Something went wrong. Please try again.';
+      setApptError(message);
+      return;
+    }
+
+    setApptSubmitted(data.id);
+    setApptName('');
+    setApptContact('');
+    setApptReason('');
+    setApptAnonymous(true);
+  };
 
   useEffect(() => {
     const stored = localStorage.getItem('selah-prayer-requests');
@@ -174,7 +215,7 @@ export default function PrayerRequestPage() {
         </h1>
         <p className="mx-auto mt-4 max-w-xl text-ink-500">
           Share what is on your heart. You can stay anonymous. A real person will receive this and
-          pray over it — and you will know when she has.
+          pray over it and you will know when she has.
         </p>
       </div>
 
@@ -186,7 +227,7 @@ export default function PrayerRequestPage() {
           </div>
           <p className="mt-2 text-sm text-red-700">
             It sounds like you are carrying something very heavy right now. You deserve support
-            from a real person immediately. Please reach out to one of these services — they are
+            from a real person immediately. Please reach out to one of these services, they are
             free, confidential, and available 24/7.
           </p>
           <ul className="mt-4 space-y-2">
@@ -304,6 +345,124 @@ export default function PrayerRequestPage() {
           )}
         </button>
       </form>
+
+      {apptSubmitted && (
+        <div className="mx-auto max-w-2xl px-6 pt-8 pb-24">
+          <div className="card animate-fade-up p-6 text-center sm:p-10">
+            <span className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
+              <CheckCircle2 className="h-8 w-8" strokeWidth={1.5} />
+            </span>
+            <h2 className="font-display text-2xl sm:text-3xl font-medium text-ink-800">Appointment requested</h2>
+            <p className="mt-4 text-ink-500">The Priestess will reach out to schedule a time with you.</p>
+            <button
+              onClick={() => setApptSubmitted(null)}
+              className="btn-ghost mt-6"
+            >
+              Send another request
+            </button>
+          </div>
+        </div>
+      )}
+
+      {!apptSubmitted && (
+        <div className="mt-16">
+          <div className="text-center mb-10">
+            <p className="eyebrow mb-3">One-on-one time</p>
+            <h2 className="font-display text-3xl font-medium text-ink-800 sm:text-4xl">Book an Appointment</h2>
+            <p className="mx-auto mt-3 max-w-xl text-ink-500">Prefer to talk privately? Request a one-on-one time with the Priestess.</p>
+          </div>
+
+          <form onSubmit={handleAppointmentSubmit} className="card space-y-7 p-6 sm:p-8">
+            <div>
+              <label className="mb-3 block text-sm font-medium text-ink-700">How would you like to sign it?</label>
+              <div className="grid grid-cols-2 gap-3">
+                <button
+                  type="button"
+                  onClick={() => setApptAnonymous(true)}
+                  className={`rounded-xl border p-4 text-left transition-all ${
+                    apptAnonymous
+                      ? 'border-lavender-500 bg-lavender-50 ring-2 ring-lavender-300/40'
+                      : 'border-parchment-200 bg-parchment-50 hover:border-lavender-300'
+                  }`}
+                >
+                  <p className="text-sm font-medium text-ink-800">Anonymous</p>
+                  <p className="mt-0.5 text-xs text-ink-500">No name attached</p>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setApptAnonymous(false)}
+                  className={`rounded-xl border p-4 text-left transition-all ${
+                    !apptAnonymous
+                      ? 'border-lavender-500 bg-lavender-50 ring-2 ring-lavender-300/40'
+                      : 'border-parchment-200 bg-parchment-50 hover:border-lavender-300'
+                  }`}
+                >
+                  <p className="text-sm font-medium text-ink-800">With my name</p>
+                  <p className="mt-0.5 text-xs text-ink-500">So she knows who you are</p>
+                </button>
+              </div>
+            </div>
+
+            {!apptAnonymous && (
+              <div className="animate-fade-in">
+                <label className="mb-2 block text-sm font-medium text-ink-700">Your name</label>
+                <input
+                  type="text"
+                  value={apptName}
+                  onChange={(e) => setApptName(e.target.value)}
+                  placeholder="What should we call you?"
+                  className="input-field"
+                />
+              </div>
+            )}
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-ink-700">How can the Priestess reach you? <span className="text-red-500">*</span></label>
+              <div className="relative">
+                <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
+                <input
+                  type="text"
+                  value={apptContact}
+                  onChange={(e) => setApptContact(e.target.value)}
+                  placeholder="Phone or email"
+                  className="input-field pl-11"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="mb-2 block text-sm font-medium text-ink-700">What would you like to talk about?</label>
+              <textarea
+                value={apptReason}
+                onChange={(e) => setApptReason(e.target.value)}
+                rows={4}
+                placeholder="Share briefly what you would like to discuss..."
+                className="input-field resize-none"
+                required
+              />
+            </div>
+
+            {apptError && (
+              <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{apptError}</p>
+            )}
+
+            <button type="submit" disabled={apptSubmitting || !apptContact.trim() || !apptReason.trim()} className="btn-primary w-full">
+              {apptSubmitting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Sending...
+                </>
+              ) : (
+                <>
+                  <CalendarHeart className="h-4 w-4" />
+                  Request appointment
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      )}
 
       {trackedRequests.length > 0 && (
         <div className="mt-16">
