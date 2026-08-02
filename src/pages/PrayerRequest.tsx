@@ -13,6 +13,12 @@ import type { PrayerCategory, PrayerRequest } from '@/lib/supabase';
 import { detectCrisis, CRISIS_RESOURCES } from '@/lib/crisis';
 import { useAuth } from '@/contexts/AuthContext';
 
+const STATUS_META: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
+  pending: { label: 'Pending', icon: Clock, color: 'text-ink-500', bg: 'bg-parchment-100' },
+  praying: { label: 'Being prayed over', icon: HandHeart, color: 'text-gold-600', bg: 'bg-gold-500/10' },
+  prayed: { label: 'Prayed for', icon: CheckCircle2, color: 'text-lavender-600', bg: 'bg-lavender-50' },
+};
+
 export default function PrayerRequestPage() {
   const { user } = useAuth();
   const [name, setName] = useState('');
@@ -22,6 +28,8 @@ export default function PrayerRequestPage() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<PrayerRequest | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [trackedRequests, setTrackedRequests] = useState<PrayerRequest[]>([]);
+  const [loadingStatus, setLoadingStatus] = useState(false);
 
   const crisis = body.length > 8 ? detectCrisis(body) : { isCrisis: false };
 
@@ -48,7 +56,14 @@ export default function PrayerRequestPage() {
       setError(message);
       return;
     }
-    setSubmitted(data as PrayerRequest);
+
+    const newRequest = data as PrayerRequest;
+    setSubmitted(newRequest);
+    setTrackedRequests((prev) => {
+      const updated = [newRequest, ...prev];
+      localStorage.setItem('selah-prayer-requests', JSON.stringify(updated));
+      return updated;
+    });
   };
 
   useEffect(() => {
@@ -57,6 +72,39 @@ export default function PrayerRequestPage() {
       setAnonymous(true);
     }
   }, [user]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem('selah-prayer-requests');
+    if (stored) {
+      try {
+        setTrackedRequests(JSON.parse(stored));
+      } catch {
+        // ignore
+      }
+    }
+  }, []);
+
+  useEffect(() => {
+    if (trackedRequests.length === 0) return;
+    const interval = setInterval(async () => {
+      setLoadingStatus(true);
+      const ids = trackedRequests.map((r) => r.id);
+      const { data } = await supabase
+        .from('prayer_requests')
+        .select('*')
+        .in('id', ids);
+      if (data) {
+        const updated = data as PrayerRequest[];
+        setTrackedRequests((prev) => {
+          const merged = prev.map((r) => updated.find((u) => u.id === r.id) || r);
+          localStorage.setItem('selah-prayer-requests', JSON.stringify(merged));
+          return merged;
+        });
+      }
+      setLoadingStatus(false);
+    }, 30000);
+    return () => clearInterval(interval);
+  }, [trackedRequests]);
 
   if (submitted) {
     return (
@@ -67,7 +115,7 @@ export default function PrayerRequestPage() {
           </span>
           <h2 className="font-display text-2xl sm:text-3xl font-medium text-ink-800">Your request was received</h2>
           <p className="mt-4 text-ink-500">
-            A spiritual leader will pray over what you shared. You can track its progress from your account.
+            A spiritual leader will pray over what you shared. Your request status will update below.
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
             <button
@@ -80,6 +128,37 @@ export default function PrayerRequestPage() {
             >
               Send another request
             </button>
+          </div>
+        </div>
+
+        <div className="mt-12">
+          <h3 className="font-display text-lg font-semibold text-ink-800 mb-4">Your Prayer Requests</h3>
+          <div className="space-y-4">
+            {trackedRequests.map((req) => {
+              const meta = STATUS_META[req.status] || STATUS_META.pending;
+              return (
+                <div key={req.id} className="card p-5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`inline-flex items-center gap-1.5 rounded-full ${meta.bg} px-2.5 py-1 text-xs font-medium ${meta.color}`}>
+                      <meta.icon className="h-3 w-3" strokeWidth={2} />
+                      {meta.label}
+                    </span>
+                    <span className="rounded-full bg-parchment-100 px-2.5 py-1 text-xs text-ink-600">{req.category}</span>
+                    {loadingStatus && <Loader2 className="h-3 w-3 animate-spin text-ink-400" />}
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-ink-700">{req.body}</p>
+                  {req.prayed_note && (
+                    <div className="mt-3 verse-card">
+                      <p className="eyebrow text-gold-600">A note for you</p>
+                      <p className="mt-1 font-display text-sm italic text-ink-700">"{req.prayed_note}"</p>
+                    </div>
+                  )}
+                  <p className="mt-3 text-xs text-ink-400">
+                    {new Date(req.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                  </p>
+                </div>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -225,6 +304,39 @@ export default function PrayerRequestPage() {
           )}
         </button>
       </form>
+
+      {trackedRequests.length > 0 && (
+        <div className="mt-16">
+          <h3 className="font-display text-lg font-semibold text-ink-800 mb-4">Your Prayer Requests</h3>
+          <div className="space-y-4">
+            {trackedRequests.map((req) => {
+              const meta = STATUS_META[req.status] || STATUS_META.pending;
+              return (
+                <div key={req.id} className="card p-5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`inline-flex items-center gap-1.5 rounded-full ${meta.bg} px-2.5 py-1 text-xs font-medium ${meta.color}`}>
+                      <meta.icon className="h-3 w-3" strokeWidth={2} />
+                      {meta.label}
+                    </span>
+                    <span className="rounded-full bg-parchment-100 px-2.5 py-1 text-xs text-ink-600">{req.category}</span>
+                    {loadingStatus && <Loader2 className="h-3 w-3 animate-spin text-ink-400" />}
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-ink-700">{req.body}</p>
+                  {req.prayed_note && (
+                    <div className="mt-3 verse-card">
+                      <p className="eyebrow text-gold-600">A note for you</p>
+                      <p className="mt-1 font-display text-sm italic text-ink-700">"{req.prayed_note}"</p>
+                    </div>
+                  )}
+                  <p className="mt-3 text-xs text-ink-400">
+                    {new Date(req.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
