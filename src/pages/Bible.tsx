@@ -202,7 +202,6 @@ export default function Bible() {
           src="https://images.pexels.com/photos/34923397/pexels-photo-34923397.jpeg?auto=compress&cs=tinysrgb&w=1600"
           alt="An open Bible under warm lamp light"
           className="absolute inset-0 h-full w-full object-cover"
-          fetchPriority="high"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-ink-900/70 via-ink-900/55 to-parchment-50/95" />
         <div className="relative z-10 px-6 pt-8 pb-16 text-center">

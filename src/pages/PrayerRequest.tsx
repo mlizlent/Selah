@@ -37,14 +37,15 @@ export default function PrayerRequestPage() {
         name: anonymous ? null : name.trim() || null,
         category,
         body: body.trim(),
-        user_id: user?.id || null,
       })
       .select()
       .single();
 
     setSubmitting(false);
     if (error) {
-      setError('Something went wrong sending your request. Please try again.');
+      console.error('Prayer request submit error:', error);
+      const message = typeof error.message === 'string' ? error.message : 'Something went wrong sending your request. Please try again.';
+      setError(message);
       return;
     }
     setSubmitted(data as PrayerRequest);

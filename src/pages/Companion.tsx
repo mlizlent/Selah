@@ -297,7 +297,6 @@ function EscalationModal({
         name: anonymous ? null : name.trim() || null,
         category,
         body: lastUserText,
-        user_id: user?.id || null,
       })
       .select()
       .single();
@@ -318,7 +317,6 @@ function EscalationModal({
         name: anonymous ? null : name.trim() || null,
         contact: contact.trim(),
         reason: lastUserText,
-        user_id: user?.id || null,
       })
       .select()
       .single();

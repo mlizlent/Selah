@@ -62,7 +62,6 @@ export default function Home({ onNavigate }: HomeProps) {
             src={HERO_IMG}
             alt="A warm candlelit scene with a spiritual atmosphere"
             className="h-full w-full object-cover"
-            fetchPriority="high"
           />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(230,197,117,0.22),_transparent_34%),linear-gradient(120deg,rgba(6,10,18,0.92)_0%,rgba(6,10,18,0.82)_45%,rgba(6,10,18,0.68)_100%)]" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink-950 via-ink-950/20 to-transparent" />
