@@ -56,11 +56,24 @@ npm run dev
 ```
 
 ### 2. Environment Variables Configuration
-Never commit plaintext credentials to Git. Ensure your local workspace contains a `.env` file referencing your Supabase project keys:
+Never commit plaintext credentials to Git. Ensure your local workspace contains a `.env` file referencing your Supabase project keys and your OpenAI API key:
 ```text
 VITE_SUPABASE_URL=https://supabase.co
 VITE_SUPABASE_ANON_KEY=your-public-anon-key
+GROQ_API_KEY=your-groq-api-key
 ```
+
+If you want the new LLM companion backend to run locally, start the API server in a second terminal:
+```bash
+npm run dev:api
+```
+
+Then start the Vite app in a separate terminal:
+```bash
+npm run dev
+```
+
+The companion calls the local backend directly in development at `http://127.0.0.1:5178/api/companion`, so the API server needs to remain running while you use the companion.
 
 ### 3. Running Database Migrations
 Apply your local schemas directly to your active database profile using the tracking directory:
