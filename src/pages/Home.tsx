@@ -108,19 +108,6 @@ export default function Home({ onNavigate }: HomeProps) {
         </div>
       </section>
 
-      {/* Intro / Selah meaning */}
-      <section className="mx-auto max-w-3xl px-6 py-24 text-center">
-        <p className="eyebrow mb-4">The name</p>
-        <h2 className="font-display text-3xl font-medium leading-snug text-ink-800 sm:text-4xl">
-          <span className="italic">Selah</span> appears in the Psalms — a breath, a pause, a moment
-          to sit with what was just said.
-        </h2>
-        <p className="mt-6 text-lg leading-relaxed text-ink-500">
-          We all need that pause. A place to stop, be honest about what hurts, and let something
-          steadier hold the weight for a moment. That is what Selah is for.
-        </p>
-      </section>
-
       {/* Features */}
       <section className="mx-auto max-w-6xl px-6 pb-24">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
