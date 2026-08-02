@@ -6,43 +6,6 @@
 
 @layer base {
   :root {
-    /* Light theme — pure white background */
-    --parchment-50: 255 255 255;
-    --parchment-100: 248 244 237;
-    --parchment-200: 234 224 205;
-    --parchment-300: 221 201 166;
-    --parchment-400: 201 173 130;
-    --parchment-500: 184 148 95;
-
-    --lavender-50: 245 241 254;
-    --lavender-100: 237 230 253;
-    --lavender-200: 224 210 248;
-    --lavender-300: 205 180 240;
-    --lavender-400: 184 148 224;
-    --lavender-500: 157 116 204;
-    --lavender-600: 125 79 181;
-    --lavender-700: 107 67 158;
-    --lavender-800: 89 56 131;
-    --lavender-900: 71 45 105;
-
-    --ink-50: 245 243 240;
-    --ink-100: 234 230 222;
-    --ink-200: 210 203 190;
-    --ink-300: 168 159 144;
-    --ink-400: 122 112 98;
-    --ink-500: 92 83 71;
-    --ink-600: 64 57 47;
-    --ink-700: 45 40 33;
-    --ink-800: 30 27 22;
-    --ink-900: 18 16 14;
-
-    --gold-400: 212 175 55;
-    --gold-500: 184 148 95;
-    --gold-600: 150 116 70;
-  }
-
-  .dark {
-    /* Dark theme — deep ink background, warm parchment text */
     --parchment-50: 24 22 30;
     --parchment-100: 32 29 38;
     --parchment-200: 44 40 52;
@@ -81,7 +44,7 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply bg-parchment-50 text-ink-800 font-sans antialiased transition-colors duration-500;
+    @apply bg-parchment-50 text-ink-800 font-sans antialiased;
   }
   ::selection {
     @apply bg-lavender-300/40 text-ink-900;
