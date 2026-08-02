@@ -451,7 +451,7 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
       {posts.length === 0 ? (
         <EmptyState icon={Megaphone} title="No posts yet" desc="Your first message will appear here once you publish it." />
       ) : (
-        <>
+        <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="font-display text-lg font-semibold text-ink-800">Posts ({posts.length})</h3>
             <button
@@ -463,54 +463,52 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
               Clear all
             </button>
           </div>
-          <div className="space-y-4">
-            {posts.map((post) => (
-              <div key={post.id} className="card p-5">
-                {editingId === post.id ? (
-                  <div className="space-y-3">
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-ink-700">Title</label>
-                      <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="input-field" />
-                    </div>
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-ink-700">Message</label>
-                      <textarea value={editBody} onChange={(e) => setEditBody(e.target.value)} rows={4} className="input-field resize-none" />
-                    </div>
-                    <div className="flex gap-2">
-                      <button onClick={() => saveEdit(post.id)} disabled={editBusy === post.id || !editTitle.trim() || !editBody.trim()} className="btn-primary py-2.5 text-xs">
-                        {editBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                        Save
-                      </button>
-                      <button onClick={cancelEdit} className="btn-ghost py-2.5 text-xs">
-                        Cancel
-                      </button>
-                    </div>
+          {posts.map((post) => (
+            <div key={post.id} className="card p-5">
+              {editingId === post.id ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-ink-700">Title</label>
+                    <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="input-field" />
                   </div>
-                ) : (
-                  <>
-                    <div className="flex flex-wrap items-center justify-between gap-2">
-                      <h4 className="font-display text-lg font-semibold text-ink-800">{post.title}</h4>
-                      <span className="text-xs text-ink-400">
-                        {new Date(post.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                      </span>
-                    </div>
-                    <p className="mt-3 text-sm leading-relaxed text-ink-600">{post.body}</p>
-                    <div className="mt-4 flex gap-2">
-                      <button onClick={() => startEdit(post)} className="btn-ghost py-2.5 text-xs">
-                        <Pencil className="h-3.5 w-3.5" />
-                        Edit
-                      </button>
-                      <button onClick={() => askDelete(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2.5 text-xs text-red-600 hover:text-red-700">
-                        {deleteBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                        Delete
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        </>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-ink-700">Message</label>
+                    <textarea value={editBody} onChange={(e) => setEditBody(e.target.value)} rows={4} className="input-field resize-none" />
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => saveEdit(post.id)} disabled={editBusy === post.id || !editTitle.trim() || !editBody.trim()} className="btn-primary py-2.5 text-xs">
+                      {editBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                      Save
+                    </button>
+                    <button onClick={cancelEdit} className="btn-ghost py-2.5 text-xs">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h4 className="font-display text-lg font-semibold text-ink-800">{post.title}</h4>
+                    <span className="text-xs text-ink-400">
+                      {new Date(post.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-ink-600">{post.body}</p>
+                  <div className="mt-4 flex gap-2">
+                    <button onClick={() => startEdit(post)} className="btn-ghost py-2.5 text-xs">
+                      <Pencil className="h-3.5 w-3.5" />
+                      Edit
+                    </button>
+                    <button onClick={() => askDelete(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2.5 text-xs text-red-600 hover:text-red-700">
+                      {deleteBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
       )}
 
       <ConfirmDialog
