@@ -41,7 +41,9 @@ export default function Nav({ page, onNavigate, theme, onToggleTheme }: NavProps
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled ? 'bg-parchment-50/85 backdrop-blur-md shadow-sm' : 'bg-transparent'
+        scrolled
+          ? 'bg-parchment-50/95 backdrop-blur-md shadow-[0_8px_30px_rgba(11,17,27,0.12)]'
+          : 'bg-[linear-gradient(180deg,rgba(6,10,18,0.7)_0%,rgba(6,10,18,0.25)_70%,rgba(6,10,18,0.0)_100%)] backdrop-blur-[2px]'
       }`}
     >
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
@@ -49,10 +51,12 @@ export default function Nav({ page, onNavigate, theme, onToggleTheme }: NavProps
           onClick={() => go('home')}
           className="flex items-center gap-2.5 text-ink-900 transition-opacity hover:opacity-70"
         >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-600 text-parchment-50">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-700 text-parchment-50 shadow-sm">
             <Heart className="h-4 w-4" strokeWidth={1.5} />
           </span>
-          <span className="font-display text-2xl font-semibold tracking-wide">Selah</span>
+          <span className={`font-display text-2xl font-semibold tracking-wide ${scrolled ? 'text-ink-900' : 'text-white'}`}>
+            Selah
+          </span>
         </button>
 
         <div className="hidden items-center gap-1 md:flex">
@@ -60,10 +64,14 @@ export default function Nav({ page, onNavigate, theme, onToggleTheme }: NavProps
             <button
               key={link.id}
               onClick={() => go(link.id)}
-              className={`relative rounded-full px-4 py-2 text-sm font-medium transition-colors duration-300 ${
+              className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
                 page === link.id
-                  ? 'text-lavender-700'
-                  : 'text-ink-500 hover:text-lavender-600'
+                  ? scrolled
+                    ? 'bg-lavender-100 text-lavender-700 shadow-[inset_0_-2px_0_0_#c8a2ff]'
+                    : 'bg-white/15 text-gold-100 shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_0_20px_rgba(230,197,117,0.18)]'
+                  : scrolled
+                    ? 'text-ink-700 hover:text-lavender-700 hover:bg-lavender-50/70'
+                    : 'text-white/90 hover:text-gold-200 hover:bg-white/10'
               }`}
             >
               {link.label}
@@ -81,7 +89,7 @@ export default function Nav({ page, onNavigate, theme, onToggleTheme }: NavProps
           <ThemeToggle theme={theme} onToggle={onToggleTheme} />
           <button
             onClick={() => setOpen((o) => !o)}
-            className="rounded-full p-2 text-ink-600 transition-colors hover:bg-parchment-100"
+            className="rounded-full p-2 text-ink-800 transition-colors hover:bg-lavender-50 hover:text-lavender-700"
             aria-label="Menu"
           >
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -97,7 +105,7 @@ export default function Nav({ page, onNavigate, theme, onToggleTheme }: NavProps
                 key={link.id}
                 onClick={() => go(link.id)}
                 className={`rounded-lg px-3 py-3 text-left text-sm font-medium transition-colors ${
-                  page === link.id ? 'text-lavender-700 bg-lavender-50' : 'text-ink-600 hover:bg-parchment-100'
+                  page === link.id ? 'bg-lavender-50 text-lavender-700' : 'text-ink-700 hover:bg-lavender-50/70'
                 }`}
               >
                 {link.label}

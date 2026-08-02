@@ -73,7 +73,7 @@ export default function Home({ onNavigate }: HomeProps) {
           }`}
         >
           <div className="mb-8 flex justify-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-gold-400/30 bg-gold-400/15 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.28em] text-gold-200 shadow-[0_0_30px_rgba(230,197,117,0.16)] backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-sm font-semibold uppercase tracking-[0.28em] text-white shadow-[0_0_35px_rgba(255,255,255,0.12)] backdrop-blur-md">
               <BookOpen className="h-4 w-4" />
               A sacred pause for your soul
             </div>
