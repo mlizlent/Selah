@@ -13,18 +13,23 @@ import {
   Inbox,
   Calendar,
   Sparkles,
+  Megaphone,
+  Plus,
+  Pencil,
+  Trash2,
   type LucideIcon,
 } from 'lucide-react';
 import { supabase, PRAYER_CATEGORIES } from '@/lib/supabase';
-import type { PrayerRequest, Testimony, Appointment, PrayerStatus, PrayerCategory } from '@/lib/supabase';
+import type { PrayerRequest, Testimony, Appointment, PrayerStatus, PrayerCategory, PriestessPost } from '@/lib/supabase';
 
-type Tab = 'prayer' | 'appointments' | 'testimonies';
+type Tab = 'prayer' | 'appointments' | 'testimonies' | 'posts';
 
 export default function Priestess() {
   const [tab, setTab] = useState<Tab>('prayer');
   const [requests, setRequests] = useState<PrayerRequest[]>([]);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [testimonies, setTestimonies] = useState<Testimony[]>([]);
+  const [posts, setPosts] = useState<PriestessPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
@@ -37,6 +42,14 @@ export default function Priestess() {
     if (reqRes.data) setRequests(reqRes.data as PrayerRequest[]);
     if (apptRes.data) setAppointments(apptRes.data as Appointment[]);
     if (testRes.data) setTestimonies(testRes.data as Testimony[]);
+
+    try {
+      const postRes = await fetch('http://127.0.0.1:5178/api/posts');
+      const json = await postRes.json();
+      if (json.posts) setPosts(json.posts);
+    } catch {
+      // silent
+    }
     setLoading(false);
   }, []);
 
@@ -49,7 +62,7 @@ export default function Priestess() {
   const pendingTestimonies = testimonies.filter((t) => !t.approved).length;
 
   return (
-    <div className="mx-auto max-w-5xl px-6 pt-28 pb-24">
+    <div className="mx-auto max-w-5xl px-6 pt-8 pb-24">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow mb-2">Spiritual care</p>
@@ -67,6 +80,7 @@ export default function Priestess() {
         <TabButton active={tab === 'prayer'} onClick={() => setTab('prayer')} icon={Inbox} label="Prayer Queue" badge={pendingCount} />
         <TabButton active={tab === 'appointments'} onClick={() => setTab('appointments')} icon={CalendarHeart} label="Appointments" badge={pendingAppts} />
         <TabButton active={tab === 'testimonies'} onClick={() => setTab('testimonies')} icon={BookOpen} label="Testimonies" badge={pendingTestimonies} />
+        <TabButton active={tab === 'posts'} onClick={() => setTab('posts')} icon={Megaphone} label="Posts" badge={posts.length} />
       </div>
 
       {loading ? (
@@ -77,6 +91,8 @@ export default function Priestess() {
         <PrayerQueue requests={requests} onUpdate={load} />
       ) : tab === 'appointments' ? (
         <AppointmentList appointments={appointments} onUpdate={load} />
+      ) : tab === 'posts' ? (
+        <PriestessPosts posts={posts} onUpdate={load} />
       ) : (
         <TestimonyReview testimonies={testimonies} onUpdate={load} />
       )}
@@ -267,6 +283,171 @@ function AppointmentList({ appointments, onUpdate }: { appointments: Appointment
           </div>
         );
       })}
+    </div>
+  );
+}
+
+function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate: () => void }) {
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [busy, setBusy] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState('');
+  const [editBody, setEditBody] = useState('');
+  const [editBusy, setEditBusy] = useState<string | null>(null);
+  const [deleteBusy, setDeleteBusy] = useState<string | null>(null);
+
+  const API_BASE = 'http://127.0.0.1:5178';
+
+  const submitPost = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim() || !body.trim()) return;
+    setBusy(true);
+    setMessage(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/posts`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title.trim(), message: body.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+    } catch {
+      setMessage('Could not post right now.');
+      setBusy(false);
+      return;
+    }
+    setBusy(false);
+    setTitle('');
+    setBody('');
+    setMessage('Posted!');
+    onUpdate();
+  };
+
+  const startEdit = (post: PriestessPost) => {
+    setEditingId(post.id);
+    setEditTitle(post.title);
+    setEditBody(post.body);
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditTitle('');
+    setEditBody('');
+  };
+
+  const saveEdit = async (id: string) => {
+    if (!editTitle.trim() || !editBody.trim()) return;
+    setEditBusy(id);
+    try {
+      const res = await fetch(`${API_BASE}/api/posts/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editTitle.trim(), message: editBody.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+    } catch {
+      setEditBusy(null);
+      return;
+    }
+    setEditBusy(null);
+    setEditingId(null);
+    onUpdate();
+  };
+
+  const deletePost = async (id: string) => {
+    setDeleteBusy(id);
+    try {
+      const res = await fetch(`${API_BASE}/api/posts/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error);
+      }
+    } catch {
+      setDeleteBusy(null);
+      return;
+    }
+    setDeleteBusy(null);
+    if (editingId === id) cancelEdit();
+    onUpdate();
+  };
+
+  return (
+    <div className="space-y-6">
+      <form onSubmit={submitPost} className="card space-y-4 p-6">
+        <div>
+          <p className="eyebrow text-lavender-600">Community updates</p>
+          <h3 className="font-display text-xl font-semibold text-ink-800">Create a post</h3>
+          <p className="mt-1 text-sm text-ink-500">Share something with the Selah community. It will appear on the "What's popping" page.</p>
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-ink-700">Title</label>
+          <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What's on your heart?" className="input-field" />
+        </div>
+        <div>
+          <label className="mb-2 block text-sm font-medium text-ink-700">Message</label>
+          <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder="Write a message for the community..." className="input-field resize-none" />
+        </div>
+        {message && <p className="rounded-lg bg-lavender-50 px-4 py-3 text-sm text-lavender-700">{message}</p>}
+        <button type="submit" disabled={busy || !title.trim() || !body.trim()} className="btn-primary">
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
+          Publish post
+        </button>
+      </form>
+
+      <div className="space-y-3">
+        {posts.length === 0 ? (
+          <EmptyState icon={Megaphone} title="No posts yet" desc="Your first message will appear here once you publish it." />
+        ) : (
+          posts.map((post) => (
+            <div key={post.id} className="card p-5">
+              {editingId === post.id ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-ink-700">Title</label>
+                    <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="input-field" />
+                  </div>
+                  <div>
+                    <label className="mb-2 block text-sm font-medium text-ink-700">Message</label>
+                    <textarea value={editBody} onChange={(e) => setEditBody(e.target.value)} rows={4} className="input-field resize-none" />
+                  </div>
+                  <div className="flex gap-2">
+                    <button onClick={() => saveEdit(post.id)} disabled={editBusy === post.id || !editTitle.trim() || !editBody.trim()} className="btn-primary py-2 text-xs">
+                      {editBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                      Save
+                    </button>
+                    <button onClick={cancelEdit} className="btn-ghost py-2 text-xs">
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <h4 className="font-display text-lg font-semibold text-ink-800">{post.title}</h4>
+                    <span className="text-xs text-ink-400">
+                      {new Date(post.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                    </span>
+                  </div>
+                  <p className="mt-3 text-sm leading-relaxed text-ink-600">{post.body}</p>
+                  <div className="mt-4 flex gap-2">
+                    <button onClick={() => startEdit(post)} className="btn-ghost py-2 text-xs">
+                      <Pencil className="h-3.5 w-3.5" />
+                      Edit
+                    </button>
+                    <button onClick={() => deletePost(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2 text-xs text-red-600 hover:text-red-700">
+                      {deleteBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                      Delete
+                    </button>
+                  </div>
+                </>
+              )}
+            </div>
+          ))
+        )}
+      </div>
     </div>
   );
 }
