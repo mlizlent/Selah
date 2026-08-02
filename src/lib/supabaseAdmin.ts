@@ -7,7 +7,7 @@ let cachedKey: string | null = null;
 async function loadServiceRoleKey(): Promise<string | null> {
   if (cachedKey) return cachedKey;
   try {
-    const envPath = new URL('./.env', import.meta.url);
+    const envPath = new URL('../../.env', import.meta.url);
     const raw = await readFile(envPath, 'utf8');
     for (const line of raw.split(/\r?\n/)) {
       const trimmed = line.trim();
@@ -17,8 +17,8 @@ async function loadServiceRoleKey(): Promise<string | null> {
         return cachedKey;
       }
     }
-  } catch {
-    // ignore
+  } catch (err) {
+    console.error('[supabaseAdmin] Failed to read .env:', err);
   }
   return process.env.SUPABASE_SERVICE_ROLE_KEY || null;
 }

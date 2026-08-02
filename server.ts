@@ -132,6 +132,7 @@ app.get('/api/auth/me', async (req, res) => {
 
     const { data, error } = await admin.auth.getUser(token);
     if (error || !data.user) {
+      console.error('[auth/me] getUser error:', error);
       return sendJson(res, 401, { error: 'Session expired or invalid user token.' });
     }
 
