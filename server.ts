@@ -190,6 +190,41 @@ app.post('/api/admin/clear-all', isAdmin, async (_req, res) => {
   }
 });
 
+app.post('/api/admin/clear-testimonies', isAdmin, async (_req, res) => {
+  try {
+    const admin = await getSupabaseAdmin();
+    if (!admin) {
+      return sendJson(res, 500, { error: 'Server misconfigured.' });
+    }
+
+    await admin.from('testimonies').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+    return sendJson(res, 200, { success: true, message: 'All testimonies cleared successfully.' });
+  } catch (error) {
+    console.error('Clear testimonies error:', error);
+    return sendJson(res, 500, { error: 'Failed to clear testimonies.' });
+  }
+});
+
+app.post('/api/admin/clear-posts', isAdmin, async (_req, res) => {
+  try {
+    const admin = await getSupabaseAdmin();
+    if (!admin) {
+      return sendJson(res, 500, { error: 'Server misconfigured.' });
+    }
+
+    await admin.from('priestess_posts').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+
+    const emptyPosts: unknown[] = [];
+    await savePosts(emptyPosts);
+
+    return sendJson(res, 200, { success: true, message: 'All posts cleared successfully.' });
+  } catch (error) {
+    console.error('Clear posts error:', error);
+    return sendJson(res, 500, { error: 'Failed to clear posts.' });
+  }
+});
+
 app.post('/api/companion', async (req, res) => {
   if (!GROQ_API_KEY) {
     return sendJson(res, 500, {

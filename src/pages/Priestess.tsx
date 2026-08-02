@@ -305,6 +305,9 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
   const [deleteBusy, setDeleteBusy] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<string | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearBusy, setClearBusy] = useState(false);
+  const [clearMessage, setClearMessage] = useState<string | null>(null);
 
   const getHeaders = () => {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -404,6 +407,24 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
     setDeleteTarget(null);
   };
 
+  const handleClearAll = async () => {
+    setClearBusy(true);
+    setClearMessage(null);
+    try {
+      const res = await fetch('/api/admin/clear-posts', {
+        method: 'POST',
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      setClearMessage('All posts cleared.');
+      onUpdate();
+    } catch {
+      setClearMessage('Failed to clear posts.');
+    }
+    setClearBusy(false);
+  };
+
   return (
     <div className="space-y-6">
       <form onSubmit={submitPost} className="card space-y-4 p-6">
@@ -427,57 +448,70 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
         </button>
       </form>
 
-      <div className="space-y-3">
-        {posts.length === 0 ? (
-          <EmptyState icon={Megaphone} title="No posts yet" desc="Your first message will appear here once you publish it." />
-        ) : (
-          posts.map((post) => (
-            <div key={post.id} className="card p-5">
-              {editingId === post.id ? (
-                <div className="space-y-3">
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-ink-700">Title</label>
-                    <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="input-field" />
+      {posts.length === 0 ? (
+        <EmptyState icon={Megaphone} title="No posts yet" desc="Your first message will appear here once you publish it." />
+      ) : (
+        <>
+          <div className="flex items-center justify-between">
+            <h3 className="font-display text-lg font-semibold text-ink-800">Posts ({posts.length})</h3>
+            <button
+              onClick={() => setShowClearConfirm(true)}
+              disabled={clearBusy}
+              className="btn-ghost py-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Clear all
+            </button>
+          </div>
+          <div className="space-y-4">
+            {posts.map((post) => (
+              <div key={post.id} className="card p-5">
+                {editingId === post.id ? (
+                  <div className="space-y-3">
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-ink-700">Title</label>
+                      <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="input-field" />
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-sm font-medium text-ink-700">Message</label>
+                      <textarea value={editBody} onChange={(e) => setEditBody(e.target.value)} rows={4} className="input-field resize-none" />
+                    </div>
+                    <div className="flex gap-2">
+                      <button onClick={() => saveEdit(post.id)} disabled={editBusy === post.id || !editTitle.trim() || !editBody.trim()} className="btn-primary py-2.5 text-xs">
+                        {editBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
+                        Save
+                      </button>
+                      <button onClick={cancelEdit} className="btn-ghost py-2.5 text-xs">
+                        Cancel
+                      </button>
+                    </div>
                   </div>
-                  <div>
-                    <label className="mb-2 block text-sm font-medium text-ink-700">Message</label>
-                    <textarea value={editBody} onChange={(e) => setEditBody(e.target.value)} rows={4} className="input-field resize-none" />
-                  </div>
-                  <div className="flex gap-2">
-                    <button onClick={() => saveEdit(post.id)} disabled={editBusy === post.id || !editTitle.trim() || !editBody.trim()} className="btn-primary py-2.5 text-xs">
-                      {editBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
-                      Save
-                    </button>
-                    <button onClick={cancelEdit} className="btn-ghost py-2.5 text-xs">
-                      Cancel
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                <>
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h4 className="font-display text-lg font-semibold text-ink-800">{post.title}</h4>
-                    <span className="text-xs text-ink-400">
-                      {new Date(post.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
-                    </span>
-                  </div>
-                  <p className="mt-3 text-sm leading-relaxed text-ink-600">{post.body}</p>
-                  <div className="mt-4 flex gap-2">
-                    <button onClick={() => startEdit(post)} className="btn-ghost py-2.5 text-xs">
-                      <Pencil className="h-3.5 w-3.5" />
-                      Edit
-                    </button>
-                    <button onClick={() => askDelete(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2.5 text-xs text-red-600 hover:text-red-700">
-                      {deleteBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
-                      Delete
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-          ))
-        )}
-      </div>
+                ) : (
+                  <>
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <h4 className="font-display text-lg font-semibold text-ink-800">{post.title}</h4>
+                      <span className="text-xs text-ink-400">
+                        {new Date(post.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+                      </span>
+                    </div>
+                    <p className="mt-3 text-sm leading-relaxed text-ink-600">{post.body}</p>
+                    <div className="mt-4 flex gap-2">
+                      <button onClick={() => startEdit(post)} className="btn-ghost py-2.5 text-xs">
+                        <Pencil className="h-3.5 w-3.5" />
+                        Edit
+                      </button>
+                      <button onClick={() => askDelete(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2.5 text-xs text-red-600 hover:text-red-700">
+                        {deleteBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
+                        Delete
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </>
+      )}
 
       <ConfirmDialog
         open={showDeleteConfirm}
@@ -489,14 +523,43 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
         onCancel={() => { setShowDeleteConfirm(false); setDeleteTarget(null); }}
         danger
       />
+
+      <ConfirmDialog
+        open={showClearConfirm}
+        title="Clear all posts?"
+        message="This will permanently delete all posts from the community feed. This action cannot be undone."
+        confirmLabel="Clear all"
+        cancelLabel="Cancel"
+        onConfirm={handleClearAll}
+        onCancel={() => setShowClearConfirm(false)}
+        danger
+      />
+
+      {clearMessage && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-sm shadow-lg">
+          {clearMessage}
+        </div>
+      )}
     </div>
   );
 }
 
 function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; onUpdate: () => void }) {
+  const { session } = useAuth();
   const [busy, setBusy] = useState<string | null>(null);
   const [showRejectConfirm, setShowRejectConfirm] = useState(false);
   const [rejectTarget, setRejectTarget] = useState<string | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearBusy, setClearBusy] = useState(false);
+  const [clearMessage, setClearMessage] = useState<string | null>(null);
+
+  const getHeaders = () => {
+    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+    if (session?.access_token) {
+      headers.Authorization = `Bearer ${session.access_token}`;
+    }
+    return headers;
+  };
 
   const approve = async (id: string) => {
     setBusy(id);
@@ -525,6 +588,24 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
     setRejectTarget(null);
   };
 
+  const handleClearAll = async () => {
+    setClearBusy(true);
+    setClearMessage(null);
+    try {
+      const res = await fetch('/api/admin/clear-testimonies', {
+        method: 'POST',
+        headers: getHeaders(),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+      setClearMessage('All testimonies cleared.');
+      onUpdate();
+    } catch {
+      setClearMessage('Failed to clear testimonies.');
+    }
+    setClearBusy(false);
+  };
+
   if (testimonies.length === 0) {
     return <EmptyState icon={BookOpen} title="No testimonies yet" desc="When someone shares their story, it will appear here for review." />;
   }
@@ -536,10 +617,20 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
     <div className="space-y-8">
       {pending.length > 0 && (
         <div>
-          <h3 className="mb-3 flex items-center gap-2 font-display text-lg font-semibold text-ink-800">
-            <Sparkles className="h-4 w-4 text-gold-500" />
-            Awaiting review ({pending.length})
-          </h3>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-ink-800">
+              <Sparkles className="h-4 w-4 text-gold-500" />
+              Awaiting review ({pending.length})
+            </h3>
+            <button
+              onClick={() => setShowClearConfirm(true)}
+              disabled={clearBusy}
+              className="btn-ghost py-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Clear all
+            </button>
+          </div>
           <div className="space-y-4">
             {pending.map((t) => (
               <div key={t.id} className="card border-gold-400/40 p-5">
@@ -593,6 +684,23 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
         onCancel={() => { setShowRejectConfirm(false); setRejectTarget(null); }}
         danger
       />
+
+      <ConfirmDialog
+        open={showClearConfirm}
+        title="Clear all testimonies?"
+        message="This will permanently delete all testimonies from the database. This action cannot be undone."
+        confirmLabel="Clear all"
+        cancelLabel="Cancel"
+        onConfirm={handleClearAll}
+        onCancel={() => setShowClearConfirm(false)}
+        danger
+      />
+
+      {clearMessage && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-sm shadow-lg">
+          {clearMessage}
+        </div>
+      )}
     </div>
   );
 }
