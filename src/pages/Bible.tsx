@@ -128,7 +128,7 @@ export default function Bible() {
           className="absolute inset-0 h-full w-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-ink-900/70 via-ink-900/55 to-parchment-50/95" />
-        <div className="relative z-10 px-6 pt-28 pb-16 text-center">
+        <div className="relative z-10 px-6 pt-8 pb-16 text-center">
           <span className="eyebrow mb-3 text-gold-300">King James Version</span>
           <h1 className="font-display text-4xl font-medium text-white drop-shadow-sm sm:text-6xl">
             The Holy Bible
