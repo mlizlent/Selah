@@ -53,6 +53,7 @@ function AppContent() {
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
+    if (loading) return;
     if (user) {
       setPage(p);
       window.scrollTo({ top: 0, behavior: 'smooth' });
