@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 import type { PriestessPost } from '@/lib/supabase';
-
-const API_BASE = '';
 
 export default function WhatsPopping() {
   const [posts, setPosts] = useState<PriestessPost[]>([]);
@@ -10,13 +9,11 @@ export default function WhatsPopping() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const load = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/posts`);
-      const json = await res.json();
-      if (json.posts) setPosts(json.posts);
-    } catch {
-      // silent
-    }
+    const { data } = await supabase
+      .from('priestess_posts')
+      .select('*')
+      .order('created_at', { ascending: false });
+    if (data) setPosts(data as PriestessPost[]);
     setLoading(false);
   };
 

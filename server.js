@@ -7,10 +7,13 @@ const PORT = Number(process.env.PORT || 5178);
 let GROQ_API_KEY = process.env.GROQ_API_KEY;
 let GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
 let ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
-let supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+let supabaseServiceRoleKey = null;
 let supabaseAdmin = null;
 
 function getSupabaseAdmin() {
+  if (!supabaseServiceRoleKey) {
+    supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  }
   if (!supabaseServiceRoleKey) return null;
   if (!supabaseAdmin) {
     const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
@@ -189,8 +192,11 @@ async function handleListPosts(req, res) {
 async function handleCreatePost(req, res) {
   const admin = getSupabaseAdmin();
   if (!admin) {
+    console.error('❌ Supabase admin client not initialized. SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set (hidden)' : 'MISSING');
+    console.error('SUPABASE_URL:', process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL);
     return sendJson(req, res, 500, { error: 'Server not configured with SUPABASE_SERVICE_ROLE_KEY.' });
   }
+  console.log('✅ Supabase admin client initialized for create post');
   const rawBody = await readRequestBody(req);
   let body;
   try {
@@ -208,7 +214,11 @@ async function handleCreatePost(req, res) {
     body: message,
   }).select();
   if (error) {
-    return sendJson(req, res, 500, { error: error.message });
+    console.error('Supabase Insertion Error:', error.message);
+    console.error('Error Code:', error.code);
+    console.error('Details:', error.details);
+    console.error('Hint:', error.hint);
+    return sendJson(req, res, 500, { error: error.message, code: error.code, details: error.details });
   }
   return sendJson(req, res, 201, { post: data[0] });
 }
