@@ -1,11 +1,25 @@
 import http from 'http';
 import { readFile } from 'fs/promises';
 import { pathToFileURL } from 'url';
+import { createClient } from '@supabase/supabase-js';
 
 const PORT = Number(process.env.PORT || 5178);
 let GROQ_API_KEY = process.env.GROQ_API_KEY;
 let GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
 let ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
+let supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+let supabaseAdmin = null;
+
+function getSupabaseAdmin() {
+  if (!supabaseServiceRoleKey) return null;
+  if (!supabaseAdmin) {
+    const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+    supabaseAdmin = createClient(url, supabaseServiceRoleKey, {
+      auth: { autoRefreshToken: false, persistSession: false },
+    });
+  }
+  return supabaseAdmin;
+}
 
 async function loadDotEnv() {
   try {
@@ -160,6 +174,87 @@ async function handleCompanion(req, res) {
   return sendJson(req, res, 200, parsed);
 }
 
+async function handleListPosts(req, res) {
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return sendJson(req, res, 500, { error: 'Server not configured with SUPABASE_SERVICE_ROLE_KEY.' });
+  }
+  const { data, error } = await admin.from('priestess_posts').select('*').order('created_at', { ascending: false });
+  if (error) {
+    return sendJson(req, res, 500, { error: error.message });
+  }
+  return sendJson(req, res, 200, { posts: data });
+}
+
+async function handleCreatePost(req, res) {
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return sendJson(req, res, 500, { error: 'Server not configured with SUPABASE_SERVICE_ROLE_KEY.' });
+  }
+  const rawBody = await readRequestBody(req);
+  let body;
+  try {
+    body = JSON.parse(rawBody);
+  } catch {
+    return sendJson(req, res, 400, { error: 'Invalid JSON body.' });
+  }
+  const title = typeof body.title === 'string' ? body.title.trim() : '';
+  const message = typeof body.message === 'string' ? body.message.trim() : '';
+  if (!title || !message) {
+    return sendJson(req, res, 400, { error: 'Title and message are required.' });
+  }
+  const { data, error } = await admin.from('priestess_posts').insert({
+    title,
+    body: message,
+  }).select();
+  if (error) {
+    return sendJson(req, res, 500, { error: error.message });
+  }
+  return sendJson(req, res, 201, { post: data[0] });
+}
+
+async function handleUpdatePost(req, res, id) {
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return sendJson(req, res, 500, { error: 'Server not configured with SUPABASE_SERVICE_ROLE_KEY.' });
+  }
+  const rawBody = await readRequestBody(req);
+  let body;
+  try {
+    body = JSON.parse(rawBody);
+  } catch {
+    return sendJson(req, res, 400, { error: 'Invalid JSON body.' });
+  }
+  const title = typeof body.title === 'string' ? body.title.trim() : '';
+  const message = typeof body.message === 'string' ? body.message.trim() : '';
+  if (!title || !message) {
+    return sendJson(req, res, 400, { error: 'Title and message are required.' });
+  }
+  const { data, error } = await admin.from('priestess_posts').update({
+    title,
+    body: message,
+  }).eq('id', id).select();
+  if (error) {
+    return sendJson(req, res, 500, { error: error.message });
+  }
+  if (!data || data.length === 0) {
+    return sendJson(req, res, 404, { error: 'Post not found.' });
+  }
+  return sendJson(req, res, 200, { post: data[0] });
+}
+
+async function handleDeletePost(req, res, id) {
+  const admin = getSupabaseAdmin();
+  if (!admin) {
+    return sendJson(req, res, 500, { error: 'Server not configured with SUPABASE_SERVICE_ROLE_KEY.' });
+  }
+  const { error } = await admin.from('priestess_posts').delete().eq('id', id);
+  if (error) {
+    return sendJson(req, res, 500, { error: error.message });
+  }
+  return sendJson(req, res, 204, null);
+}
+
 async function main() {
   await loadDotEnv();
   GROQ_API_KEY = process.env.GROQ_API_KEY;
@@ -181,12 +276,32 @@ async function main() {
       return;
     }
 
-    if (req.method === 'POST' && url.pathname === '/api/companion') {
-      await handleCompanion(req, res);
-      return;
-    }
+  if (req.method === 'POST' && url.pathname === '/api/companion') {
+    await handleCompanion(req, res);
+    return;
+  }
 
-    const origin = Array.isArray(req.headers.origin) ? req.headers.origin[0] : req.headers.origin;
+  if (req.method === 'GET' && url.pathname === '/api/posts') {
+    await handleListPosts(req, res);
+    return;
+  }
+
+  if (req.method === 'POST' && url.pathname === '/api/posts') {
+    await handleCreatePost(req, res);
+    return;
+  }
+
+  if (req.method === 'PUT' && url.pathname.match(/^\/api\/posts\/[^\/]+$/)) {
+    await handleUpdatePost(req, res, url.pathname.split('/')[3]);
+    return;
+  }
+
+  if (req.method === 'DELETE' && url.pathname.match(/^\/api\/posts\/[^\/]+$/)) {
+    await handleDeletePost(req, res, url.pathname.split('/')[3]);
+    return;
+  }
+
+  const origin = Array.isArray(req.headers.origin) ? req.headers.origin[0] : req.headers.origin;
     const allowedOrigin = getAllowedOrigin(origin);
     res.writeHead(404, {
       'Content-Type': 'application/json',
