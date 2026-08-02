@@ -276,32 +276,32 @@ async function main() {
       return;
     }
 
-  if (req.method === 'POST' && url.pathname === '/api/companion') {
-    await handleCompanion(req, res);
-    return;
-  }
+    if (req.method === 'POST' && url.pathname === '/api/companion') {
+      await handleCompanion(req, res);
+      return;
+    }
 
-  if (req.method === 'GET' && url.pathname === '/api/posts') {
-    await handleListPosts(req, res);
-    return;
-  }
+    if (req.method === 'GET' && url.pathname === '/api/posts') {
+      await handleListPosts(req, res);
+      return;
+    }
 
-  if (req.method === 'POST' && url.pathname === '/api/posts') {
-    await handleCreatePost(req, res);
-    return;
-  }
+    if (req.method === 'POST' && url.pathname === '/api/posts') {
+      await handleCreatePost(req, res);
+      return;
+    }
 
-  if (req.method === 'PUT' && url.pathname.match(/^\/api\/posts\/[^\/]+$/)) {
-    await handleUpdatePost(req, res, url.pathname.split('/')[3]);
-    return;
-  }
+    if (req.method === 'PUT' && url.pathname.match(/^\/api\/posts\/[^\/]+$/)) {
+      await handleUpdatePost(req, res, url.pathname.split('/')[3]);
+      return;
+    }
 
-  if (req.method === 'DELETE' && url.pathname.match(/^\/api\/posts\/[^\/]+$/)) {
-    await handleDeletePost(req, res, url.pathname.split('/')[3]);
-    return;
-  }
+    if (req.method === 'DELETE' && url.pathname.match(/^\/api\/posts\/[^\/]+$/)) {
+      await handleDeletePost(req, res, url.pathname.split('/')[3]);
+      return;
+    }
 
-  const origin = Array.isArray(req.headers.origin) ? req.headers.origin[0] : req.headers.origin;
+    const origin = Array.isArray(req.headers.origin) ? req.headers.origin[0] : req.headers.origin;
     const allowedOrigin = getAllowedOrigin(origin);
     res.writeHead(404, {
       'Content-Type': 'application/json',
