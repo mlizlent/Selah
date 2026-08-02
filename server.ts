@@ -2,8 +2,8 @@ import express from 'express';
 import http from 'http';
 import { readFile, writeFile } from 'fs/promises';
 import { pathToFileURL } from 'url';
-import { getSupabaseAdmin } from '@/lib/supabaseAdmin';
-import { isAdmin } from '@/middleware/isAdmin';
+import { getSupabaseAdmin } from './src/lib/supabaseAdmin';
+import { isAdmin } from './src/middleware/isAdmin';
 
 const app = express();
 const PORT = Number(process.env.PORT || 5178);
