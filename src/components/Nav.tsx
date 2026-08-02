@@ -130,18 +130,16 @@ export default function Nav({ page, onNavigate, user, username, isAdmin, onAccou
 
           <div className="border-t border-parchment-200 p-4">
             {user ? (
-              <div className="space-y-2">
-                <p className="truncate px-3 text-xs text-ink-500">{username || user.email}</p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="truncate text-xs text-ink-500">{username || user.email}</p>
                 <button
                   onClick={() => {
                     onSignOut();
                     setOpen(false);
                   }}
-                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                  className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-red-600 transition-colors hover:bg-red-50"
                 >
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600">
-                    <LogOut className="h-4 w-4" strokeWidth={1.5} />
-                  </span>
+                  <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />
                   Sign out
                 </button>
               </div>
