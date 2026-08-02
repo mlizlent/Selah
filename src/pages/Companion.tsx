@@ -11,6 +11,7 @@ import {
   CheckCircle2,
   Phone,
 } from 'lucide-react';
+import { fetchCompanionReply } from '@/lib/ai';
 import { generateReply, GREETING } from '@/lib/companion';
 import type { CompanionReply } from '@/lib/companion';
 import { CRISIS_RESOURCES } from '@/lib/crisis';
@@ -29,7 +30,10 @@ interface Message {
 const SUGGESTIONS = [
   "I've been anxious about everything lately",
   "I'm grieving someone I lost",
-  "Money stress is crushing me right now",
+  "What does the Bible say about money and provision?",
+  "How do I forgive someone who hurt me?",
+  "What does Scripture say about purpose and direction?",
+  "What does the Bible say about the meaning of purple?",
   "I'm in a conflict with my family and don't know what to do",
 ];
 
@@ -40,13 +44,14 @@ export default function Companion() {
   const [input, setInput] = useState('');
   const [thinking, setThinking] = useState(false);
   const [escalation, setEscalation] = useState<'prayer' | 'appointment' | null>(null);
+  const [apiNotice, setApiNotice] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: 'smooth' });
   }, [meslavenders, thinking]);
 
-  const send = (text: string) => {
+  const send = async (text: string) => {
     const trimmed = text.trim();
     if (!trimmed || thinking) return;
 
@@ -55,22 +60,29 @@ export default function Companion() {
     setInput('');
     setThinking(true);
 
-    // Simulate a gentle thinking pause
-    setTimeout(() => {
-      const reply: CompanionReply = generateReply(trimmed);
-      setMessages((m) => [
-        ...m,
-        {
-          id: crypto.randomUUID(),
-          role: 'companion',
-          text: reply.text,
-          verses: reply.verses,
-          showEscalation: reply.showEscalation,
-          isCrisis: reply.isCrisis,
-        },
-      ]);
-      setThinking(false);
-    }, 900 + Math.random() * 600);
+    let reply: CompanionReply;
+    try {
+      reply = await fetchCompanionReply(trimmed);
+      setApiNotice(null);
+    } catch (error) {
+      const message = error instanceof Error ? error.message : 'Unknown error';
+      console.warn('LLM companion failed, using fallback:', error);
+      setApiNotice('The AI companion API is unavailable right now, so the fallback response is being used.');
+      reply = generateReply(trimmed);
+    }
+
+    setMessages((m) => [
+      ...m,
+      {
+        id: crypto.randomUUID(),
+        role: 'companion',
+        text: reply.text,
+        verses: reply.verses,
+        showEscalation: reply.showEscalation,
+        isCrisis: reply.isCrisis,
+      },
+    ]);
+    setThinking(false);
   };
 
   return (
@@ -79,12 +91,17 @@ export default function Companion() {
         <p className="eyebrow mb-2">A quiet space</p>
         <h1 className="font-display text-3xl font-medium text-ink-800 sm:text-4xl">The Companion</h1>
         <p className="mx-auto mt-2 max-w-lg text-sm text-ink-500">
-          Tell the companion what is bothering you. It listens, responds with empathy, and offers
-          scripture that fits your moment.
+          Share a struggle, ask a Bible question, or explore a topic in Scripture. The companion
+          will respond with comfort, insight, and verses that fit your situation.
         </p>
       </div>
 
       <div className="card flex h-[62vh] min-h-[460px] flex-col overflow-hidden">
+        {apiNotice && (
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
+            {apiNotice}
+          </div>
+        )}
         {/* meslavenders */}
         <div ref={scrollRef} className="flex-1 space-y-5 overflow-y-auto p-5 sm:p-6">
           {meslavenders.map((m) => (
@@ -135,7 +152,7 @@ export default function Companion() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               rows={1}
-              placeholder="Say what's on your heart..."
+              placeholder="Share a struggle, ask a Bible question, or explore a topic in Scripture..."
               className="input-field max-h-32 resize-none py-2.5"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
