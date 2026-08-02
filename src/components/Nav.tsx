@@ -1,4 +1,4 @@
-import { Heart, Menu, X } from 'lucide-react';
+import { Heart, HandHeart, MessageCircleHeart, Quote, Megaphone, BookOpen, Sparkles, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 
 export type Page = 'home' | 'request' | 'companion' | 'testimonies' | 'whats popping' | 'priestess' | 'bible';
@@ -10,12 +10,12 @@ interface NavProps {
 
 const LINKS: { id: Page; label: string; icon: typeof Heart }[] = [
   { id: 'home', label: 'Home', icon: Heart },
-  { id: 'request', label: 'Prayer Request', icon: Heart },
-  { id: 'companion', label: 'Companion', icon: Heart },
-  { id: 'testimonies', label: 'Testimonies', icon: Heart },
-  { id: 'whats popping', label: "What's popping", icon: Heart },
-  { id: 'bible', label: 'Bible', icon: Heart },
-  { id: 'priestess', label: 'Priestess', icon: Heart },
+  { id: 'request', label: 'Prayer Request', icon: HandHeart },
+  { id: 'companion', label: 'Companion', icon: MessageCircleHeart },
+  { id: 'testimonies', label: 'Testimonies', icon: Quote },
+  { id: 'whats popping', label: "What's popping", icon: Megaphone },
+  { id: 'bible', label: 'Bible', icon: BookOpen },
+  { id: 'priestess', label: 'Priestess', icon: Sparkles },
 ];
 
 export default function Nav({ page, onNavigate }: NavProps) {
