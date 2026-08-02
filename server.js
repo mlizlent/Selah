@@ -1,27 +1,25 @@
 import http from 'http';
-import { readFile } from 'fs/promises';
+import { readFile, writeFile } from 'fs/promises';
 import { pathToFileURL } from 'url';
-import { createClient } from '@supabase/supabase-js';
 
 const PORT = Number(process.env.PORT || 5178);
 let GROQ_API_KEY = process.env.GROQ_API_KEY;
 let GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
 let ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
-let supabaseServiceRoleKey = null;
-let supabaseAdmin = null;
 
-function getSupabaseAdmin() {
-  if (!supabaseServiceRoleKey) {
-    supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const POSTS_FILE = new URL('./posts.json', import.meta.url);
+
+async function loadPosts() {
+  try {
+    const raw = await readFile(POSTS_FILE, 'utf8');
+    return JSON.parse(raw);
+  } catch {
+    return [];
   }
-  if (!supabaseServiceRoleKey) return null;
-  if (!supabaseAdmin) {
-    const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-    supabaseAdmin = createClient(url, supabaseServiceRoleKey, {
-      auth: { autoRefreshToken: false, persistSession: false },
-    });
-  }
-  return supabaseAdmin;
+}
+
+async function savePosts(posts) {
+  await writeFile(POSTS_FILE, JSON.stringify(posts, null, 2), 'utf8');
 }
 
 async function loadDotEnv() {
@@ -42,7 +40,7 @@ async function loadDotEnv() {
   }
 }
 
-export function getAllowedOrigin(origin) {
+function getAllowedOrigin(origin) {
   if (!origin) {
     return ALLOWED_ORIGIN;
   }
@@ -84,9 +82,13 @@ function parseJsonResponse(text) {
 }
 
 export function buildPrompt(userText) {
-  return `You are a gentle, compassionate Bible-study companion and spiritual guide. The user may be asking about a struggle, a life question, a word, a symbol, a person, a passage, or a theme in Scripture.
+  return `You are a gentle, compassionate Bible-study companion and spiritual guide. The user may be asking about a struggle, a life question, a word, a symbol, a passage, or a theme in Scripture.
 
-Do not use any hard-coded verse list. Use your knowledge of Scripture to answer the user’s prompt directly and suggest relevant Bible verses from memory.\n\nRespond with a JSON object and nothing else. The object must include the following fields exactly:\n- text: a brief empathetic and helpful response that answers the user’s question or concern with warmth and clarity\n- verses: an array of 3 to 5 verse objects, each with reference and text; if you are not confident about a reference, omit it rather than inventing\n- showEscalation: true only if the user expresses crisis, self-harm, harm to others, abuse, or urgent danger\n- isCrisis: true only when the message indicates immediate crisis or danger
+Do not use any hard-coded verse list. Use your knowledge of Scripture to answer the user’s prompt directly and suggest relevant Bible verses from memory.\n\nRespond with a JSON object and nothing else. The object must include the following fields exactly:
+- text: a brief empathetic and helpful response that answers the user’s question or concern with warmth and clarity
+- verses: an array of 3 to 5 verse objects, each with reference and text; if you are not confident about a reference, omit it rather than invent
+- showEscalation: true only if the user expresses crisis, self-harm, harm to others, abuse, or urgent danger
+- isCrisis: true only when the message indicates immediate crisis or danger
 
 When the user asks about Bible study, meanings, symbols, themes, or passages, explain the idea briefly in a simple, thoughtful way and include 2 to 5 relevant verses with a little context when possible. If the user asks about a color, prioritize verses that directly mention that color or a clear color-related object in the verse text rather than loosely related verses. If there is no clear verse match, return an empty verses array and still provide a caring response.
 
@@ -178,25 +180,11 @@ async function handleCompanion(req, res) {
 }
 
 async function handleListPosts(req, res) {
-  const admin = getSupabaseAdmin();
-  if (!admin) {
-    return sendJson(req, res, 500, { error: 'Server not configured with SUPABASE_SERVICE_ROLE_KEY.' });
-  }
-  const { data, error } = await admin.from('priestess_posts').select('*').order('created_at', { ascending: false });
-  if (error) {
-    return sendJson(req, res, 500, { error: error.message });
-  }
-  return sendJson(req, res, 200, { posts: data });
+  const posts = await loadPosts();
+  return sendJson(req, res, 200, { posts: posts.sort((a, b) => new Date(b.created_at) - new Date(a.created_at)) });
 }
 
 async function handleCreatePost(req, res) {
-  const admin = getSupabaseAdmin();
-  if (!admin) {
-    console.error('❌ Supabase admin client not initialized. SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'Set (hidden)' : 'MISSING');
-    console.error('SUPABASE_URL:', process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL);
-    return sendJson(req, res, 500, { error: 'Server not configured with SUPABASE_SERVICE_ROLE_KEY.' });
-  }
-  console.log('✅ Supabase admin client initialized for create post');
   const rawBody = await readRequestBody(req);
   let body;
   try {
@@ -209,25 +197,19 @@ async function handleCreatePost(req, res) {
   if (!title || !message) {
     return sendJson(req, res, 400, { error: 'Title and message are required.' });
   }
-  const { data, error } = await admin.from('priestess_posts').insert({
+  const posts = await loadPosts();
+  const post = {
+    id: crypto.randomUUID(),
     title,
     body: message,
-  }).select();
-  if (error) {
-    console.error('Supabase Insertion Error:', error.message);
-    console.error('Error Code:', error.code);
-    console.error('Details:', error.details);
-    console.error('Hint:', error.hint);
-    return sendJson(req, res, 500, { error: error.message, code: error.code, details: error.details });
-  }
-  return sendJson(req, res, 201, { post: data[0] });
+    created_at: new Date().toISOString(),
+  };
+  posts.push(post);
+  await savePosts(posts);
+  return sendJson(req, res, 201, { post });
 }
 
 async function handleUpdatePost(req, res, id) {
-  const admin = getSupabaseAdmin();
-  if (!admin) {
-    return sendJson(req, res, 500, { error: 'Server not configured with SUPABASE_SERVICE_ROLE_KEY.' });
-  }
   const rawBody = await readRequestBody(req);
   let body;
   try {
@@ -240,28 +222,24 @@ async function handleUpdatePost(req, res, id) {
   if (!title || !message) {
     return sendJson(req, res, 400, { error: 'Title and message are required.' });
   }
-  const { data, error } = await admin.from('priestess_posts').update({
-    title,
-    body: message,
-  }).eq('id', id).select();
-  if (error) {
-    return sendJson(req, res, 500, { error: error.message });
-  }
-  if (!data || data.length === 0) {
+  const posts = await loadPosts();
+  const index = posts.findIndex((p) => p.id === id);
+  if (index === -1) {
     return sendJson(req, res, 404, { error: 'Post not found.' });
   }
-  return sendJson(req, res, 200, { post: data[0] });
+  posts[index] = { ...posts[index], title, body: message };
+  await savePosts(posts);
+  return sendJson(req, res, 200, { post: posts[index] });
 }
 
 async function handleDeletePost(req, res, id) {
-  const admin = getSupabaseAdmin();
-  if (!admin) {
-    return sendJson(req, res, 500, { error: 'Server not configured with SUPABASE_SERVICE_ROLE_KEY.' });
+  const posts = await loadPosts();
+  const index = posts.findIndex((p) => p.id === id);
+  if (index === -1) {
+    return sendJson(req, res, 404, { error: 'Post not found.' });
   }
-  const { error } = await admin.from('priestess_posts').delete().eq('id', id);
-  if (error) {
-    return sendJson(req, res, 500, { error: error.message });
-  }
+  posts.splice(index, 1);
+  await savePosts(posts);
   return sendJson(req, res, 204, null);
 }
 

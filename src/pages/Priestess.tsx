@@ -34,16 +34,22 @@ export default function Priestess() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [reqRes, apptRes, testRes, postRes] = await Promise.all([
+    const [reqRes, apptRes, testRes] = await Promise.all([
       supabase.from('prayer_requests').select('*').order('created_at', { ascending: false }),
       supabase.from('appointments').select('*').order('created_at', { ascending: false }),
       supabase.from('testimonies').select('*').order('created_at', { ascending: false }),
-      supabase.from('priestess_posts').select('*').order('created_at', { ascending: false }),
     ]);
     if (reqRes.data) setRequests(reqRes.data as PrayerRequest[]);
     if (apptRes.data) setAppointments(apptRes.data as Appointment[]);
     if (testRes.data) setTestimonies(testRes.data as Testimony[]);
-    if (postRes.data) setPosts(postRes.data as PriestessPost[]);
+
+    try {
+      const postRes = await fetch('/api/posts');
+      const json = await postRes.json();
+      if (json.posts) setPosts(json.posts);
+    } catch {
+      // silent
+    }
     setLoading(false);
   }, []);
 
@@ -297,15 +303,20 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
     if (!title.trim() || !body.trim()) return;
     setBusy(true);
     setMessage(null);
-    const { error } = await supabase.from('priestess_posts').insert({
-      title: title.trim(),
-      body: body.trim(),
-    });
-    setBusy(false);
-    if (error) {
+    try {
+      const res = await fetch('/api/posts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: title.trim(), message: body.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+    } catch {
       setMessage('Could not post right now.');
+      setBusy(false);
       return;
     }
+    setBusy(false);
     setTitle('');
     setBody('');
     setMessage('Posted!');
@@ -327,25 +338,38 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
   const saveEdit = async (id: string) => {
     if (!editTitle.trim() || !editBody.trim()) return;
     setEditBusy(id);
-    const { error } = await supabase
-      .from('priestess_posts')
-      .update({ title: editTitle.trim(), body: editBody.trim() })
-      .eq('id', id);
-    setEditBusy(null);
-    if (!error) {
-      setEditingId(null);
-      onUpdate();
+    try {
+      const res = await fetch(`/api/posts/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: editTitle.trim(), message: editBody.trim() }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error);
+    } catch {
+      setEditBusy(null);
+      return;
     }
+    setEditBusy(null);
+    setEditingId(null);
+    onUpdate();
   };
 
   const deletePost = async (id: string) => {
     setDeleteBusy(id);
-    const { error } = await supabase.from('priestess_posts').delete().eq('id', id);
-    setDeleteBusy(null);
-    if (!error) {
-      if (editingId === id) cancelEdit();
-      onUpdate();
+    try {
+      const res = await fetch(`/api/posts/${id}`, { method: 'DELETE' });
+      if (!res.ok) {
+        const json = await res.json();
+        throw new Error(json.error);
+      }
+    } catch {
+      setDeleteBusy(null);
+      return;
     }
+    setDeleteBusy(null);
+    if (editingId === id) cancelEdit();
+    onUpdate();
   };
 
   return (
