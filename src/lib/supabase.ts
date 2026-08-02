@@ -48,6 +48,13 @@ export interface Appointment {
   created_at: string;
 }
 
+export interface PriestessPost {
+  id: string;
+  title: string;
+  body: string;
+  created_at: string;
+}
+
 export const PRAYER_CATEGORIES: { value: PrayerCategory; label: string; blurb: string }[] = [
   { value: 'anxiety', label: 'Anxiety & Fear', blurb: 'When worry feels heavy' },
   { value: 'grief', label: 'Grief & Loss', blurb: 'Mourning what was loved' },
