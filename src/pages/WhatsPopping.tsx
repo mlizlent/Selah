@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Loader2 } from 'lucide-react';
 import type { PriestessPost } from '@/lib/supabase';
 
-const API_BASE = 'http://127.0.0.1:5178';
+const API_BASE = '';
 
 export default function WhatsPopping() {
   const [posts, setPosts] = useState<PriestessPost[]>([]);

@@ -298,7 +298,7 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
   const [editBusy, setEditBusy] = useState<string | null>(null);
   const [deleteBusy, setDeleteBusy] = useState<string | null>(null);
 
-  const API_BASE = 'http://127.0.0.1:5178';
+  const API_BASE = '';
 
   const submitPost = async (e: React.FormEvent) => {
     e.preventDefault();
