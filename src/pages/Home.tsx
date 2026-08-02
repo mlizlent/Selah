@@ -16,7 +16,7 @@ interface HomeProps {
 }
 
 const HERO_IMG =
-  'https://images.pexels.com/photos/2901209/pexels-photo-2901209.jpeg?auto=compress&cs=tinysrgb&h=1200&w=1800';
+  'https://cdn.tuko.co.ke/images/1200x675/0fgjhs6nr7e7ua565.jpeg?v=1';
 
 const FEATURES = [
   {
@@ -147,7 +147,7 @@ export default function Home({ onNavigate }: HomeProps) {
       </section>
 
       {/* Verse banner */}
-      <section className="relative overflow-hidden bg-lavender-700 py-24">
+      <section className="relative overflow-hidden py-24" style={{ backgroundColor: '#7D5F99' }}>
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -left-20 top-0 h-72 w-72 animate-breath rounded-full bg-gold-400 blur-3xl" />
           <div className="absolute -right-20 bottom-0 h-72 w-72 animate-breath rounded-full bg-parchment-200 blur-3xl" style={{ animationDelay: '2s' }} />
