@@ -1,9 +1,8 @@
-import { useEffect } from 'react';
 import { Heart, Menu, X } from 'lucide-react';
 import { useState } from 'react';
 import ThemeToggle, { type Theme } from '@/components/ThemeToggle';
 
-export type Page = 'home' | 'request' | 'companion' | 'testimonies' | 'priestess' | 'bible';
+export type Page = 'home' | 'request' | 'companion' | 'testimonies' | 'whats popping' | 'priestess' | 'bible';
 
 interface NavProps {
   page: Page;
@@ -12,25 +11,18 @@ interface NavProps {
   onToggleTheme: () => void;
 }
 
-const LINKS: { id: Page; label: string }[] = [
-  { id: 'home', label: 'Home' },
-  { id: 'request', label: 'Prayer Request' },
-  { id: 'companion', label: 'Companion' },
-  { id: 'testimonies', label: 'Testimonies' },
-  { id: 'bible', label: 'Bible' },
-  { id: 'priestess', label: 'Priestess' },
+const LINKS: { id: Page; label: string; icon: typeof Heart }[] = [
+  { id: 'home', label: 'Home', icon: Heart },
+  { id: 'request', label: 'Prayer Request', icon: Heart },
+  { id: 'companion', label: 'Companion', icon: Heart },
+  { id: 'testimonies', label: 'Testimonies', icon: Heart },
+  { id: 'whats popping', label: "What's popping", icon: Heart },
+  { id: 'bible', label: 'Bible', icon: Heart },
+  { id: 'priestess', label: 'Priestess', icon: Heart },
 ];
 
 export default function Nav({ page, onNavigate, theme, onToggleTheme }: NavProps) {
   const [open, setOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    onScroll();
-    window.addEventListener('scroll', onScroll);
-    return () => window.removeEventListener('scroll', onScroll);
-  }, []);
 
   const go = (p: Page) => {
     onNavigate(p);
@@ -39,81 +31,65 @@ export default function Nav({ page, onNavigate, theme, onToggleTheme }: NavProps
   };
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
-        scrolled
-          ? 'bg-parchment-50/95 backdrop-blur-md shadow-[0_8px_30px_rgba(11,17,27,0.12)]'
-          : 'bg-[linear-gradient(180deg,rgba(6,10,18,0.7)_0%,rgba(6,10,18,0.25)_70%,rgba(6,10,18,0.0)_100%)] backdrop-blur-[2px]'
-      }`}
-    >
-      <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <button
-          onClick={() => go('home')}
-          className="flex items-center gap-2.5 text-ink-900 transition-opacity hover:opacity-70"
-        >
-          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-700 text-parchment-50 shadow-sm">
-            <Heart className="h-4 w-4" strokeWidth={1.5} />
-          </span>
-          <span className={`font-display text-2xl font-semibold tracking-wide ${scrolled ? 'text-ink-900' : 'text-white'}`}>
-            Selah
-          </span>
-        </button>
+    <>
+      {/* Toggle button - fixed top-left */}
+      <button
+        onClick={() => setOpen((o) => !o)}
+        className="fixed top-4 left-4 z-50 rounded-lg border border-parchment-200 bg-parchment-50/95 p-2.5 text-ink-800 shadow-sm backdrop-blur-sm transition-colors hover:bg-lavender-50 hover:text-lavender-700"
+        aria-label="Toggle menu"
+      >
+        {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </button>
 
-        <div className="hidden items-center gap-1 md:flex">
-          {LINKS.map((link) => (
-            <button
-              key={link.id}
-              onClick={() => go(link.id)}
-              className={`relative rounded-full px-4 py-2 text-sm font-semibold transition-all duration-300 ${
-                page === link.id
-                  ? scrolled
-                    ? 'bg-lavender-100 text-lavender-700 shadow-[inset_0_-2px_0_0_#c8a2ff]'
-                    : 'bg-white/15 text-gold-100 shadow-[0_0_0_1px_rgba(255,255,255,0.18),0_0_20px_rgba(230,197,117,0.18)]'
-                  : scrolled
-                    ? 'text-ink-700 hover:text-lavender-700 hover:bg-lavender-50/70'
-                    : 'text-white/90 hover:text-gold-200 hover:bg-white/10'
-              }`}
-            >
-              {link.label}
-              {page === link.id && (
-                <span className="absolute inset-x-4 -bottom-0.5 h-px bg-gold-500" />
-              )}
-            </button>
-          ))}
-          <div className="ml-2">
-            <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2 md:hidden">
-          <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-          <button
-            onClick={() => setOpen((o) => !o)}
-            className="rounded-full p-2 text-ink-800 transition-colors hover:bg-lavender-50 hover:text-lavender-700"
-            aria-label="Menu"
-          >
-            {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-          </button>
-        </div>
-      </nav>
-
+      {/* Overlay backdrop */}
       {open && (
-        <div className="border-t border-parchment-200 bg-parchment-50/95 backdrop-blur-md md:hidden">
-          <div className="flex flex-col px-6 py-3">
+        <div
+          className="fixed inset-0 z-40 bg-ink-950/20 backdrop-blur-sm transition-opacity"
+          onClick={() => setOpen(false)}
+        />
+      )}
+
+      {/* Sidebar drawer */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 w-72 border-r border-parchment-200 bg-parchment-50 shadow-xl transition-transform duration-300 ease-in-out ${
+          open ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        <div className="flex h-full flex-col">
+          <div className="flex items-center gap-2.5 px-6 py-6">
+            <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-700 text-parchment-50 shadow-sm">
+              <Heart className="h-4 w-4" strokeWidth={1.5} />
+            </span>
+            <span className="font-display text-2xl font-semibold tracking-wide text-ink-900">Selah</span>
+          </div>
+
+          <nav className="flex-1 space-y-1 px-3 py-4">
             {LINKS.map((link) => (
               <button
                 key={link.id}
                 onClick={() => go(link.id)}
-                className={`rounded-lg px-3 py-3 text-left text-sm font-medium transition-colors ${
-                  page === link.id ? 'bg-lavender-50 text-lavender-700' : 'text-ink-700 hover:bg-lavender-50/70'
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                  page === link.id
+                    ? 'bg-lavender-100 text-lavender-700 shadow-[inset_0_-2px_0_0_#c8a2ff]'
+                    : 'text-ink-700 hover:bg-lavender-50/70 hover:text-lavender-700'
                 }`}
               >
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lavender-50 text-lavender-600">
+                  <link.icon className="h-4 w-4" strokeWidth={1.5} />
+                </span>
                 {link.label}
               </button>
             ))}
+          </nav>
+
+          <div className="border-t border-parchment-200 p-4">
+            <div className="flex items-center justify-between rounded-lg bg-parchment-100/60 px-3 py-2">
+              <span className="text-xs font-medium text-ink-600">Theme</span>
+              <ThemeToggle theme={theme} onToggle={onToggleTheme} />
+            </div>
           </div>
         </div>
-      )}
-    </header>
+      </aside>
+    </>
   );
 }
