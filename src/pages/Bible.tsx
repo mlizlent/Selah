@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
 import {
   BookOpen,
   ChevronLeft,
@@ -21,6 +21,7 @@ import {
   type BibleBook,
   type BibleVerse,
 } from '@/lib/bible';
+import { VerseSkeleton } from '@/components/Skeletons';
 
 const OT_BOOKS = BIBLE_BOOKS.filter((b) => b.testament === 'OT');
 const NT_BOOKS = BIBLE_BOOKS.filter((b) => b.testament === 'NT');
@@ -450,8 +451,8 @@ export default function Bible() {
 
       {/* Verses */}
       {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-lavender-500" />
+        <div className="py-6">
+          <VerseSkeleton />
         </div>
       ) : error ? (
         <div className="rounded-lg bg-red-50 px-5 py-4 text-center text-sm text-red-700">

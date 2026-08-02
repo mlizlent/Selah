@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, Suspense, lazy } from 'react';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import type { Page } from '@/components/Nav';
@@ -9,21 +9,64 @@ import Testimonies from '@/pages/Testimonies';
 import WhatsPopping from '@/pages/WhatsPopping';
 import Priestess from '@/pages/Priestess';
 import Bible from '@/pages/Bible';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import { CardSkeleton } from '@/components/Skeletons';
+
+const LazyBible = lazy(() => import('@/pages/Bible'));
+
+const PageErrorFallback = ({ page }: { page: string }) => (
+  <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
+    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-500">
+      <span className="text-2xl">⚠️</span>
+    </span>
+    <h2 className="font-display text-xl font-semibold text-ink-800">Something went wrong</h2>
+    <p className="max-w-sm text-sm text-ink-500">
+      We hit an unexpected error loading {page}. Please try again.
+    </p>
+    <button
+      onClick={() => window.location.reload()}
+      className="btn-primary"
+    >
+      Refresh page
+    </button>
+  </div>
+);
 
 export default function App() {
   const [page, setPage] = useState<Page>('home');
+
+  const renderPage = () => {
+    switch (page) {
+      case 'home':
+        return <Home onNavigate={setPage} />;
+      case 'request':
+        return <PrayerRequestPage />;
+      case 'companion':
+        return <Companion />;
+      case 'testimonies':
+        return <Testimonies />;
+      case 'whats popping':
+        return <WhatsPopping />;
+      case 'bible':
+        return (
+          <Suspense fallback={<div className="py-12"><CardSkeleton /></div>}>
+            <LazyBible />
+          </Suspense>
+        );
+      case 'priestess':
+        return <Priestess />;
+      default:
+        return <Home onNavigate={setPage} />;
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
       <Nav page={page} onNavigate={setPage} />
       <main className="flex-1">
-        {page === 'home' && <Home onNavigate={setPage} />}
-        {page === 'request' && <PrayerRequestPage />}
-        {page === 'companion' && <Companion />}
-        {page === 'testimonies' && <Testimonies />}
-        {page === 'whats popping' && <WhatsPopping />}
-        {page === 'bible' && <Bible />}
-        {page === 'priestess' && <Priestess />}
+        <ErrorBoundary fallback={<PageErrorFallback page={page} />}>
+          {renderPage()}
+        </ErrorBoundary>
       </main>
       <Footer />
     </div>

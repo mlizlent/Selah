@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import type { PriestessPost } from '@/lib/supabase';
+import { PostCardSkeleton } from '@/components/Skeletons';
 
 function timeAgo(dateString: string): string {
   const date = new Date(dateString);
@@ -52,8 +53,10 @@ export default function WhatsPopping() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-lavender-400" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <PostCardSkeleton />
+          <PostCardSkeleton />
+          <PostCardSkeleton />
         </div>
       ) : posts.length === 0 ? (
         <div className="card flex flex-col items-center gap-3 p-16 text-center">

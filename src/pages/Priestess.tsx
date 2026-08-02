@@ -22,6 +22,7 @@ import {
 import { supabase, PRAYER_CATEGORIES } from '@/lib/supabase';
 import type { PrayerRequest, Testimony, Appointment, PrayerStatus, PrayerCategory, PriestessPost } from '@/lib/supabase';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { CardSkeleton, VerseSkeleton } from '@/components/Skeletons';
 
 type Tab = 'prayer' | 'appointments' | 'testimonies' | 'posts';
 
@@ -85,8 +86,10 @@ export default function Priestess() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-lavender-400" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton />
         </div>
       ) : tab === 'prayer' ? (
         <PrayerQueue requests={requests} onUpdate={load} />
@@ -428,11 +431,11 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
                     <textarea value={editBody} onChange={(e) => setEditBody(e.target.value)} rows={4} className="input-field resize-none" />
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => saveEdit(post.id)} disabled={editBusy === post.id || !editTitle.trim() || !editBody.trim()} className="btn-primary py-2 text-xs">
+                    <button onClick={() => saveEdit(post.id)} disabled={editBusy === post.id || !editTitle.trim() || !editBody.trim()} className="btn-primary py-2.5 text-xs">
                       {editBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                       Save
                     </button>
-                    <button onClick={cancelEdit} className="btn-ghost py-2 text-xs">
+                    <button onClick={cancelEdit} className="btn-ghost py-2.5 text-xs">
                       Cancel
                     </button>
                   </div>
@@ -447,11 +450,11 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
                   </div>
                   <p className="mt-3 text-sm leading-relaxed text-ink-600">{post.body}</p>
                   <div className="mt-4 flex gap-2">
-                    <button onClick={() => startEdit(post)} className="btn-ghost py-2 text-xs">
+                    <button onClick={() => startEdit(post)} className="btn-ghost py-2.5 text-xs">
                       <Pencil className="h-3.5 w-3.5" />
                       Edit
                     </button>
-                    <button onClick={() => askDelete(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2 text-xs text-red-600 hover:text-red-700">
+                    <button onClick={() => askDelete(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2.5 text-xs text-red-600 hover:text-red-700">
                       {deleteBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                       Delete
                     </button>
@@ -533,11 +536,11 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
                   {t.author_name || 'Anonymous'} · {new Date(t.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                 </p>
                 <div className="mt-4 flex gap-2">
-                  <button onClick={() => approve(t.id)} disabled={busy === t.id} className="btn-primary py-2 text-xs">
+                  <button onClick={() => approve(t.id)} disabled={busy === t.id} className="btn-primary py-2.5 text-xs">
                     {busy === t.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                     Approve
                   </button>
-                  <button onClick={() => askReject(t.id)} disabled={busy === t.id} className="btn-ghost py-2 text-xs">
+                  <button onClick={() => askReject(t.id)} disabled={busy === t.id} className="btn-ghost py-2.5 text-xs">
                     {busy === t.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
                     Remove
                   </button>
@@ -591,12 +594,12 @@ function EmptyState({
   desc: string;
 }) {
   return (
-    <div className="card flex flex-col items-center gap-3 p-16 text-center">
-      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-lavender-100 text-lavender-500">
-        <Icon className="h-6 w-6" strokeWidth={1.5} />
+    <div className="card flex flex-col items-center gap-3 p-8 text-center sm:p-12">
+      <span className="flex h-12 w-12 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
+        <Icon className="h-5 w-5" strokeWidth={1.5} />
       </span>
-      <h3 className="font-display text-xl font-medium text-ink-700">{title}</h3>
-      <p className="max-w-sm text-sm text-ink-500">{desc}</p>
+      <h3 className="font-display text-lg font-semibold text-ink-800">{title}</h3>
+      <p className="max-w-xs text-sm text-ink-500">{desc}</p>
     </div>
   );
 }

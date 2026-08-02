@@ -27,13 +27,21 @@ export default function Nav({ page, onNavigate }: NavProps) {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      setOpen(false);
+    }
+  };
+
   return (
     <>
       {/* Toggle button - fixed top-left */}
       <button
         onClick={() => setOpen((o) => !o)}
         className="fixed top-4 left-4 z-50 rounded-lg border border-parchment-200 bg-parchment-50/95 p-2.5 text-ink-800 shadow-sm backdrop-blur-sm transition-colors hover:bg-lavender-50 hover:text-lavender-700"
-        aria-label="Toggle menu"
+        aria-label={open ? 'Close navigation menu' : 'Open navigation menu'}
+        aria-expanded={open}
+        aria-controls="sidebar-drawer"
       >
         {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
       </button>
@@ -43,11 +51,18 @@ export default function Nav({ page, onNavigate }: NavProps) {
         <div
           className="fixed inset-0 z-40 bg-ink-950/20 backdrop-blur-sm transition-opacity"
           onClick={() => setOpen(false)}
+          aria-hidden="true"
         />
       )}
 
       {/* Sidebar drawer */}
       <aside
+        id="sidebar-drawer"
+        role="dialog"
+        aria-modal={open}
+        aria-label="Site navigation"
+        tabIndex={-1}
+        onKeyDown={handleKeyDown}
         className={`fixed inset-y-0 left-0 z-50 w-72 border-r border-parchment-200 bg-parchment-50 shadow-xl transition-transform duration-300 ease-in-out ${
           open ? 'translate-x-0' : '-translate-x-full'
         }`}
