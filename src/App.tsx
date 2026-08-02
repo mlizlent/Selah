@@ -9,15 +9,13 @@ import Testimonies from '@/pages/Testimonies';
 import WhatsPopping from '@/pages/WhatsPopping';
 import Priestess from '@/pages/Priestess';
 import Bible from '@/pages/Bible';
-import { useTheme } from '@/components/ThemeToggle';
 
 export default function App() {
   const [page, setPage] = useState<Page>('home');
-  const { theme, toggle } = useTheme();
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Nav page={page} onNavigate={setPage} theme={theme} onToggleTheme={toggle} />
+      <Nav page={page} onNavigate={setPage} />
       <main className="flex-1">
         {page === 'home' && <Home onNavigate={setPage} />}
         {page === 'request' && <PrayerRequestPage />}
