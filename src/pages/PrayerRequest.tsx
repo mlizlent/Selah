@@ -36,7 +36,6 @@ export default function PrayerRequestPage() {
   const [apptName, setApptName] = useState('');
   const [apptContact, setApptContact] = useState('');
   const [apptReason, setApptReason] = useState('');
-  const [apptAnonymous, setApptAnonymous] = useState(true);
   const [apptSubmitting, setApptSubmitting] = useState(false);
   const [apptSubmitted, setApptSubmitted] = useState<string | null>(null);
   const [apptError, setApptError] = useState<string | null>(null);
@@ -85,14 +84,14 @@ export default function PrayerRequestPage() {
 
   const handleAppointmentSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!apptContact.trim() || !apptReason.trim()) return;
+    if (!apptName.trim() || !apptContact.trim() || !apptReason.trim()) return;
     setApptSubmitting(true);
     setApptError(null);
 
     const { data, error } = await supabase
       .from('appointments')
       .insert({
-        name: apptAnonymous ? null : apptName.trim() || null,
+        name: apptName.trim(),
         contact: apptContact.trim(),
         reason: apptReason.trim(),
       })
@@ -111,7 +110,6 @@ export default function PrayerRequestPage() {
     setApptName('');
     setApptContact('');
     setApptReason('');
-    setApptAnonymous(true);
   };
 
   useEffect(() => {
@@ -374,47 +372,16 @@ export default function PrayerRequestPage() {
 
           <form onSubmit={handleAppointmentSubmit} className="card space-y-7 p-6 sm:p-8">
             <div>
-              <label className="mb-3 block text-sm font-medium text-ink-700">How would you like to sign it?</label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() => setApptAnonymous(true)}
-                  className={`rounded-xl border p-4 text-left transition-all ${
-                    apptAnonymous
-                      ? 'border-lavender-500 bg-lavender-50 ring-2 ring-lavender-300/40'
-                      : 'border-parchment-200 bg-parchment-50 hover:border-lavender-300'
-                  }`}
-                >
-                  <p className="text-sm font-medium text-ink-800">Anonymous</p>
-                  <p className="mt-0.5 text-xs text-ink-500">No name attached</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setApptAnonymous(false)}
-                  className={`rounded-xl border p-4 text-left transition-all ${
-                    !apptAnonymous
-                      ? 'border-lavender-500 bg-lavender-50 ring-2 ring-lavender-300/40'
-                      : 'border-parchment-200 bg-parchment-50 hover:border-lavender-300'
-                  }`}
-                >
-                  <p className="text-sm font-medium text-ink-800">With my name</p>
-                  <p className="mt-0.5 text-xs text-ink-500">So she knows who you are</p>
-                </button>
-              </div>
+              <label className="mb-2 block text-sm font-medium text-ink-700">Your name <span className="text-red-500">*</span></label>
+              <input
+                type="text"
+                value={apptName}
+                onChange={(e) => setApptName(e.target.value)}
+                placeholder="What should we call you?"
+                className="input-field"
+                required
+              />
             </div>
-
-            {!apptAnonymous && (
-              <div className="animate-fade-in">
-                <label className="mb-2 block text-sm font-medium text-ink-700">Your name</label>
-                <input
-                  type="text"
-                  value={apptName}
-                  onChange={(e) => setApptName(e.target.value)}
-                  placeholder="What should we call you?"
-                  className="input-field"
-                />
-              </div>
-            )}
 
             <div>
               <label className="mb-2 block text-sm font-medium text-ink-700">How can the Priestess reach you? <span className="text-red-500">*</span></label>
@@ -447,7 +414,7 @@ export default function PrayerRequestPage() {
               <p className="rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{apptError}</p>
             )}
 
-            <button type="submit" disabled={apptSubmitting || !apptContact.trim() || !apptReason.trim()} className="btn-primary w-full">
+            <button type="submit" disabled={apptSubmitting || !apptName.trim() || !apptContact.trim() || !apptReason.trim()} className="btn-primary w-full">
               {apptSubmitting ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
