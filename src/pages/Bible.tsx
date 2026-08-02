@@ -9,6 +9,7 @@ import {
   Copy,
   Check,
   ArrowRight,
+  X,
 } from 'lucide-react';
 import {
   BIBLE_BOOKS,
@@ -34,6 +35,8 @@ export default function Bible() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [copiedVerse, setCopiedVerse] = useState<number | null>(null);
+  const [activeChapter, setActiveChapter] = useState<{ book: BibleBook; chapter: number; verses: BibleVerse[] } | null>(null);
+  const [chapterLoading, setChapterLoading] = useState(false);
 
   const loadChapter = useCallback(async (book: BibleBook, ch: number) => {
     setLoading(true);
@@ -81,28 +84,47 @@ export default function Bible() {
     setShowBookPicker(false);
   };
 
-  const prevChapter = () => {
+  const openChapterPopup = async (book: BibleBook, ch: number) => {
+    setChapterLoading(true);
+    setError(null);
+    try {
+      const data = await fetchChapter(book.name, ch);
+      setActiveChapter({ book, chapter: ch, verses: data });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Could not load this chapter.');
+    } finally {
+      setChapterLoading(false);
+    }
+  };
+
+  const closeChapterPopup = () => {
+    setActiveChapter(null);
+  };
+
+  const prevChapterInPopup = () => {
+    if (!activeChapter) return;
+    const { book, chapter } = activeChapter;
     if (chapter > 1) {
-      setChapter(chapter - 1);
+      openChapterPopup(book, chapter - 1);
     } else {
-      const idx = BIBLE_BOOKS.findIndex((b) => b.name === selectedBook.name);
+      const idx = BIBLE_BOOKS.findIndex((b) => b.name === book.name);
       if (idx > 0) {
         const prevBook = BIBLE_BOOKS[idx - 1];
-        setSelectedBook(prevBook);
-        setChapter(prevBook.chapters);
+        openChapterPopup(prevBook, prevBook.chapters);
       }
     }
   };
 
-  const nextChapter = () => {
-    if (chapter < selectedBook.chapters) {
-      setChapter(chapter + 1);
+  const nextChapterInPopup = () => {
+    if (!activeChapter) return;
+    const { book, chapter } = activeChapter;
+    if (chapter < book.chapters) {
+      openChapterPopup(book, chapter + 1);
     } else {
-      const idx = BIBLE_BOOKS.findIndex((b) => b.name === selectedBook.name);
+      const idx = BIBLE_BOOKS.findIndex((b) => b.name === book.name);
       if (idx < BIBLE_BOOKS.length - 1) {
         const nextBook = BIBLE_BOOKS[idx + 1];
-        setSelectedBook(nextBook);
-        setChapter(1);
+        openChapterPopup(nextBook, 1);
       }
     }
   };
@@ -206,23 +228,12 @@ export default function Bible() {
 
         <div className="flex items-center gap-1.5">
           <button
-            onClick={prevChapter}
-            disabled={loading || (selectedBook.name === 'Genesis' && chapter === 1)}
+            onClick={() => setShowBookPicker(false)}
+            disabled={loading}
             className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100 disabled:opacity-30"
-            aria-label="Previous chapter"
+            aria-label="Close book picker"
           >
-            <ChevronLeft className="h-5 w-5" />
-          </button>
-          <span className="min-w-[80px] text-center text-sm text-ink-400">
-            {chapter} / {selectedBook.chapters}
-          </span>
-          <button
-            onClick={nextChapter}
-            disabled={loading || (selectedBook.name === 'Revelation' && chapter === selectedBook.chapters)}
-            className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100 disabled:opacity-30"
-            aria-label="Next chapter"
-          >
-            <ChevronRight className="h-5 w-5" />
+            <X className="h-5 w-5" />
           </button>
         </div>
       </div>
@@ -275,7 +286,7 @@ export default function Bible() {
           {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((ch) => (
             <button
               key={ch}
-              onClick={() => setChapter(ch)}
+              onClick={() => openChapterPopup(selectedBook, ch)}
               className={`min-w-[36px] rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
                 ch === chapter
                   ? 'bg-lavender-600 text-parchment-50'
@@ -288,69 +299,84 @@ export default function Bible() {
         </div>
       )}
 
-      {/* Verses */}
-      {loading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="h-8 w-8 animate-spin text-lavender-500" />
-        </div>
-      ) : error ? (
-        <div className="rounded-lg bg-red-50 px-5 py-4 text-center text-sm text-red-700">
-          {error}
-        </div>
-      ) : (
-        <div className="card p-6 sm:p-10">
-          <div className="mb-6 border-b border-parchment-200 pb-4 text-center">
-            <h2 className="font-display text-2xl font-semibold text-ink-800">
-              {selectedBook.name} {chapter}
-            </h2>
-            <p className="mt-1 text-xs uppercase tracking-wide text-ink-400">King James Version</p>
-          </div>
-
-          <div className="space-y-4">
-            {verses.map((v) => (
-              <div
-                key={v.verse}
-                className="group flex items-start gap-3 rounded-lg px-3 py-1.5 transition-colors hover:bg-parchment-100/60"
+      {/* Chapter popup modal */}
+      {activeChapter && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-sm" onClick={closeChapterPopup} />
+          <div className="relative max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-parchment-200 bg-parchment-50 shadow-2xl">
+            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-parchment-200 bg-parchment-50/95 px-6 py-4 backdrop-blur-sm">
+              <h2 className="font-display text-xl font-semibold text-ink-800">
+                {activeChapter.book.name} {activeChapter.chapter}
+              </h2>
+              <button
+                onClick={closeChapterPopup}
+                className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100 hover:text-ink-800"
               >
-                <span className="mt-1 min-w-[28px] text-right text-xs font-semibold text-gold-600">
-                  {v.verse}
-                </span>
-                <p className="flex-1 font-display text-lg leading-[1.7] text-ink-700">
-                  {v.text}
-                </p>
-                <button
-                  onClick={() => copyVerse(v)}
-                  className="mt-1 shrink-0 rounded-full p-1.5 text-ink-300 opacity-0 transition-all hover:bg-parchment-200 hover:text-lavender-600 group-hover:opacity-100"
-                  aria-label="Copy verse"
-                >
-                  {copiedVerse === v.verse ? (
-                    <Check className="h-3.5 w-3.5 text-green-600" />
-                  ) : (
-                    <Copy className="h-3.5 w-3.5" />
-                  )}
-                </button>
-              </div>
-            ))}
-          </div>
+                <X className="h-5 w-5" />
+              </button>
+            </div>
 
-          {/* Footer nav */}
-          <div className="mt-8 flex items-center justify-between border-t border-parchment-200 pt-6">
-            <button
-              onClick={prevChapter}
-              disabled={loading || (selectedBook.name === 'Genesis' && chapter === 1)}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Previous
-            </button>
-            <button
-              onClick={nextChapter}
-              disabled={loading || (selectedBook.name === 'Revelation' && chapter === selectedBook.chapters)}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
-            >
-              Next
-              <ChevronRight className="h-4 w-4" />
-            </button>
+            {chapterLoading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="h-8 w-8 animate-spin text-lavender-500" />
+              </div>
+            ) : error ? (
+              <div className="rounded-lg bg-red-50 px-5 py-4 text-center text-sm text-red-700 m-6">
+                {error}
+              </div>
+            ) : (
+              <>
+                <div className="px-6 py-4">
+                  <p className="text-xs uppercase tracking-wide text-ink-400">King James Version</p>
+                </div>
+                <div className="space-y-4 px-6 pb-6">
+                  {activeChapter.verses.map((v) => (
+                    <div
+                      key={v.verse}
+                      className="group flex items-start gap-3 rounded-lg px-3 py-1.5 transition-colors hover:bg-parchment-100/60"
+                    >
+                      <span className="mt-1 min-w-[28px] text-right text-xs font-semibold text-gold-600">
+                        {v.verse}
+                      </span>
+                      <p className="flex-1 font-display text-lg leading-[1.7] text-ink-700">
+                        {v.text}
+                      </p>
+                      <button
+                        onClick={() => copyVerse(v)}
+                        className="mt-1 shrink-0 rounded-full p-1.5 text-ink-300 opacity-0 transition-all hover:bg-parchment-200 hover:text-lavender-600 group-hover:opacity-100"
+                        aria-label="Copy verse"
+                      >
+                        {copiedVerse === v.verse ? (
+                          <Check className="h-3.5 w-3.5 text-green-600" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Footer nav */}
+                <div className="flex items-center justify-between border-t border-parchment-200 px-6 py-4">
+                  <button
+                    onClick={prevChapterInPopup}
+                    disabled={chapterLoading || (activeChapter.book.name === 'Genesis' && activeChapter.chapter === 1)}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                    Previous
+                  </button>
+                  <button
+                    onClick={nextChapterInPopup}
+                    disabled={chapterLoading || (activeChapter.book.name === 'Revelation' && activeChapter.chapter === activeChapter.book.chapters)}
+                    className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
+                  >
+                    Next
+                    <ChevronRight className="h-4 w-4" />
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
