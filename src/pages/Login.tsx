@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Mail, Lock, Loader2, AlertCircle } from 'lucide-react';
+import { Mail, Lock, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -9,6 +9,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
   const { user, loading } = useAuth();
   const navigate = useNavigate();
 
@@ -45,6 +46,24 @@ export default function Login() {
       navigate('/priestess', { replace: true });
     } else {
       navigate('/feed', { replace: true });
+    }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email.trim()) {
+      setError('Enter your email address first.');
+      return;
+    }
+    setSubmitting(true);
+    setError(null);
+    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setSubmitting(false);
+    if (error) {
+      setError(error.message);
+    } else {
+      setResetSent(true);
     }
   };
 
@@ -102,6 +121,13 @@ export default function Login() {
             </div>
           )}
 
+          {resetSent && (
+            <div className="flex items-start gap-2 rounded-lg bg-lavender-50 px-4 py-3 text-sm text-lavender-700">
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+              <span>Check your email for a password reset link.</span>
+            </div>
+          )}
+
           <button type="submit" disabled={submitting} className="btn-primary w-full">
             {submitting ? (
               <Loader2 className="h-4 w-4 animate-spin" />
@@ -109,6 +135,17 @@ export default function Login() {
               'Sign in'
             )}
           </button>
+
+          {!resetSent && (
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              disabled={submitting}
+              className="w-full text-center text-sm font-medium text-lavender-600 hover:text-lavender-700 disabled:opacity-50"
+            >
+              Forgot password?
+            </button>
+          )}
         </form>
 
         <p className="mt-6 text-center text-sm text-ink-500">
