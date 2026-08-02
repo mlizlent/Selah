@@ -29,7 +29,7 @@ const FEATURES = [
   {
     icon: HandHeart,
     title: 'A Real Prayer, From a Real Person',
-    desc: 'Submit a prayer request — anonymously if you wish. A spiritual leader receives it and prays over it, and you will know when she has.',
+    desc: 'Submit a prayer request anonymously if you wish. A spiritual leader receives it and prays over it, and you will know when she has.',
     cta: 'Send a Prayer Request',
     page: 'request' as Page,
   },
@@ -85,7 +85,7 @@ export default function Home({ onNavigate }: HomeProps) {
             <span className="italic text-gold-400">Let Scripture meet your heart.</span>
           </h1>
           <p className="mx-auto mt-7 max-w-2xl text-lg leading-relaxed text-white/90">
-            Selah is a calm place to bring your burdens — fear, grief, confusion, or hope — and meet
+            Selah is a calm place to bring your burdens, fear, grief, confusion, or hope and meet
             gentle guidance, comforting scripture, and prayerful care rooted in the Bible.
           </p>
           <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row">
