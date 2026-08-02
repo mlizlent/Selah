@@ -6,6 +6,7 @@ import Home from '@/pages/Home';
 import PrayerRequestPage from '@/pages/PrayerRequest';
 import Companion from '@/pages/Companion';
 import Testimonies from '@/pages/Testimonies';
+import WhatsPopping from '@/pages/WhatsPopping';
 import Priestess from '@/pages/Priestess';
 import Bible from '@/pages/Bible';
 import { useTheme } from '@/components/ThemeToggle';
@@ -22,6 +23,7 @@ export default function App() {
         {page === 'request' && <PrayerRequestPage />}
         {page === 'companion' && <Companion />}
         {page === 'testimonies' && <Testimonies />}
+        {page === 'whats popping' && <WhatsPopping />}
         {page === 'bible' && <Bible />}
         {page === 'priestess' && <Priestess />}
       </main>
