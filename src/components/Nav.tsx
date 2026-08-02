@@ -1,14 +1,11 @@
 import { Heart, Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import ThemeToggle, { type Theme } from '@/components/ThemeToggle';
 
 export type Page = 'home' | 'request' | 'companion' | 'testimonies' | 'whats popping' | 'priestess' | 'bible';
 
 interface NavProps {
   page: Page;
   onNavigate: (p: Page) => void;
-  theme: Theme;
-  onToggleTheme: () => void;
 }
 
 const LINKS: { id: Page; label: string; icon: typeof Heart }[] = [
@@ -21,7 +18,7 @@ const LINKS: { id: Page; label: string; icon: typeof Heart }[] = [
   { id: 'priestess', label: 'Priestess', icon: Heart },
 ];
 
-export default function Nav({ page, onNavigate, theme, onToggleTheme }: NavProps) {
+export default function Nav({ page, onNavigate }: NavProps) {
   const [open, setOpen] = useState(false);
 
   const go = (p: Page) => {
@@ -81,13 +78,6 @@ export default function Nav({ page, onNavigate, theme, onToggleTheme }: NavProps
               </button>
             ))}
           </nav>
-
-          <div className="border-t border-parchment-200 p-4">
-            <div className="flex items-center justify-between rounded-lg bg-parchment-100/60 px-3 py-2">
-              <span className="text-xs font-medium text-ink-600">Theme</span>
-              <ThemeToggle theme={theme} onToggle={onToggleTheme} />
-            </div>
-          </div>
         </div>
       </aside>
     </>
