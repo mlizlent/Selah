@@ -352,31 +352,17 @@ export default function Bible() {
       )}
 
       {/* Chapter quick-select */}
-      {!showBookPicker && (
-        <div className="mb-6 flex flex-wrap gap-1">
+      {!showBookPicker && !showChapterPicker && (
+        <div className="mb-6">
           <button
-            onClick={() => setShowChapterPicker((s) => !s)}
+            onClick={() => setShowChapterPicker(true)}
             className="rounded-lg bg-lavender-50 px-4 py-2 text-xs font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
           >
             Chapters
           </button>
-          {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((ch) => (
-            <button
-              key={ch}
-              onClick={() => goToChapter(selectedBook, ch)}
-              className={`min-w-[36px] rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
-                ch === chapter
-                  ? 'bg-lavender-600 text-parchment-50'
-                  : 'text-ink-500 hover:bg-lavender-50'
-              }`}
-            >
-              {ch}
-            </button>
-          ))}
         </div>
       )}
 
-      {/* Chapter popup picker */}
       {showChapterPicker && (
         <div className="card mb-8 p-6">
           <div className="mb-4 flex items-center justify-between">
