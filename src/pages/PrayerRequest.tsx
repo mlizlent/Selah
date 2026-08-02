@@ -81,7 +81,7 @@ export default function PrayerRequestPage() {
 
   if (submitted) {
     return (
-      <div className="mx-auto max-w-2xl px-6 pt-32 pb-24">
+      <div className="mx-auto max-w-2xl px-6 pt-8 pb-24">
         <div className="card animate-fade-up p-10 text-center">
           <span className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
             <CheckCircle2 className="h-8 w-8" strokeWidth={1.5} />
@@ -123,7 +123,7 @@ export default function PrayerRequestPage() {
   }
 
   return (
-    <div className="mx-auto max-w-3xl px-6 pt-32 pb-24">
+    <div className="mx-auto max-w-3xl px-6 pt-8 pb-24">
       <div className="mb-12 text-center">
         <p className="eyebrow mb-3">Lay it down</p>
         <h1 className="font-display text-4xl font-medium text-ink-800 sm:text-5xl">
