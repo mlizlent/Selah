@@ -655,10 +655,20 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
 
       {approved.length > 0 && (
         <div>
-          <h3 className="mb-3 flex items-center gap-2 font-display text-lg font-semibold text-ink-800">
-            <CheckCircle2 className="h-4 w-4 text-lavender-500" />
-            Published ({approved.length})
-          </h3>
+          <div className="mb-3 flex items-center justify-between">
+            <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-ink-800">
+              <CheckCircle2 className="h-4 w-4 text-lavender-500" />
+              Published ({approved.length})
+            </h3>
+            <button
+              onClick={() => setShowClearConfirm(true)}
+              disabled={clearBusy}
+              className="btn-ghost py-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Clear all
+            </button>
+          </div>
           <div className="space-y-3">
             {approved.map((t) => (
               <div key={t.id} className="card p-4 opacity-75">
