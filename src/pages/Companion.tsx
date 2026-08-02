@@ -86,7 +86,7 @@ export default function Companion() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pt-28 pb-12 sm:px-6">
+    <div className="mx-auto max-w-3xl px-4 pt-8 pb-12 sm:px-6">
       <div className="mb-6 text-center">
         <p className="eyebrow mb-2">A quiet space</p>
         <h1 className="font-display text-3xl font-medium text-ink-800 sm:text-4xl">The Companion</h1>
