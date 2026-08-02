@@ -416,7 +416,9 @@ export default function Bible() {
             {verses.map((v) => (
               <div
                 key={v.verse}
-                className="group flex items-start gap-3 rounded-lg px-3 py-1.5 transition-colors hover:bg-parchment-100/60"
+                className={`group flex items-start gap-3 rounded-lg px-3 py-1.5 transition-colors hover:bg-parchment-100/60 ${
+                  isBookmarked(v) ? 'bg-gold-400/10 ring-1 ring-inset ring-gold-400/40' : ''
+                }`}
               >
                 <span className="mt-1 min-w-[28px] text-right text-xs font-semibold text-gold-600">
                   {v.verse}
