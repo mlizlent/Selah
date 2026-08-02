@@ -17,6 +17,7 @@ import type { CompanionReply } from '@/lib/companion';
 import { CRISIS_RESOURCES } from '@/lib/crisis';
 import { supabase } from '@/lib/supabase';
 import type { PrayerCategory } from '@/lib/supabase';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface Message {
   id: string;
@@ -278,6 +279,7 @@ function EscalationModal({
   onClose: () => void;
   lastUserText: string;
 }) {
+  const { user } = useAuth();
   const [name, setName] = useState('');
   const [anonymous, setAnonymous] = useState(true);
   const [category, setCategory] = useState<PrayerCategory>('other');
@@ -295,6 +297,7 @@ function EscalationModal({
         name: anonymous ? null : name.trim() || null,
         category,
         body: lastUserText,
+        user_id: user?.id || null,
       })
       .select()
       .single();
@@ -315,6 +318,7 @@ function EscalationModal({
         name: anonymous ? null : name.trim() || null,
         contact: contact.trim(),
         reason: lastUserText,
+        user_id: user?.id || null,
       })
       .select()
       .single();

@@ -26,6 +26,7 @@ export interface PrayerRequest {
   prayed_note: string | null;
   created_at: string;
   prayed_at: string | null;
+  user_id: string | null;
 }
 
 export interface Testimony {
@@ -46,6 +47,7 @@ export interface Appointment {
   reason: string;
   status: AppointmentStatus;
   created_at: string;
+  user_id: string | null;
 }
 
 export interface PriestessPost {

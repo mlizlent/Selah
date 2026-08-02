@@ -1,24 +1,26 @@
-import { Heart, HandHeart, MessageCircleHeart, Quote, Megaphone, BookOpen, Sparkles, Menu, X } from 'lucide-react';
+import { Heart, HandHeart, MessageCircleHeart, Quote, Megaphone, BookOpen, Sparkles, Menu, X, User, LogOut } from 'lucide-react';
 import { useState } from 'react';
 
-export type Page = 'home' | 'request' | 'companion' | 'testimonies' | 'whats popping' | 'priestess' | 'bible';
+export type Page = 'home' | 'request' | 'companion' | 'testimonies' | 'whats popping' | 'priestess' | 'bible' | 'my requests';
 
 interface NavProps {
   page: Page;
   onNavigate: (p: Page) => void;
+  user: { email?: string } | null;
+  onAccountClick: () => void;
+  onSignOut: () => void;
 }
 
-const LINKS: { id: Page; label: string; icon: typeof Heart }[] = [
+const LINKS: { id: Exclude<Page, 'my requests'>; label: string; icon: typeof Heart }[] = [
   { id: 'home', label: 'Home', icon: Heart },
   { id: 'request', label: 'Prayer Request', icon: HandHeart },
   { id: 'companion', label: 'Companion', icon: MessageCircleHeart },
   { id: 'testimonies', label: 'Testimonies', icon: Quote },
   { id: 'whats popping', label: "What's popping", icon: Megaphone },
   { id: 'bible', label: 'Bible', icon: BookOpen },
-  { id: 'priestess', label: 'Priestess', icon: Sparkles },
 ];
 
-export default function Nav({ page, onNavigate }: NavProps) {
+export default function Nav({ page, onNavigate, user, onAccountClick, onSignOut }: NavProps) {
   const [open, setOpen] = useState(false);
 
   const go = (p: Page) => {
@@ -92,7 +94,53 @@ export default function Nav({ page, onNavigate }: NavProps) {
                 {link.label}
               </button>
             ))}
+            {user && (
+              <button
+                onClick={() => go('my requests')}
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                  page === 'my requests'
+                    ? 'bg-lavender-100 text-lavender-700 shadow-[inset_0_-2px_0_0_#c8a2ff]'
+                    : 'text-ink-700 hover:bg-lavender-50/70 hover:text-lavender-700'
+                }`}
+              >
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lavender-50 text-lavender-600">
+                  <User className="h-4 w-4" strokeWidth={1.5} />
+                </span>
+                My Requests
+              </button>
+            )}
           </nav>
+
+          <div className="border-t border-parchment-200 p-4">
+            {user ? (
+              <div className="space-y-2">
+                <p className="truncate px-3 text-xs text-ink-500">{user.email}</p>
+                <button
+                  onClick={() => {
+                    onSignOut();
+                    setOpen(false);
+                  }}
+                  className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-red-600 transition-colors hover:bg-red-50"
+                >
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600">
+                    <LogOut className="h-4 w-4" strokeWidth={1.5} />
+                  </span>
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  onAccountClick();
+                  setOpen(false);
+                }}
+                className="btn-primary w-full"
+              >
+                <User className="h-4 w-4" />
+                Sign in
+              </button>
+            )}
+          </div>
         </div>
       </aside>
     </>

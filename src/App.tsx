@@ -11,6 +11,8 @@ import Priestess from '@/pages/Priestess';
 import Bible from '@/pages/Bible';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { CardSkeleton } from '@/components/Skeletons';
+import { AuthProvider, useAuth } from '@/contexts/AuthContext';
+import AccountModal from '@/components/AccountModal';
 
 const LazyBible = lazy(() => import('@/pages/Bible'));
 const LazyCompanion = lazy(() => import('@/pages/Companion'));
@@ -18,6 +20,7 @@ const LazyTestimonies = lazy(() => import('@/pages/Testimonies'));
 const LazyPriestess = lazy(() => import('@/pages/Priestess'));
 const LazyWhatsPopping = lazy(() => import('@/pages/WhatsPopping'));
 const LazyPrayerRequest = lazy(() => import('@/pages/PrayerRequest'));
+const LazyMyRequests = lazy(() => import('@/pages/MyRequests'));
 
 const PageErrorFallback = ({ page }: { page: string }) => (
   <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
@@ -37,13 +40,31 @@ const PageErrorFallback = ({ page }: { page: string }) => (
   </div>
 );
 
-export default function App() {
-  const [page, setPage] = useState<Page>('home');
+type ExtendedPage = Page | 'my requests';
+
+function AppContent() {
+  const [page, setPage] = useState<ExtendedPage>('home');
+  const [showAccount, setShowAccount] = useState(false);
+  const { user, loading, signOut } = useAuth();
+
+  const navigateTo = (p: ExtendedPage) => {
+    if (p === 'home') {
+      setPage(p);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    if (user) {
+      setPage(p);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setShowAccount(true);
+    }
+  };
 
   const renderPage = () => {
     switch (page) {
       case 'home':
-        return <Home onNavigate={setPage} />;
+        return <Home onNavigate={navigateTo} />;
       case 'request':
         return (
           <Suspense fallback={<div className="py-12"><CardSkeleton /></div>}>
@@ -80,20 +101,35 @@ export default function App() {
             <LazyPriestess />
           </Suspense>
         );
+      case 'my requests':
+        return (
+          <Suspense fallback={<div className="py-12"><CardSkeleton /></div>}>
+            <LazyMyRequests />
+          </Suspense>
+        );
       default:
-        return <Home onNavigate={setPage} />;
+        return <Home onNavigate={navigateTo} />;
     }
   };
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Nav page={page} onNavigate={setPage} />
+      <Nav page={page} onNavigate={navigateTo} user={user} onAccountClick={() => setShowAccount(true)} onSignOut={signOut} />
       <main className="flex-1">
         <ErrorBoundary fallback={<PageErrorFallback page={page} />}>
           {renderPage()}
         </ErrorBoundary>
       </main>
       <Footer />
+      <AccountModal open={showAccount} onClose={() => setShowAccount(false)} />
     </div>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
