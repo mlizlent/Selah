@@ -17,8 +17,8 @@ import { useAuth } from '@/contexts/AuthContext';
 
 const STATUS_META: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
   pending: { label: 'Pending', icon: Clock, color: 'text-ink-500', bg: 'bg-parchment-100' },
-  praying: { label: 'Being prayed over', icon: HandHeart, color: 'text-gold-600', bg: 'bg-gold-500/10' },
-  prayed: { label: 'Prayed for', icon: CheckCircle2, color: 'text-lavender-600', bg: 'bg-lavender-50' },
+  praying: { label: 'Praying', icon: HandHeart, color: 'text-gold-600', bg: 'bg-gold-500/10' },
+  prayed: { label: 'Prayed', icon: CheckCircle2, color: 'text-lavender-600', bg: 'bg-lavender-50' },
 };
 
 export default function PrayerRequestPage() {
