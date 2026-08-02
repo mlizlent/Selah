@@ -147,6 +147,91 @@ export const VERSES: Verse[] = [
     text: 'Because of the Lord\u2019s great love we are not consumed, for his compassions never fail. They are new every morning; great is your faithfulness.',
     themes: ['hope', 'new', 'morning', 'faithfulness', 'love', 'compassion', 'start', 'fresh'],
   },
+  {
+    reference: 'Jeremiah 29:11',
+    text: 'For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future.',
+    themes: ['purpose', 'future', 'hope', 'plans', 'prosper', 'direction'],
+  },
+  {
+    reference: 'Joshua 1:9',
+    text: 'Be strong and courageous. Do not be afraid; do not be discouraged, for the Lord your God will be with you wherever you go.',
+    themes: ['courage', 'fear', 'strength', 'guidance', 'hope'],
+  },
+  {
+    reference: 'Psalm 121:1-2',
+    text: 'I lift up my eyes to the mountains—where does my help come from? My help comes from the Lord, the Maker of heaven and earth.',
+    themes: ['help', 'support', 'strength', 'trust', 'guidance'],
+  },
+  {
+    reference: 'Isaiah 40:31',
+    text: 'But those who hope in the Lord will renew their strength. They will soar on wings like eagles; they will run and not grow weary, they will walk and not be faint.',
+    themes: ['strength', 'hope', 'endurance', 'waiting', 'trust'],
+  },
+  {
+    reference: 'Romans 8:31',
+    text: 'If God is for us, who can be against us?',
+    themes: ['confidence', 'trust', 'hope', 'protection', 'strength'],
+  },
+  {
+    reference: 'Ecclesiastes 3:1',
+    text: 'There is a time for everything, and a season for every activity under the heavens.',
+    themes: ['timing', 'season', 'patience', 'waiting', 'purpose'],
+  },
+  {
+    reference: '1 Corinthians 10:13',
+    text: 'No temptation has overtaken you except what is common to mankind. And God is faithful; he will not let you be tempted beyond what you can bear.',
+    themes: ['temptation', 'testing', 'strength', 'endurance', 'trial'],
+  },
+  {
+    reference: 'Proverbs 18:10',
+    text: 'The name of the Lord is a fortified tower; the righteous run to it and are safe.',
+    themes: ['safety', 'protection', 'trust', 'refuge', 'help'],
+  },
+  {
+    reference: 'Matthew 7:7',
+    text: 'Ask and it will be given to you; seek and you will find; knock and the door will be opened to you.',
+    themes: ['asking', 'prayer', 'seek', 'guidance', 'help'],
+  },
+  {
+    reference: 'John 16:33',
+    text: 'I have told you these things, so that in me you may have peace. In this world you will have trouble. But take heart! I have overcome the world.',
+    themes: ['peace', 'trouble', 'hope', 'courage', 'overcome'],
+  },
+  {
+    reference: '2 Timothy 1:7',
+    text: 'For the Spirit God gave us does not make us timid, but gives us power, love and self-discipline.',
+    themes: ['courage', 'power', 'love', 'discipline', 'strength'],
+  },
+  {
+    reference: 'Romans 12:12',
+    text: 'Be joyful in hope, patient in affliction, faithful in prayer.',
+    themes: ['hope', 'patience', 'prayer', 'affliction', 'joy'],
+  },
+  {
+    reference: 'Galatians 5:22-23',
+    text: 'But the fruit of the Spirit is love, joy, peace, forbearance, kindness, goodness, faithfulness, gentleness and self-control.',
+    themes: ['fruit', 'love', 'joy', 'peace', 'kindness', 'self-control'],
+  },
+  {
+    reference: 'Matthew 6:14-15',
+    text: 'For if you forgive other people when they sin against you, your heavenly Father will also forgive you.',
+    themes: ['forgiveness', 'grace', 'mercy', 'relationship', 'conflict'],
+  },
+  {
+    reference: 'James 5:14-15',
+    text: 'Is anyone among you sick? Let them call the elders of the church to pray over them and anoint them with oil in the name of the Lord.',
+    themes: ['healing', 'sick', 'prayer', 'health', 'care'],
+  },
+  {
+    reference: 'Ephesians 2:10',
+    text: 'For we are God’s handiwork, created in Christ Jesus to do good works, which God prepared in advance for us to do.',
+    themes: ['purpose', 'calling', 'good works', 'identity', 'meaning'],
+  },
+  {
+    reference: 'Proverbs 16:3',
+    text: 'Commit to the Lord whatever you do, and he will establish your plans.',
+    themes: ['plans', 'work', 'purpose', 'guidance', 'success'],
+  },
 ];
 
 const STOP_WORDS = new Set([
@@ -164,7 +249,7 @@ export interface VerseMatch {
 }
 
 // Match verses to free text by counting theme-keyword hits. Returns the top N.
-export function matchVerses(text: string, limit = 3): VerseMatch[] {
+export function matchVerses(text: string, limit = 3, preferredThemes: string[] = []): VerseMatch[] {
   const words = text
     .toLowerCase()
     .replace(/[^a-z\s']/g, ' ')
@@ -173,6 +258,13 @@ export function matchVerses(text: string, limit = 3): VerseMatch[] {
 
   const scored = VERSES.map((verse) => {
     let score = 0;
+
+    for (const theme of verse.themes) {
+      if (preferredThemes.includes(theme)) {
+        score += 3;
+      }
+    }
+
     for (const word of words) {
       for (const theme of verse.themes) {
         if (theme === word || theme.startsWith(word) || word.startsWith(theme)) {
@@ -181,6 +273,7 @@ export function matchVerses(text: string, limit = 3): VerseMatch[] {
         }
       }
     }
+
     return { verse, score };
   });
 
@@ -189,12 +282,9 @@ export function matchVerses(text: string, limit = 3): VerseMatch[] {
     .sort((a, b) => b.score - a.score)
     .slice(0, limit);
 
-  // Fallback: if nothing matched, return a gentle default set.
+  // If no reliable verse matches were found, return an empty result.
   if (matches.length === 0) {
-    return [
-      { verse: VERSES[0], score: 0 },
-      { verse: VERSES[15], score: 0 },
-    ];
+    return [];
   }
 
   return matches;
