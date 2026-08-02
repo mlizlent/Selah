@@ -10,6 +10,7 @@ import {
   Check,
   ArrowRight,
   X,
+  Star,
 } from 'lucide-react';
 import {
   BIBLE_BOOKS,
@@ -23,6 +24,15 @@ import {
 const OT_BOOKS = BIBLE_BOOKS.filter((b) => b.testament === 'OT');
 const NT_BOOKS = BIBLE_BOOKS.filter((b) => b.testament === 'NT');
 
+interface Bookmark {
+  id: string;
+  book: string;
+  chapter: number;
+  verse: number;
+  text: string;
+  createdAt: string;
+}
+
 export default function Bible() {
   const [selectedBook, setSelectedBook] = useState<BibleBook>(BIBLE_BOOKS[18]); // Psalm
   const [chapter, setChapter] = useState(1);
@@ -30,13 +40,14 @@ export default function Bible() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showBookPicker, setShowBookPicker] = useState(false);
+  const [showChapterPicker, setShowChapterPicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [searchResults, setSearchResults] = useState<BibleVerse[] | null>(null);
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
   const [copiedVerse, setCopiedVerse] = useState<number | null>(null);
-  const [activeChapter, setActiveChapter] = useState<{ book: BibleBook; chapter: number; verses: BibleVerse[] } | null>(null);
-  const [chapterLoading, setChapterLoading] = useState(false);
+  const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
+  const [showBookmarks, setShowBookmarks] = useState(false);
 
   const loadChapter = useCallback(async (book: BibleBook, ch: number) => {
     setLoading(true);
@@ -55,6 +66,20 @@ export default function Bible() {
   useEffect(() => {
     loadChapter(selectedBook, chapter);
   }, [selectedBook, chapter, loadChapter]);
+
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem('selah-bible-bookmarks');
+      if (stored) setBookmarks(JSON.parse(stored));
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const saveBookmarks = (next: Bookmark[]) => {
+    setBookmarks(next);
+    localStorage.setItem('selah-bible-bookmarks', JSON.stringify(next));
+  };
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,51 +107,37 @@ export default function Bible() {
     setSearchResults(null);
     setSearchQuery('');
     setShowBookPicker(false);
+    setShowChapterPicker(false);
   };
 
-  const openChapterPopup = async (book: BibleBook, ch: number) => {
-    setChapterLoading(true);
-    setError(null);
-    try {
-      const data = await fetchChapter(book.name, ch);
-      setActiveChapter({ book, chapter: ch, verses: data });
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Could not load this chapter.');
-    } finally {
-      setChapterLoading(false);
-    }
-  };
-
-  const closeChapterPopup = () => {
-    setActiveChapter(null);
-  };
-
-  const prevChapterInPopup = () => {
-    if (!activeChapter) return;
-    const { book, chapter } = activeChapter;
-    if (chapter > 1) {
-      openChapterPopup(book, chapter - 1);
+  const toggleBookmark = (v: BibleVerse) => {
+    const ref = `${selectedBook.name} ${chapter}:${v.verse}`;
+    const exists = bookmarks.find((b) => b.book === selectedBook.name && b.chapter === chapter && b.verse === v.verse);
+    if (exists) {
+      saveBookmarks(bookmarks.filter((b) => b.id !== exists.id));
     } else {
-      const idx = BIBLE_BOOKS.findIndex((b) => b.name === book.name);
-      if (idx > 0) {
-        const prevBook = BIBLE_BOOKS[idx - 1];
-        openChapterPopup(prevBook, prevBook.chapters);
-      }
+      saveBookmarks([
+        ...bookmarks,
+        {
+          id: crypto.randomUUID(),
+          book: selectedBook.name,
+          chapter,
+          verse: v.verse,
+          text: v.text,
+          createdAt: new Date().toISOString(),
+        },
+      ]);
     }
   };
 
-  const nextChapterInPopup = () => {
-    if (!activeChapter) return;
-    const { book, chapter } = activeChapter;
-    if (chapter < book.chapters) {
-      openChapterPopup(book, chapter + 1);
-    } else {
-      const idx = BIBLE_BOOKS.findIndex((b) => b.name === book.name);
-      if (idx < BIBLE_BOOKS.length - 1) {
-        const nextBook = BIBLE_BOOKS[idx + 1];
-        openChapterPopup(nextBook, 1);
-      }
-    }
+  const removeBookmark = (id: string) => {
+    saveBookmarks(bookmarks.filter((b) => b.id !== id));
+  };
+
+  const goToBookmark = (book: BibleBook, ch: number) => {
+    setSelectedBook(book);
+    setChapter(ch);
+    setShowBookmarks(false);
   };
 
   const copyVerse = async (v: BibleVerse) => {
@@ -138,6 +149,10 @@ export default function Bible() {
     } catch {
       // clipboard not available
     }
+  };
+
+  const isBookmarked = (v: BibleVerse) => {
+    return bookmarks.some((b) => b.book === selectedBook.name && b.chapter === chapter && b.verse === v.verse);
   };
 
   return (
@@ -217,7 +232,10 @@ export default function Bible() {
       {/* Book picker toggle */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <button
-          onClick={() => setShowBookPicker((s) => !s)}
+          onClick={() => {
+            setShowBookPicker((s) => !s);
+            setShowChapterPicker(false);
+          }}
           className="inline-flex items-center gap-2 rounded-full bg-lavender-50 px-5 py-2.5 text-sm font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
         >
           <BookOpen className="h-4 w-4" strokeWidth={1.5} />
@@ -228,13 +246,22 @@ export default function Bible() {
 
         <div className="flex items-center gap-1.5">
           <button
-            onClick={() => setShowBookPicker(false)}
-            disabled={loading}
-            className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100 disabled:opacity-30"
-            aria-label="Close book picker"
+            onClick={() => setShowBookmarks((s) => !s)}
+            className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100 hover:text-gold-500"
+            aria-label="Bookmarks"
           >
-            <X className="h-5 w-5" />
+            <Bookmark className="h-5 w-5" fill={showBookmarks ? 'currentColor' : 'none'} />
           </button>
+          {showBookPicker && (
+            <button
+              onClick={() => setShowBookPicker(false)}
+              disabled={loading}
+              className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100 disabled:opacity-30"
+              aria-label="Close book picker"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          )}
         </div>
       </div>
 
@@ -280,13 +307,63 @@ export default function Bible() {
         </div>
       )}
 
+      {/* Bookmarks panel */}
+      {showBookmarks && (
+        <div className="card mb-8 p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-display text-lg font-semibold text-ink-800">Your Bookmarks</h2>
+            <button
+              onClick={() => setShowBookmarks(false)}
+              className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          {bookmarks.length === 0 ? (
+            <p className="text-sm text-ink-500">No bookmarks yet. Click the bookmark icon next to any verse to save it here.</p>
+          ) : (
+            <div className="space-y-3">
+              {bookmarks.map((bm) => {
+                const book = BIBLE_BOOKS.find((b) => b.name === bm.book);
+                return (
+                  <div key={bm.id} className="flex items-start gap-3 rounded-lg border border-parchment-200 p-4">
+                    <Star className="mt-0.5 h-4 w-4 shrink-0 text-gold-500" fill="currentColor" />
+                    <div className="flex-1">
+                      <button
+                        onClick={() => book && goToBookmark(book, bm.chapter)}
+                        className="text-sm font-medium text-lavender-600 hover:text-lavender-700"
+                      >
+                        {bm.book} {bm.chapter}:{bm.verse}
+                      </button>
+                      <p className="mt-1 font-display text-sm leading-relaxed text-ink-600 line-clamp-2">{bm.text}</p>
+                    </div>
+                    <button
+                      onClick={() => removeBookmark(bm.id)}
+                      className="shrink-0 rounded-full p-2 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Chapter quick-select */}
       {!showBookPicker && (
         <div className="mb-6 flex flex-wrap gap-1">
+          <button
+            onClick={() => setShowChapterPicker((s) => !s)}
+            className="rounded-lg bg-lavender-50 px-4 py-2 text-xs font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
+          >
+            Chapters
+          </button>
           {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((ch) => (
             <button
               key={ch}
-              onClick={() => openChapterPopup(selectedBook, ch)}
+              onClick={() => goToChapter(selectedBook, ch)}
               className={`min-w-[36px] rounded-lg px-2 py-1.5 text-xs font-medium transition-colors ${
                 ch === chapter
                   ? 'bg-lavender-600 text-parchment-50'
@@ -299,84 +376,136 @@ export default function Bible() {
         </div>
       )}
 
-      {/* Chapter popup modal */}
-      {activeChapter && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-          <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-sm" onClick={closeChapterPopup} />
-          <div className="relative max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-parchment-200 bg-parchment-50 shadow-2xl">
-            <div className="sticky top-0 z-10 flex items-center justify-between border-b border-parchment-200 bg-parchment-50/95 px-6 py-4 backdrop-blur-sm">
-              <h2 className="font-display text-xl font-semibold text-ink-800">
-                {activeChapter.book.name} {activeChapter.chapter}
-              </h2>
+      {/* Chapter popup picker */}
+      {showChapterPicker && (
+        <div className="card mb-8 p-6">
+          <div className="mb-4 flex items-center justify-between">
+            <h3 className="font-display text-lg font-semibold text-ink-800">
+              {selectedBook.name} — Select Chapter
+            </h3>
+            <button
+              onClick={() => setShowChapterPicker(false)}
+              className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <div className="grid grid-cols-6 gap-2 sm:grid-cols-8">
+            {Array.from({ length: selectedBook.chapters }, (_, i) => i + 1).map((ch) => (
               <button
-                onClick={closeChapterPopup}
-                className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100 hover:text-ink-800"
+                key={ch}
+                onClick={() => goToChapter(selectedBook, ch)}
+                className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                  ch === chapter
+                    ? 'bg-lavender-600 text-parchment-50'
+                    : 'text-ink-600 hover:bg-lavender-50'
+                }`}
               >
-                <X className="h-5 w-5" />
+                {ch}
               </button>
-            </div>
+            ))}
+          </div>
+        </div>
+      )}
 
-            {chapterLoading ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-8 w-8 animate-spin text-lavender-500" />
-              </div>
-            ) : error ? (
-              <div className="rounded-lg bg-red-50 px-5 py-4 text-center text-sm text-red-700 m-6">
-                {error}
-              </div>
-            ) : (
-              <>
-                <div className="px-6 py-4">
-                  <p className="text-xs uppercase tracking-wide text-ink-400">King James Version</p>
-                </div>
-                <div className="space-y-4 px-6 pb-6">
-                  {activeChapter.verses.map((v) => (
-                    <div
-                      key={v.verse}
-                      className="group flex items-start gap-3 rounded-lg px-3 py-1.5 transition-colors hover:bg-parchment-100/60"
-                    >
-                      <span className="mt-1 min-w-[28px] text-right text-xs font-semibold text-gold-600">
-                        {v.verse}
-                      </span>
-                      <p className="flex-1 font-display text-lg leading-[1.7] text-ink-700">
-                        {v.text}
-                      </p>
-                      <button
-                        onClick={() => copyVerse(v)}
-                        className="mt-1 shrink-0 rounded-full p-1.5 text-ink-300 opacity-0 transition-all hover:bg-parchment-200 hover:text-lavender-600 group-hover:opacity-100"
-                        aria-label="Copy verse"
-                      >
-                        {copiedVerse === v.verse ? (
-                          <Check className="h-3.5 w-3.5 text-green-600" />
-                        ) : (
-                          <Copy className="h-3.5 w-3.5" />
-                        )}
-                      </button>
-                    </div>
-                  ))}
-                </div>
+      {/* Verses */}
+      {loading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="h-8 w-8 animate-spin text-lavender-500" />
+        </div>
+      ) : error ? (
+        <div className="rounded-lg bg-red-50 px-5 py-4 text-center text-sm text-red-700">
+          {error}
+        </div>
+      ) : (
+        <div className="card p-6 sm:p-10">
+          <div className="mb-6 border-b border-parchment-200 pb-4 text-center">
+            <h2 className="font-display text-2xl font-semibold text-ink-800">
+              {selectedBook.name} {chapter}
+            </h2>
+            <p className="mt-1 text-xs uppercase tracking-wide text-ink-400">King James Version</p>
+          </div>
 
-                {/* Footer nav */}
-                <div className="flex items-center justify-between border-t border-parchment-200 px-6 py-4">
+          <div className="space-y-4">
+            {verses.map((v) => (
+              <div
+                key={v.verse}
+                className="group flex items-start gap-3 rounded-lg px-3 py-1.5 transition-colors hover:bg-parchment-100/60"
+              >
+                <span className="mt-1 min-w-[28px] text-right text-xs font-semibold text-gold-600">
+                  {v.verse}
+                </span>
+                <p className="flex-1 font-display text-lg leading-[1.7] text-ink-700">
+                  {v.text}
+                </p>
+                <div className="mt-1 shrink-0 flex items-center gap-1">
                   <button
-                    onClick={prevChapterInPopup}
-                    disabled={chapterLoading || (activeChapter.book.name === 'Genesis' && activeChapter.chapter === 1)}
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
+                    onClick={() => toggleBookmark(v)}
+                    className={`rounded-full p-1.5 transition-all ${
+                      isBookmarked(v)
+                        ? 'text-gold-500 opacity-100'
+                        : 'text-ink-300 opacity-0 group-hover:opacity-100 hover:bg-parchment-200 hover:text-gold-600'
+                    }`}
+                    aria-label={isBookmarked(v) ? 'Remove bookmark' : 'Add bookmark'}
                   >
-                    <ChevronLeft className="h-4 w-4" />
-                    Previous
+                    <Bookmark className="h-3.5 w-3.5" fill={isBookmarked(v) ? 'currentColor' : 'none'} />
                   </button>
                   <button
-                    onClick={nextChapterInPopup}
-                    disabled={chapterLoading || (activeChapter.book.name === 'Revelation' && activeChapter.chapter === activeChapter.book.chapters)}
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
+                    onClick={() => copyVerse(v)}
+                    className="rounded-full p-1.5 text-ink-300 opacity-0 transition-all hover:bg-parchment-200 hover:text-lavender-600 group-hover:opacity-100"
+                    aria-label="Copy verse"
                   >
-                    Next
-                    <ChevronRight className="h-4 w-4" />
+                    {copiedVerse === v.verse ? (
+                      <Check className="h-3.5 w-3.5 text-green-600" />
+                    ) : (
+                      <Copy className="h-3.5 w-3.5" />
+                    )}
                   </button>
                 </div>
-              </>
-            )}
+              </div>
+            ))}
+          </div>
+
+          {/* Footer nav */}
+          <div className="mt-8 flex items-center justify-between border-t border-parchment-200 pt-6">
+            <button
+              onClick={() => {
+                if (chapter > 1) {
+                  setChapter(chapter - 1);
+                } else {
+                  const idx = BIBLE_BOOKS.findIndex((b) => b.name === selectedBook.name);
+                  if (idx > 0) {
+                    const prevBook = BIBLE_BOOKS[idx - 1];
+                    setSelectedBook(prevBook);
+                    setChapter(prevBook.chapters);
+                  }
+                }
+              }}
+              disabled={loading || (selectedBook.name === 'Genesis' && chapter === 1)}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
+            >
+              <ChevronLeft className="h-4 w-4" />
+              Previous
+            </button>
+            <button
+              onClick={() => {
+                if (chapter < selectedBook.chapters) {
+                  setChapter(chapter + 1);
+                } else {
+                  const idx = BIBLE_BOOKS.findIndex((b) => b.name === selectedBook.name);
+                  if (idx < BIBLE_BOOKS.length - 1) {
+                    const nextBook = BIBLE_BOOKS[idx + 1];
+                    setSelectedBook(nextBook);
+                    setChapter(1);
+                  }
+                }
+              }}
+              disabled={loading || (selectedBook.name === 'Revelation' && chapter === selectedBook.chapters)}
+              className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
+            >
+              Next
+              <ChevronRight className="h-4 w-4" />
+            </button>
           </div>
         </div>
       )}
