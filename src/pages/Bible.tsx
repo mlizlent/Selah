@@ -166,11 +166,11 @@ export default function Bible() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-ink-900/70 via-ink-900/55 to-parchment-50/95" />
         <div className="relative z-10 px-6 pt-8 pb-16 text-center">
-          <span className="eyebrow mb-3 text-gold-300">King James Version</span>
-          <h1 className="font-display text-4xl font-medium text-white drop-shadow-sm sm:text-6xl">
+          <span className="eyebrow mb-3 text-purple-900 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">King James Version</span>
+          <h1 className="font-display text-4xl font-medium drop-shadow-sm sm:text-6xl" style={{ color: '#6b0099' }}>
             The Holy Bible
           </h1>
-          <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed text-white/90">
+          <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed drop-shadow-sm" style={{ color: '#6b0099' }}>
             Read, search, and meditate on scripture. Select a book and chapter,
             or jump straight to a verse reference.
           </p>
