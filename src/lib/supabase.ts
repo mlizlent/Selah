@@ -19,6 +19,7 @@ export function setSessionCookie(session: Session | null) {
   const maxAge = 60 * 60 * 24 * 7;
   document.cookie = `sb-access-token=${session.access_token}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
   document.cookie = `sb-refresh-token=${session.refresh_token}; Path=/; Max-Age=${maxAge}; SameSite=Lax`;
+  console.log('[cookie] set sb-access-token, length:', session.access_token.length);
 }
 
 export function getSessionCookie(): { access_token?: string; refresh_token?: string } {
@@ -29,6 +30,7 @@ export function getSessionCookie(): { access_token?: string; refresh_token?: str
     if (name === 'sb-access-token') result.access_token = rest.join('=');
     if (name === 'sb-refresh-token') result.refresh_token = rest.join('=');
   }
+  console.log('[cookie] getSessionCookie:', result.access_token ? `access_token length=${result.access_token.length}` : 'no access_token');
   return result;
 }
 
