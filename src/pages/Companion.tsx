@@ -23,7 +23,7 @@ interface Message {
   id: string;
   role: 'user' | 'companion';
   text: string;
-  verses?: { reference: string; text: string }[];
+  verses?: { reference: string; text: string; explanation?: string }[];
   showEscalation?: boolean;
   isCrisis?: boolean;
 }
@@ -87,17 +87,17 @@ export default function Companion() {
   };
 
   return (
-    <div className="mx-auto max-w-3xl px-4 pt-8 pb-12 sm:px-6">
-      <div className="mb-6 text-center">
+    <div className="mx-auto max-w-3xl px-3 pt-6 pb-12 sm:px-6 sm:pt-8">
+      <div className="mb-4 text-center sm:mb-6">
         <p className="eyebrow mb-2">A quiet space</p>
-        <h1 className="font-display text-3xl font-medium text-ink-800 sm:text-4xl">Nia</h1>
+        <h1 className="font-display text-2xl font-medium text-ink-800 sm:text-3xl md:text-4xl">Nia</h1>
         <p className="mx-auto mt-2 max-w-lg text-sm text-ink-500">
           Share a struggle, ask a Bible question, or explore a topic in Scripture. Nia
           will respond with comfort, insight, and verses that fit your situation.
         </p>
       </div>
 
-      <div className="card flex h-[62vh] min-h-[460px] flex-col overflow-hidden">
+      <div className="card flex h-[70vh] min-h-[360px] flex-col overflow-hidden sm:h-[62vh] sm:min-h-[460px]">
         {apiNotice && (
           <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-sm text-amber-700">
             {apiNotice}
@@ -242,6 +242,9 @@ function MessageBubble({
               <div key={v.reference} className="verse-card">
                 <p className="font-display text-base italic leading-relaxed text-ink-700">"{v.text}"</p>
                 <p className="mt-1.5 text-xs font-medium uppercase tracking-wide2 text-gold-600">{v.reference}</p>
+                {v.explanation && (
+                  <p className="mt-1.5 text-xs leading-relaxed text-ink-500">{v.explanation}</p>
+                )}
               </div>
             ))}
           </div>

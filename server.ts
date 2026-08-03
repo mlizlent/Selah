@@ -65,7 +65,7 @@ export function buildPrompt(userText: string) {
 
 Do not use any hard-coded verse list. Use your knowledge of Scripture to answer the user's prompt directly and suggest relevant Bible verses from memory.\n\nRespond with a JSON object and nothing else. The object must include the following fields exactly:
 - text: a substantial, thoughtful response that walks the user through relevant Scripture, explains how it connects to their specific situation, and helps them see what God might be saying to them. Be extensive, warm, and personal — do not give a short or generic reply. Draw out the meaning of the verses, connect them to the user's heart and context, and invite reflection.
-- verses: an array of 3 to 5 verse objects, each with reference and text; if you are not confident about a reference, omit it rather than invent
+- verses: an array of 3 to 5 verse objects, each with reference, text, and explanation; the explanation should briefly say how that specific verse speaks into the user's situation or condition — make it personal, not generic
 - showEscalation: true only if the user expresses crisis, self-harm, harm to others, abuse, or urgent danger
 - isCrisis: true only when the message indicates immediate crisis or danger
 
@@ -361,6 +361,15 @@ app.delete('/api/posts/:id', isAdmin, async (req, res) => {
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
+
+const DIST_DIR = new URL('../dist', import.meta.url);
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(DIST_DIR.pathname));
+  app.get('*', (_req, res) => {
+    res.sendFile(DIST_DIR.pathname + '/index.html');
+  });
+}
 
 const server = http.createServer(app);
 

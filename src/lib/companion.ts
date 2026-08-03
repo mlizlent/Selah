@@ -3,7 +3,7 @@ import { detectCrisis } from '@/lib/crisis';
 
 export interface CompanionReply {
   text: string;
-  verses: { reference: string; text: string }[];
+  verses: { reference: string; text: string; explanation?: string }[];
   showEscalation: boolean;
   isCrisis: boolean;
 }
