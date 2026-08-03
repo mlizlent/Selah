@@ -154,7 +154,7 @@ export default function Companion() {
               onChange={(e) => setInput(e.target.value)}
               rows={1}
               placeholder="Share a struggle, ask a Bible question, or explore a topic in Scripture..."
-              className="input-field max-h-32 resize-none py-2.5"
+              className="input-field max-h-32 resize-none py-2.5 placeholder:text-sm"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
