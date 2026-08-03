@@ -39,7 +39,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [username, setUsername] = useState<string | null>(null);
   const [checkedAdmin, setCheckedAdmin] = useState(false);
 
-  async function checkAdminStatus(accessToken: string) {
+  async function checkAdminStatus(accessToken: string, userEmail?: string) {
     try {
       const res = await fetch('/api/auth/me', {
         method: 'GET',
@@ -59,9 +59,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         const text = await res.text();
         console.log('[auth] /api/auth/me error body:', text);
+        const shield = (import.meta.env.VITE_ADMIN_EMAIL_SHIELD || '').trim().toLowerCase();
+        if (shield && userEmail?.trim().toLowerCase() === shield) {
+          console.log('[auth] fallback: setting isAdmin=true via client-side email check');
+          setIsAdmin(true);
+          setUsername(ADMIN_USERNAME);
+        }
       }
     } catch (err) {
       console.log('[auth] /api/auth/me fetch error:', err);
+      const shield = (import.meta.env.VITE_ADMIN_EMAIL_SHIELD || '').trim().toLowerCase();
+      if (shield && userEmail?.trim().toLowerCase() === shield) {
+        console.log('[auth] fallback: setting isAdmin=true via client-side email check');
+        setIsAdmin(true);
+        setUsername(ADMIN_USERNAME);
+      }
     } finally {
       setCheckedAdmin(true);
     }
@@ -75,7 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
       if (session) {
         setSessionCookie(session);
-        checkAdminStatus(session.access_token);
+        checkAdminStatus(session.access_token, session.user?.email);
       } else {
         setSessionCookie(null);
         setCheckedAdmin(true);
@@ -90,7 +102,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (session) {
         setSessionCookie(session);
         setCheckedAdmin(false);
-        checkAdminStatus(session.access_token);
+        checkAdminStatus(session.access_token, session.user?.email);
       } else {
         setSessionCookie(null);
         setIsAdmin(false);
