@@ -16,7 +16,7 @@ interface NavProps {
 const LINKS: { id: Exclude<Page, 'my requests' | 'login'>; label: string; icon: typeof Heart }[] = [
   { id: 'home', label: 'Home', icon: Heart },
   { id: 'request', label: 'Prayer Request', icon: HandHeart },
-  { id: 'companion', label: 'Companion', icon: MessageCircleHeart },
+  { id: 'companion', label: 'Nia', icon: MessageCircleHeart },
   { id: 'testimonies', label: 'Testimonies', icon: Quote },
   { id: 'whats popping', label: "What's popping", icon: Megaphone },
   { id: 'bible', label: 'Bible', icon: BookOpen },

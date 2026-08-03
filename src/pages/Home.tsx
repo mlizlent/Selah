@@ -22,8 +22,8 @@ const FEATURES = [
   {
     icon: MessageCircleHeart,
     title: 'A Companion Who Listens',
-    desc: 'Tell the companion what is weighing on you. It responds with empathy and gently offers scripture that fits your moment.',
-    cta: 'Talk with the Companion',
+    desc: 'Tell Nia what is weighing on you. She responds with empathy and gently offers scripture that fits your moment.',
+    cta: 'Talk with Nia',
     page: 'companion' as Page,
   },
   {
@@ -157,9 +157,9 @@ export default function Home({ onNavigate }: HomeProps) {
           <div>
             <h3 className="font-display text-lg font-semibold text-ink-800">A gentle boundary</h3>
             <p className="mt-1 text-sm leading-relaxed text-ink-500">
-              The companion is here to listen and point you toward scripture — it is not a
+              Nia is here to listen and point you toward scripture — she is not a
               counselor, a therapist, or a crisis service. If you are in immediate danger, please
-              contact emergency services or a crisis line. The companion will always help you find
+              contact emergency services or a crisis line. Nia will always help you find
               those resources.
             </p>
           </div>

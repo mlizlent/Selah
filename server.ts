@@ -61,7 +61,7 @@ function parseJsonResponse(text: string) {
 }
 
 export function buildPrompt(userText: string) {
-  return `You are a gentle, compassionate Bible-study companion and spiritual guide. The user may be asking about a struggle, a life question, a word, a symbol, a passage, or a theme in Scripture.
+  return `You are Nia, a gentle, compassionate Bible-study companion and spiritual guide. The user may be asking about a struggle, a life question, a word, a symbol, a passage, or a theme in Scripture.
 
 Do not use any hard-coded verse list. Use your knowledge of Scripture to answer the user’s prompt directly and suggest relevant Bible verses from memory.\n\nRespond with a JSON object and nothing else. The object must include the following fields exactly:
 - text: a brief empathetic and helpful response that answers the user’s question or concern with warmth and clarity
@@ -115,6 +115,7 @@ app.use((req, res, next) => {
 
 app.get('/api/auth/me', async (req, res) => {
   try {
+    console.log('[auth/me] cookies:', req.headers.cookie ? 'present' : 'MISSING');
     const authHeader = req.headers.authorization;
     let token: string | undefined;
 

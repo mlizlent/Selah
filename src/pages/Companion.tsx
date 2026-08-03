@@ -68,7 +68,7 @@ export default function Companion() {
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       console.warn('LLM companion failed, using fallback:', error);
-      setApiNotice('The AI companion API is unavailable right now, so the fallback response is being used.');
+      setApiNotice('Nia is temporarily unavailable right now, so a fallback response is being used.');
       reply = generateReply(trimmed);
     }
 
@@ -90,9 +90,9 @@ export default function Companion() {
     <div className="mx-auto max-w-3xl px-4 pt-8 pb-12 sm:px-6">
       <div className="mb-6 text-center">
         <p className="eyebrow mb-2">A quiet space</p>
-        <h1 className="font-display text-3xl font-medium text-ink-800 sm:text-4xl">The Companion</h1>
+        <h1 className="font-display text-3xl font-medium text-ink-800 sm:text-4xl">Nia</h1>
         <p className="mx-auto mt-2 max-w-lg text-sm text-ink-500">
-          Share a struggle, ask a Bible question, or explore a topic in Scripture. The companion
+          Share a struggle, ask a Bible question, or explore a topic in Scripture. Nia
           will respond with comfort, insight, and verses that fit your situation.
         </p>
       </div>
