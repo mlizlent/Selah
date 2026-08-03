@@ -43,6 +43,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       const res = await fetch('/api/auth/me', {
         method: 'GET',
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
         credentials: 'include',
       });
       console.log('[auth] /api/auth/me status:', res.status, 'ok:', res.ok);
