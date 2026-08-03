@@ -157,7 +157,7 @@ export default function Home({ onNavigate }: HomeProps) {
           <div>
             <h3 className="font-display text-lg font-semibold text-ink-800">A gentle boundary</h3>
             <p className="mt-1 text-sm leading-relaxed text-ink-500">
-              Nia is here to listen and point you toward scripture — she is not a
+              Nia is here to listen and point you toward scripture she is not a
               counselor, a therapist, or a crisis service. If you are in immediate danger, please
               contact emergency services or a crisis line. Nia will always help you find
               those resources.
