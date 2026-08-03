@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
-import { supabase } from '@/lib/supabase';
+import { supabase, setSessionCookie, getSessionCookie } from '@/lib/supabase';
 import type { User, Session } from '@supabase/supabase-js';
 
 interface AuthContextType {
@@ -39,10 +39,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [username, setUsername] = useState<string | null>(null);
   const [checkedAdmin, setCheckedAdmin] = useState(false);
 
-  async function checkAdminStatus(token: string, userEmail?: string) {
+  async function checkAdminStatus(accessToken: string) {
     try {
       const res = await fetch('/api/auth/me', {
-        headers: { Authorization: `Bearer ${token}` },
+        method: 'GET',
+        credentials: 'include',
       });
       console.log('[auth] /api/auth/me status:', res.status, 'ok:', res.ok);
       if (res.ok) {
@@ -55,21 +56,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } else {
         const text = await res.text();
         console.log('[auth] /api/auth/me error body:', text);
-        const shield = (import.meta.env.VITE_ADMIN_EMAIL_SHIELD || '').trim().toLowerCase();
-        if (shield && userEmail?.trim().toLowerCase() === shield) {
-          setIsAdmin(true);
-          setUsername(ADMIN_USERNAME);
-        }
       }
     } catch (err) {
       console.log('[auth] /api/auth/me fetch error:', err);
-      const shield = (import.meta.env.VITE_ADMIN_EMAIL_SHIELD || '').trim().toLowerCase();
-      if (shield && userEmail?.trim().toLowerCase() === shield) {
-        setIsAdmin(true);
-        setUsername(ADMIN_USERNAME);
-      } else {
-        setIsAdmin(false);
-      }
     } finally {
       setCheckedAdmin(true);
     }
@@ -81,9 +70,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       setUsername(session?.user?.user_metadata?.username || null);
       setLoading(false);
-      if (session?.access_token) {
-        checkAdminStatus(session.access_token, session?.user?.email);
+      if (session) {
+        setSessionCookie(session);
+        checkAdminStatus(session.access_token);
       } else {
+        setSessionCookie(null);
         setCheckedAdmin(true);
       }
     });
@@ -93,10 +84,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(session?.user ?? null);
       setUsername(session?.user?.user_metadata?.username || null);
       setLoading(false);
-      if (session?.access_token) {
+      if (session) {
+        setSessionCookie(session);
         setCheckedAdmin(false);
-        checkAdminStatus(session.access_token, session?.user?.email);
+        checkAdminStatus(session.access_token);
       } else {
+        setSessionCookie(null);
         setIsAdmin(false);
         setCheckedAdmin(true);
       }
@@ -128,6 +121,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAdmin(false);
     setUsername(null);
     setCheckedAdmin(false);
+    setSessionCookie(null);
   };
 
   return (

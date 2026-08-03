@@ -4,8 +4,6 @@ import { readFile, writeFile } from 'fs/promises';
 import { pathToFileURL } from 'url';
 import { getSupabaseAdmin } from './src/lib/supabaseAdmin';
 import { isAdmin } from './src/middleware/isAdmin';
-
-const app = express();
 const PORT = Number(process.env.PORT || 5178);
 let GROQ_API_KEY = process.env.GROQ_API_KEY;
 let GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
@@ -101,12 +99,14 @@ async function savePosts(posts: unknown[]) {
 }
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   const allowedOrigin = getAllowedOrigin(origin);
   res.header('Access-Control-Allow-Origin', allowedOrigin);
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
   if (req.method === 'OPTIONS') {
     return res.sendStatus(204);
   }
@@ -116,13 +116,20 @@ app.use((req, res, next) => {
 app.get('/api/auth/me', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return sendJson(res, 401, { error: 'Authentication token missing or invalid.' });
+    let token: string | undefined;
+
+    if (authHeader?.startsWith('Bearer ')) {
+      token = authHeader.split(' ')[1];
+    } else {
+      const cookieHeader = req.headers.cookie;
+      if (cookieHeader) {
+        const match = cookieHeader.match(/sb-access-token=([^;]+)/);
+        token = match ? decodeURIComponent(match[1]) : undefined;
+      }
     }
 
-    const token = authHeader.split(' ')[1];
     if (!token) {
-      return sendJson(res, 401, { error: 'Malformed authentication credentials.' });
+      return sendJson(res, 401, { error: 'Authentication token missing or invalid.' });
     }
 
     const admin = await getSupabaseAdmin();

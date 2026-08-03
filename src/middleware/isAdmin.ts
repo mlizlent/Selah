@@ -13,17 +13,26 @@ declare global {
   }
 }
 
+function getCookie(req: Request, name: string): string | undefined {
+  const raw = req.headers.cookie;
+  if (!raw) return undefined;
+  const cookies = raw.split('; ');
+  for (const cookie of cookies) {
+    const idx = cookie.indexOf('=');
+    if (idx === -1) continue;
+    const key = cookie.slice(0, idx);
+    if (key === name) {
+      return cookie.slice(idx + 1);
+    }
+  }
+  return undefined;
+}
+
 export async function isAdmin(req: Request, res: Response, next: NextFunction) {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Authentication token missing or invalid.' });
-    }
-
-    const token = authHeader.split(' ')[1];
+    const token = getCookie(req, 'sb-access-token');
     if (!token) {
-      return res.status(401).json({ error: 'Malformed authentication credentials.' });
+      return res.status(401).json({ error: 'Authentication token missing or invalid.' });
     }
 
     const admin = await getSupabaseAdmin();
