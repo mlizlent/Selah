@@ -22,9 +22,12 @@ function getCookie(req: Request, name: string): string | undefined {
     if (idx === -1) continue;
     const key = cookie.slice(0, idx);
     if (key === name) {
-      return cookie.slice(idx + 1);
+      const value = cookie.slice(idx + 1);
+      console.log('[isAdmin] cookie', name, 'found, length:', value.length);
+      return value;
     }
   }
+  console.log('[isAdmin] cookie', name, 'not found');
   return undefined;
 }
 
