@@ -150,6 +150,9 @@ const CAT_LABEL = (c: PrayerCategory) => PRAYER_CATEGORIES.find((x) => x.value =
 function PrayerQueue({ requests, onUpdate }: { requests: PrayerRequest[]; onUpdate: () => void }) {
   const [note, setNote] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState<string | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearBusy, setClearBusy] = useState(false);
+  const [clearMessage, setClearMessage] = useState<string | null>(null);
 
   const updateStatus = async (id: string, status: PrayerStatus, prayedNote?: string) => {
     setBusy(id);
@@ -163,12 +166,37 @@ function PrayerQueue({ requests, onUpdate }: { requests: PrayerRequest[]; onUpda
     onUpdate();
   };
 
+  const handleClearAll = async () => {
+    setClearBusy(true);
+    setClearMessage(null);
+    try {
+      const { error } = await supabase.from('prayer_requests').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      if (error) throw error;
+      setClearMessage('Prayer queue cleared.');
+      onUpdate();
+    } catch {
+      setClearMessage('Failed to clear prayer queue.');
+    }
+    setClearBusy(false);
+  };
+
   if (requests.length === 0) {
     return <EmptyState icon={Inbox} title="The queue is quiet" desc="No prayer requests yet. When someone sends one, it will appear here." />;
   }
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-display text-lg font-semibold text-ink-800">Prayer Queue ({requests.length})</h3>
+        <button
+          onClick={() => setShowClearConfirm(true)}
+          disabled={clearBusy}
+          className="btn-ghost py-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+          Clear all
+        </button>
+      </div>
       {requests.map((r) => {
         const meta = STATUS_META[r.status];
         return (
@@ -228,18 +256,50 @@ function PrayerQueue({ requests, onUpdate }: { requests: PrayerRequest[]; onUpda
           </div>
         );
       })}
+      <ConfirmDialog
+        open={showClearConfirm}
+        title="Clear prayer queue?"
+        message="This will permanently delete all prayer requests. This action cannot be undone."
+        confirmLabel="Clear all"
+        cancelLabel="Cancel"
+        onConfirm={handleClearAll}
+        onCancel={() => setShowClearConfirm(false)}
+        danger
+      />
+      {clearMessage && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-sm shadow-lg">
+          {clearMessage}
+        </div>
+      )}
     </div>
   );
 }
 
 function AppointmentList({ appointments, onUpdate }: { appointments: Appointment[]; onUpdate: () => void }) {
   const [busy, setBusy] = useState<string | null>(null);
+  const [showClearConfirm, setShowClearConfirm] = useState(false);
+  const [clearBusy, setClearBusy] = useState(false);
+  const [clearMessage, setClearMessage] = useState<string | null>(null);
 
   const updateStatus = async (id: string, status: 'scheduled' | 'completed') => {
     setBusy(id);
     await supabase.from('appointments').update({ status }).eq('id', id);
     setBusy(null);
     onUpdate();
+  };
+
+  const handleClearAll = async () => {
+    setClearBusy(true);
+    setClearMessage(null);
+    try {
+      const { error } = await supabase.from('appointments').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      if (error) throw error;
+      setClearMessage('Appointments cleared.');
+      onUpdate();
+    } catch {
+      setClearMessage('Failed to clear appointments.');
+    }
+    setClearBusy(false);
   };
 
   if (appointments.length === 0) {
@@ -254,6 +314,17 @@ function AppointmentList({ appointments, onUpdate }: { appointments: Appointment
 
   return (
     <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-display text-lg font-semibold text-ink-800">Appointments ({appointments.length})</h3>
+        <button
+          onClick={() => setShowClearConfirm(true)}
+          disabled={clearBusy}
+          className="btn-ghost py-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+          Clear all
+        </button>
+      </div>
       {appointments.map((a) => {
         const meta = APPT_META[a.status];
         return (
@@ -288,6 +359,21 @@ function AppointmentList({ appointments, onUpdate }: { appointments: Appointment
           </div>
         );
       })}
+      <ConfirmDialog
+        open={showClearConfirm}
+        title="Clear all appointments?"
+        message="This will permanently delete all appointments. This action cannot be undone."
+        confirmLabel="Clear all"
+        cancelLabel="Cancel"
+        onConfirm={handleClearAll}
+        onCancel={() => setShowClearConfirm(false)}
+        danger
+      />
+      {clearMessage && (
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-sm shadow-lg">
+          {clearMessage}
+        </div>
+      )}
     </div>
   );
 }
@@ -411,12 +497,8 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
     setClearBusy(true);
     setClearMessage(null);
     try {
-      const res = await fetch('/api/admin/clear-posts', {
-        method: 'POST',
-        headers: getHeaders(),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
+      const { error } = await supabase.from('priestess_posts').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      if (error) throw error;
       setClearMessage('All posts cleared.');
       onUpdate();
     } catch {
@@ -590,12 +672,8 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
     setClearBusy(true);
     setClearMessage(null);
     try {
-      const res = await fetch('/api/admin/clear-testimonies', {
-        method: 'POST',
-        headers: getHeaders(),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
+      const { error } = await supabase.from('testimonies').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+      if (error) throw error;
       setClearMessage('All testimonies cleared.');
       onUpdate();
     } catch {
