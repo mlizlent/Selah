@@ -42,6 +42,7 @@
 
   html {
     scroll-behavior: smooth;
+    font-size: 18px;
   }
   body {
     @apply bg-parchment-50 text-ink-800 font-sans antialiased;
