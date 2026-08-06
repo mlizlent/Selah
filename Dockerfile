@@ -4,7 +4,6 @@ WORKDIR /app
 COPY package.json tsconfig.app.json tsconfig.node.json vite.config.ts ./
 COPY server.ts ./
 COPY src ./src
-COPY public ./public
 COPY posts.json ./
 
 RUN npm install
@@ -22,7 +21,6 @@ COPY --from=builder /app/package.json ./
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server.ts ./
 COPY --from=builder /app/posts.json ./
-COPY --from=builder /app/public ./public
 
 EXPOSE 5178
 
