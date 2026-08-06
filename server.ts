@@ -178,7 +178,8 @@ app.get('/api/auth/me', async (req, res) => {
       username,
       email: user.email,
     });
-  } catch {
+  } catch (err) {
+    console.error('[auth/me] unexpected error:', err);
     return sendJson(res, 500, { error: 'Internal security authentication failure.' });
   }
 });

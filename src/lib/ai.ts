@@ -2,8 +2,10 @@ import type { CompanionReply } from '@/lib/companion';
 
 function getCompanionApiUrl(): string {
   const configured = import.meta.env.VITE_COMPANION_API_URL as string | undefined;
-  if (configured) return configured;
-  return import.meta.env.DEV ? 'http://127.0.0.1:5178/api/companion' : '/api/companion';
+  if (configured && !/^(https?:\/\/)(localhost|127\.0\.0\.1)(:\d+)?/i.test(configured)) {
+    return configured;
+  }
+  return '/api/companion';
 }
 
 export async function fetchCompanionReply(userText: string): Promise<CompanionReply> {
