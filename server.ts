@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import path from 'path';
 import { readFile, writeFile } from 'fs/promises';
 import { pathToFileURL } from 'url';
 import { getSupabaseAdmin } from './src/lib/supabaseAdmin';
@@ -364,12 +365,12 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-const DIST_DIR = new URL('./dist', import.meta.url);
+const DIST_DIR = path.join(process.cwd(), 'dist');
 
 if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(DIST_DIR.pathname));
+  app.use(express.static(DIST_DIR));
   app.use((_req, res) => {
-    res.sendFile(DIST_DIR.pathname + '/index.html');
+    res.sendFile(path.join(DIST_DIR, 'index.html'));
   });
 }
 
