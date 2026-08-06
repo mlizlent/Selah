@@ -423,6 +423,11 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.log('[server] ADMIN_EMAIL_SHIELD:', process.env.ADMIN_EMAIL_SHIELD || 'NOT SET');
     console.log('[server] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
     console.log('[server] SUPABASE_URL:', process.env.SUPABASE_URL || 'NOT SET');
+    console.log('[server] VITE_SUPABASE_URL:', process.env.VITE_SUPABASE_URL || 'NOT SET');
+    console.log('[server] VITE_SUPABASE_ANON_KEY:', process.env.VITE_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET');
+    console.log('[server] GROQ_API_KEY:', process.env.GROQ_API_KEY ? 'SET' : 'NOT SET');
+    console.log('[server] VITE_ADMIN_EMAIL_SHIELD:', process.env.VITE_ADMIN_EMAIL_SHIELD || 'NOT SET');
+    console.log('[server] VITE_COMPANION_API_URL:', process.env.VITE_COMPANION_API_URL || 'NOT SET');
 
     const hasDist = await access(DIST_DIR).then(() => true).catch(() => false);
     if (hasDist) {
