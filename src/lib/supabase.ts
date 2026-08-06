@@ -55,7 +55,6 @@ export interface PrayerRequest {
   prayed_note: string | null;
   created_at: string;
   prayed_at: string | null;
-  user_id: string | null;
 }
 
 export interface Testimony {

@@ -325,7 +325,6 @@ function EscalationModal({
     const { data, error } = await supabase
       .from('prayer_requests')
       .insert({
-        user_id: user?.id || null,
         name: anonymous ? null : name.trim() || null,
         category,
         body: lastUserText,

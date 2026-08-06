@@ -54,7 +54,6 @@ export default function PrayerRequestPage() {
         name: anonymous ? null : name.trim() || null,
         category,
         body: body.trim(),
-        user_id: user?.id || null,
       })
       .select()
       .single();
