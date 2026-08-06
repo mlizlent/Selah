@@ -28,7 +28,7 @@ export default function MyRequests() {
     setLoading(true);
     const [reqRes, apptRes] = await Promise.all([
       supabase.from('prayer_requests').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
-      supabase.from('appointments').select('*').eq('user_id', user.id).order('created_at', { ascending: false }),
+      supabase.from('appointments').select('*').order('created_at', { ascending: false }),
     ]);
     if (reqRes.data) setRequests(reqRes.data as PrayerRequest[]);
     if (apptRes.data) setAppointments(apptRes.data as Appointment[]);

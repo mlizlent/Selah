@@ -95,7 +95,6 @@ export default function PrayerRequestPage() {
         name: apptName.trim(),
         contact: apptContact.trim(),
         reason: apptReason.trim(),
-        user_id: user?.id || null,
       })
       .select()
       .single();

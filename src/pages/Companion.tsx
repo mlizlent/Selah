@@ -346,7 +346,6 @@ function EscalationModal({
     const { data, error } = await supabase
       .from('appointments')
       .insert({
-        user_id: user?.id || null,
         name: anonymous ? null : name.trim() || null,
         contact: contact.trim(),
         reason: lastUserText,

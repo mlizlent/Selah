@@ -76,7 +76,6 @@ export interface Appointment {
   reason: string;
   status: AppointmentStatus;
   created_at: string;
-  user_id: string | null;
 }
 
 export interface PriestessPost {
