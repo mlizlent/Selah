@@ -145,26 +145,42 @@ app.get('/api/auth/me', async (req, res) => {
       return sendJson(res, 500, { error: 'Server misconfigured.' });
     }
 
-    const { data, error } = await admin.auth.getUser(token);
-    if (error || !data.user) {
-      console.error('[auth/me] getUser error:', error);
+    let user;
+    try {
+      const result = await admin.auth.getUser(token);
+      user = result.data.user;
+      if (result.error) {
+        console.error('[auth/me] getUser returned error:', result.error);
+        return sendJson(res, 401, { error: 'Session expired or invalid user token.' });
+      }
+    } catch (err) {
+      console.error('[auth/me] getUser threw:', err);
       return sendJson(res, 401, { error: 'Session expired or invalid user token.' });
     }
 
-    const user = data.user;
+    if (!user) {
+      return sendJson(res, 401, { error: 'Session expired or invalid user token.' });
+    }
+
     const ADMIN_EMAIL_SHIELD = (process.env.ADMIN_EMAIL_SHIELD || '').trim().toLowerCase();
     const ADMIN_USERNAME = 'RoyalDiadem';
 
     console.log('[auth/me] user.email:', user.email, 'ADMIN_EMAIL_SHIELD:', ADMIN_EMAIL_SHIELD, 'match:', user.email?.trim().toLowerCase() === ADMIN_EMAIL_SHIELD);
 
-    const profileResult = await admin
-      .from('profiles')
-      .select('role, username')
-      .eq('id', user.id)
-      .maybeSingle();
+    let role: string | undefined;
+    let username: string | null = null;
+    try {
+      const profileResult = await admin
+        .from('profiles')
+        .select('role, username')
+        .eq('id', user.id)
+        .maybeSingle();
+      role = profileResult.data?.role;
+      username = profileResult.data?.username || user.user_metadata?.username || null;
+    } catch (err) {
+      console.error('[auth/me] profiles query error:', err);
+    }
 
-    let role = profileResult.data?.role;
-    let username = profileResult.data?.username || user.user_metadata?.username || null;
     const isAdminUser = ADMIN_EMAIL_SHIELD && user.email?.trim().toLowerCase() === ADMIN_EMAIL_SHIELD;
     if (isAdminUser) {
       role = 'admin';
