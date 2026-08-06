@@ -98,6 +98,8 @@ async function savePosts(posts: unknown[]) {
   await writeFile(POSTS_FILE, JSON.stringify(posts, null, 2), 'utf8');
 }
 
+const app = express();
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use((req, res, next) => {

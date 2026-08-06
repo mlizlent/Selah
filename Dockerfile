@@ -1,7 +1,7 @@
 FROM node:20 AS builder
 WORKDIR /app
 
-COPY package.json tsconfig.app.json tsconfig.node.json vite.config.ts ./
+COPY package.json tsconfig.app.json tsconfig.node.json tsconfig.json vite.config.ts postcss.config.js tailwind.config.js index.html ./
 COPY server.ts ./
 COPY src ./src
 COPY posts.json ./
