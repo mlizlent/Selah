@@ -33,6 +33,8 @@ export async function getSupabaseAdmin() {
     if (!url) return null;
     adminClient = createClient(url, key, {
       auth: { autoRefreshToken: false, persistSession: false },
+      // @ts-ignore - disable realtime to avoid WebSocket requirement in Node/Docker
+      realtime: { disabled: true },
     });
   }
   return adminClient;
