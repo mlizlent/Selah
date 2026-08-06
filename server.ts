@@ -386,10 +386,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const hasDist = await access(DIST_DIR).then(() => true).catch(() => false);
     if (hasDist) {
       app.use(express.static(DIST_DIR));
-      app.get('*', (_req, res) => {
+      app.use((_req, res) => {
         res.sendFile(path.join(DIST_DIR, 'index.html'));
       });
     }
+  }).catch((err) => {
+    console.error('[server] startup error:', err);
   });
 }
 

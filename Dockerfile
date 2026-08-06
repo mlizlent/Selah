@@ -20,6 +20,9 @@ COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/server.ts ./
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/posts.json ./
+COPY --from=builder /app/tsconfig.json ./
+
+ENV PORT=10000
 
 EXPOSE 10000
 
