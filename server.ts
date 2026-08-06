@@ -370,6 +370,10 @@ const DIST_DIR = path.join(process.cwd(), 'dist');
 const server = http.createServer(app);
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`LLM companion server running on http://0.0.0.0:${PORT}`);
+  });
+
   loadDotEnv().then(async () => {
     GROQ_API_KEY = process.env.GROQ_API_KEY;
     GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
@@ -386,10 +390,6 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
         res.sendFile(path.join(DIST_DIR, 'index.html'));
       });
     }
-
-    server.listen(PORT, () => {
-      console.log(`LLM companion server running on http://localhost:${PORT}`);
-    });
   });
 }
 
