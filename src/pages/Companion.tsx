@@ -243,7 +243,11 @@ function MessageBubble({
                 <p className="font-display text-base italic leading-relaxed text-ink-700">"{v.text}"</p>
                 <p className="mt-1.5 text-xs font-medium uppercase tracking-wide2 text-gold-600">{v.reference}</p>
                 {v.explanation && (
-                  <p className="mt-1.5 text-xs leading-relaxed text-ink-500">{v.explanation}</p>
+                  <div className="mt-2 space-y-2">
+                    {v.explanation.split('\n\n').map((para, i) => (
+                      <p key={i} className="font-explanation text-sm leading-relaxed text-ink-500">{para.trim()}</p>
+                    ))}
+                  </div>
                 )}
               </div>
             ))}

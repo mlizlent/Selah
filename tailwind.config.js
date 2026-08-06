@@ -45,6 +45,7 @@ export default {
       fontFamily: {
         serif: ['"Cormorant Garamond"', 'Georgia', 'serif'],
         sans: ['"Inter"', 'system-ui', 'sans-serif'],
+        explanation: ['"Times New Roman"', 'Times', 'serif'],
       },
       letterSpacing: {
         wide2: '0.15em',
