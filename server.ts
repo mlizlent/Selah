@@ -52,16 +52,20 @@ function sendJson(res: express.Response, status: number, payload: unknown) {
 }
 
 function parseJsonResponse(text: string) {
-  const trimmed = text.trim();
+  let cleaned = text.trim();
+  cleaned = cleaned.replace(/^\uFEFF/, '');
+  cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+  cleaned = cleaned.trim();
+
   try {
-    return JSON.parse(trimmed);
-  } catch (error) {
-    const first = trimmed.indexOf('{');
-    const last = trimmed.lastIndexOf('}');
+    return JSON.parse(cleaned);
+  } catch {
+    const first = cleaned.indexOf('{');
+    const last = cleaned.lastIndexOf('}');
     if (first !== -1 && last !== -1 && last > first) {
-      return JSON.parse(trimmed.slice(first, last + 1));
+      return JSON.parse(cleaned.slice(first, last + 1));
     }
-    throw error;
+    throw new Error(`No JSON object found in response: ${cleaned.slice(0, 200)}`);
   }
 }
 
