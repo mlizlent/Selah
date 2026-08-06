@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { X, Loader2, Mail, Lock, UserPlus, LogIn, User } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -18,6 +18,19 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const { signUp, signIn } = useAuth();
 
+  useEffect(() => {
+    if (!open) {
+      setIsSignUp(false);
+      setEmail('');
+      setUsername('');
+      setPassword('');
+      setConfirmPassword('');
+      setError(null);
+      setMessage(null);
+      setSubmitting(false);
+    }
+  }, [open]);
+
   if (!open) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -36,7 +49,10 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
       if (error) {
         setError(error.message);
       } else {
-        setMessage('Check your email to confirm your account.');
+        setMessage('Account created! Check your email to confirm, then come back and sign in.');
+        setTimeout(() => {
+          onClose();
+        }, 3000);
       }
     } else {
       const { error } = await signIn(email, password);
