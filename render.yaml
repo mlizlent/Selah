@@ -1,0 +1,16 @@
+services:
+  - type: web
+    name: selah
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: VITE_SUPABASE_URL
+        sync: false
+      - key: VITE_SUPABASE_ANON_KEY
+        sync: false
+      - key: VITE_COMPANION_API_URL
+        sync: false
+    healthCheckPath: /api/health
+    autoDeploy: true

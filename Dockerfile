@@ -13,9 +13,6 @@ FROM node:20 AS runner
 WORKDIR /app
 
 ENV NODE_ENV=production
-ENV PORT=5178
-
-RUN npm install -g tsx
 
 COPY --from=builder /app/package.json ./
 COPY --from=builder /app/node_modules ./node_modules
@@ -24,6 +21,6 @@ COPY --from=builder /app/server.ts ./
 COPY --from=builder /app/src ./src
 COPY --from=builder /app/posts.json ./
 
-EXPOSE 5178
+EXPOSE 10000
 
-CMD ["tsx", "server.ts"]
+CMD ["npm", "start"]

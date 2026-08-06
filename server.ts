@@ -147,7 +147,7 @@ app.get('/api/auth/me', async (req, res) => {
     }
 
     const user = data.user;
-    const ADMIN_EMAIL_SHIELD = process.env.ADMIN_EMAIL_SHIELD?.trim().toLowerCase();
+    const ADMIN_EMAIL_SHIELD = (process.env.ADMIN_EMAIL_SHIELD || '').trim().toLowerCase();
     const ADMIN_USERNAME = 'RoyalDiadem';
 
     console.log('[auth/me] user.email:', user.email, 'ADMIN_EMAIL_SHIELD:', ADMIN_EMAIL_SHIELD, 'match:', user.email?.trim().toLowerCase() === ADMIN_EMAIL_SHIELD);
@@ -364,7 +364,7 @@ app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' });
 });
 
-const DIST_DIR = new URL('../dist', import.meta.url);
+const DIST_DIR = new URL('./dist', import.meta.url);
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(DIST_DIR.pathname));

@@ -49,7 +49,7 @@ export async function isAdmin(req: Request, res: Response, next: NextFunction) {
     }
 
     const user = data.user;
-    const masterAdminEmail = process.env.ADMIN_EMAIL_SHIELD?.trim().toLowerCase();
+    const masterAdminEmail = (process.env.ADMIN_EMAIL_SHIELD || '').trim().toLowerCase();
 
     if (masterAdminEmail && user.email?.trim().toLowerCase() === masterAdminEmail) {
       req.user = {
