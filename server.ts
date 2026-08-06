@@ -272,7 +272,7 @@ app.post('/api/companion', async (req, res) => {
           },
         ],
         temperature: 0.3,
-        max_tokens: 500,
+        max_tokens: 2000,
       }),
       signal: AbortSignal.timeout(30000),
     });
