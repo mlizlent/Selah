@@ -55,6 +55,7 @@ function parseJsonResponse(text: string) {
   let cleaned = text.trim();
   cleaned = cleaned.replace(/^\uFEFF/, '');
   cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
+  cleaned = cleaned.replace(/[\x00-\x08\x0b\x0c\x0e-\x1f]/g, '');
   cleaned = cleaned.trim();
 
   function attemptParse(input: string): unknown {
@@ -306,6 +307,7 @@ app.post('/api/companion', async (req, res) => {
         ],
         temperature: 0.3,
         max_tokens: 2000,
+        response_format: { type: 'json_object' },
       }),
       signal: AbortSignal.timeout(30000),
     });
@@ -334,6 +336,7 @@ app.post('/api/companion', async (req, res) => {
   try {
     parsed = parseJsonResponse(messageText);
   } catch (error) {
+    console.error('[companion] parseJsonResponse failed:', error, 'raw:', messageText.slice(0, 500));
     return sendJson(res, 502, {
       error: 'Unable to parse Groq response as JSON.',
       raw: messageText,
