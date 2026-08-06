@@ -14,14 +14,14 @@ async function loadServiceRoleKey(): Promise<string | null> {
       const trimmed = line.trim();
       if (!trimmed || trimmed.startsWith('#')) continue;
       if (trimmed.startsWith('SUPABASE_SERVICE_ROLE_KEY=')) {
-        cachedKey = trimmed.split('=').slice(1).join('=').replace(/(^['"]|['"]$)/g, '');
+        cachedKey = trimmed.split('=').slice(1).join('=').replace(/(^['"]|['"]$)/g, '').trim();
         return cachedKey;
       }
     }
   } catch (err) {
     console.error('[supabaseAdmin] Failed to read .env:', err);
   }
-  return process.env.SUPABASE_SERVICE_ROLE_KEY || null;
+  return (process.env.SUPABASE_SERVICE_ROLE_KEY || '').trim() || null;
 }
 
 let adminClient: ReturnType<typeof createClient> | null = null;
@@ -30,7 +30,7 @@ export async function getSupabaseAdmin() {
   const key = await loadServiceRoleKey();
   if (!key) return null;
   if (!adminClient) {
-    const url = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
+    const url = (process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || '').trim();
     if (!url) return null;
     adminClient = createClient(url, key, {
       auth: { autoRefreshToken: false, persistSession: false },
