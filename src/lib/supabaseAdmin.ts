@@ -1,6 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 import { readFile } from 'fs/promises';
 import { pathToFileURL } from 'url';
+import ws from 'ws';
 
 let cachedKey: string | null = null;
 
@@ -33,8 +34,8 @@ export async function getSupabaseAdmin() {
     if (!url) return null;
     adminClient = createClient(url, key, {
       auth: { autoRefreshToken: false, persistSession: false },
-      // @ts-ignore - disable realtime to avoid WebSocket requirement in Node/Docker
-      realtime: { disabled: true },
+      // @ts-ignore - provide ws transport for Node.js < 22 WebSocket support
+      realtime: { transport: ws },
     });
   }
   return adminClient;
