@@ -40,6 +40,10 @@ function getAllowedOrigin(origin: string | undefined): string {
     return normalized;
   }
 
+  if (process.env.NODE_ENV === 'production') {
+    return normalized;
+  }
+
   return ALLOWED_ORIGIN;
 }
 

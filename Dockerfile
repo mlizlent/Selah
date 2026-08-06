@@ -4,6 +4,7 @@ WORKDIR /app
 ARG VITE_SUPABASE_URL
 ARG VITE_SUPABASE_ANON_KEY
 ARG VITE_COMPANION_API_URL
+ARG VITE_ADMIN_EMAIL_SHIELD
 
 COPY package.json tsconfig.app.json tsconfig.node.json tsconfig.json vite.config.ts postcss.config.js tailwind.config.js index.html ./
 COPY server.ts ./
@@ -12,7 +13,8 @@ COPY posts.json ./
 
 ENV VITE_SUPABASE_URL=${VITE_SUPABASE_URL} \
     VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY} \
-    VITE_COMPANION_API_URL=${VITE_COMPANION_API_URL}
+    VITE_COMPANION_API_URL=${VITE_COMPANION_API_URL} \
+    VITE_ADMIN_EMAIL_SHIELD=${VITE_ADMIN_EMAIL_SHIELD}
 
 RUN npm install
 RUN npm run build
