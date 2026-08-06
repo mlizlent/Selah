@@ -1,7 +1,7 @@
 import express from 'express';
 import http from 'http';
 import path from 'path';
-import { readFile, writeFile } from 'fs/promises';
+import { readFile, writeFile, exists } from 'fs/promises';
 import { pathToFileURL } from 'url';
 import { getSupabaseAdmin } from './src/lib/supabaseAdmin';
 import { isAdmin } from './src/middleware/isAdmin';
@@ -367,13 +367,6 @@ app.get('/api/health', (_req, res) => {
 
 const DIST_DIR = path.join(process.cwd(), 'dist');
 
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(DIST_DIR));
-  app.use((_req, res) => {
-    res.sendFile(path.join(DIST_DIR, 'index.html'));
-  });
-}
-
 const server = http.createServer(app);
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
@@ -385,6 +378,14 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.log('[server] ADMIN_EMAIL_SHIELD:', process.env.ADMIN_EMAIL_SHIELD || 'NOT SET');
     console.log('[server] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
     console.log('[server] SUPABASE_URL:', process.env.SUPABASE_URL || 'NOT SET');
+
+    const hasDist = await exists(DIST_DIR).catch(() => false);
+    if (hasDist) {
+      app.use(express.static(DIST_DIR));
+      app.get('*', (_req, res) => {
+        res.sendFile(path.join(DIST_DIR, 'index.html'));
+      });
+    }
 
     server.listen(PORT, () => {
       console.log(`LLM companion server running on http://localhost:${PORT}`);
