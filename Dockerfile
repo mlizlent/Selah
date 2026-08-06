@@ -1,10 +1,18 @@
 FROM node:20 AS builder
 WORKDIR /app
 
+ARG VITE_SUPABASE_URL
+ARG VITE_SUPABASE_ANON_KEY
+ARG VITE_COMPANION_API_URL
+
 COPY package.json tsconfig.app.json tsconfig.node.json tsconfig.json vite.config.ts postcss.config.js tailwind.config.js index.html ./
 COPY server.ts ./
 COPY src ./src
 COPY posts.json ./
+
+ENV VITE_SUPABASE_URL=${VITE_SUPABASE_URL} \
+    VITE_SUPABASE_ANON_KEY=${VITE_SUPABASE_ANON_KEY} \
+    VITE_COMPANION_API_URL=${VITE_COMPANION_API_URL}
 
 RUN npm install
 RUN npm run build
