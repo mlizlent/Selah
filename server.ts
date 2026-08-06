@@ -370,7 +370,7 @@ const DIST_DIR = path.join(process.cwd(), 'dist');
 const server = http.createServer(app);
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  loadDotEnv().then(() => {
+  loadDotEnv().then(async () => {
     GROQ_API_KEY = process.env.GROQ_API_KEY;
     GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
     ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
