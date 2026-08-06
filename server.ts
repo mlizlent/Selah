@@ -1,7 +1,7 @@
 import express from 'express';
 import http from 'http';
 import path from 'path';
-import { readFile, writeFile, exists } from 'fs/promises';
+import { readFile, writeFile, access } from 'fs/promises';
 import { pathToFileURL } from 'url';
 import { getSupabaseAdmin } from './src/lib/supabaseAdmin';
 import { isAdmin } from './src/middleware/isAdmin';
@@ -383,7 +383,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     console.log('[server] SUPABASE_SERVICE_ROLE_KEY:', process.env.SUPABASE_SERVICE_ROLE_KEY ? 'SET' : 'NOT SET');
     console.log('[server] SUPABASE_URL:', process.env.SUPABASE_URL || 'NOT SET');
 
-    const hasDist = await exists(DIST_DIR).catch(() => false);
+    const hasDist = await access(DIST_DIR).then(() => true).catch(() => false);
     if (hasDist) {
       app.use(express.static(DIST_DIR));
       app.get('*', (_req, res) => {
