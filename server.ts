@@ -57,16 +57,29 @@ function parseJsonResponse(text: string) {
   cleaned = cleaned.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '');
   cleaned = cleaned.trim();
 
-  try {
-    return JSON.parse(cleaned);
-  } catch {
-    const first = cleaned.indexOf('{');
-    const last = cleaned.lastIndexOf('}');
-    if (first !== -1 && last !== -1 && last > first) {
-      return JSON.parse(cleaned.slice(first, last + 1));
+  function attemptParse(input: string): unknown {
+    try {
+      const parsed = JSON.parse(input);
+      if (typeof parsed === 'string') {
+        return JSON.parse(parsed);
+      }
+      return parsed;
+    } catch {
+      return null;
     }
-    throw new Error(`No JSON object found in response: ${cleaned.slice(0, 200)}`);
   }
+
+  const direct = attemptParse(cleaned);
+  if (direct !== null) return direct;
+
+  const first = cleaned.indexOf('{');
+  const last = cleaned.lastIndexOf('}');
+  if (first !== -1 && last !== -1 && last > first) {
+    const extracted = attemptParse(cleaned.slice(first, last + 1));
+    if (extracted !== null) return extracted;
+  }
+
+  throw new Error(`No JSON object found in response: ${cleaned.slice(0, 200)}`);
 }
 
 export function buildPrompt(userText: string) {
