@@ -243,11 +243,7 @@ function MessageBubble({
                 <p className="font-display text-base italic leading-relaxed text-ink-700">"{v.text}"</p>
                 <p className="mt-1.5 text-xs font-medium uppercase tracking-wide2 text-gold-600">{v.reference}</p>
                 {v.explanation && (
-                  <div className="mt-2 space-y-2">
-                    {v.explanation.split('\n\n').map((para, i) => (
-                      <p key={i} className="font-explanation text-sm leading-relaxed text-ink-500">{para.trim()}</p>
-                    ))}
-                  </div>
+                  <ExplanationText text={v.explanation} />
                 )}
               </div>
             ))}
@@ -273,6 +269,32 @@ function MessageBubble({
           </div>
         )}
       </div>
+    </div>
+  );
+}
+
+function splitIntoParagraphs(text: string): string[] {
+  const trimmed = text.trim();
+  const explicit = trimmed.split('\n\n').filter((p) => p.trim().length > 0);
+  if (explicit.length > 1) return explicit;
+
+  const sentences = trimmed.match(/[^.!?]+[.!?]+/g) || [trimmed];
+  const chunks: string[] = [];
+  const chunkSize = 2;
+  for (let i = 0; i < sentences.length; i += chunkSize) {
+    const chunk = sentences.slice(i, i + chunkSize).join(' ').trim();
+    if (chunk) chunks.push(chunk);
+  }
+  return chunks.length > 0 ? chunks : [trimmed];
+}
+
+function ExplanationText({ text }: { text: string }) {
+  const paragraphs = splitIntoParagraphs(text);
+  return (
+    <div className="mt-2 space-y-2">
+      {paragraphs.map((para, i) => (
+        <p key={i} className="font-explanation text-sm leading-relaxed text-ink-500">{para}</p>
+      ))}
     </div>
   );
 }
