@@ -368,7 +368,7 @@ const DIST_DIR = new URL('../dist', import.meta.url);
 
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(DIST_DIR.pathname));
-  app.get('*', (_req, res) => {
+  app.use((_req, res) => {
     res.sendFile(DIST_DIR.pathname + '/index.html');
   });
 }
