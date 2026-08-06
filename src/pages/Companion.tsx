@@ -208,10 +208,12 @@ function MessageBubble({
       <span className="mr-2 mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
         <Sparkles className="h-4 w-4" strokeWidth={1.5} />
       </span>
-      <div className="max-w-[85%] space-y-3">
-        <div className="rounded-2xl rounded-bl-md bg-parchment-100 px-4 py-3 text-sm leading-relaxed text-ink-700">
-          {message.text}
-        </div>
+        <div className="max-w-[85%] space-y-3">
+          <div className="rounded-2xl rounded-bl-md bg-parchment-100 px-4 py-3 text-sm leading-relaxed text-ink-700">
+            {splitIntoParagraphs(message.text).map((para, i) => (
+              <p key={i} className={i > 0 ? 'mt-3' : ''}>{para}</p>
+            ))}
+          </div>
 
         {message.isCrisis && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4">
