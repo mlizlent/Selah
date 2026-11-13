@@ -3,7 +3,7 @@ WORKDIR /app
 
 ARG VITE_COMPANION_API_URL
 
-COPY package.json package-lock.json tsconfig.json ./
+COPY package.json package-lock.json ./
 COPY frontend ./frontend
 COPY backend ./backend
 
@@ -22,7 +22,6 @@ COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/frontend/dist ./frontend/dist
 COPY --from=builder /app/frontend ./frontend
 COPY --from=builder /app/backend ./backend
-COPY --from=builder /app/tsconfig.json ./tsconfig.json
 
 ENV PORT=10000
 
