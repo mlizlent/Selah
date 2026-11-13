@@ -56,7 +56,7 @@ export default function Home({ onNavigate }: HomeProps) {
   return (
     <div>
       {/* Hero */}
-      <section className="relative flex min-h-screen items-center justify-center overflow-hidden bg-ink-950">
+      <section className="relative flex min-h-[75vh] items-center justify-center overflow-hidden bg-ink-950">
         <div className="absolute inset-0">
           <img
             src={HERO_IMG}

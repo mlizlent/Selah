@@ -201,7 +201,7 @@ export default function Bible() {
   return (
     <div>
       {/* Hero */}
-      <div className="relative -mt-px flex min-h-[460px] items-center justify-center overflow-hidden">
+      <div className="relative -mt-px flex min-h-[345px] items-center justify-center overflow-hidden">
         <img
           src="https://images.pexels.com/photos/34923397/pexels-photo-34923397.jpeg?auto=compress&cs=tinysrgb&w=1600"
           alt="An open Bible under warm lamp light"
