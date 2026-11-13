@@ -37,10 +37,30 @@ const PageErrorFallback = ({ page }: { page: string }) => (
 
 type ExtendedPage = Page | 'my requests' | 'login';
 
+const ALL_PAGES: ExtendedPage[] = ['home', 'request', 'companion', 'testimonies', 'whats popping', 'priestess', 'bible', 'my requests', 'login'];
+
+function getInitialPage(): ExtendedPage {
+  try {
+    const saved = localStorage.getItem('selah-page');
+    if (saved && ALL_PAGES.includes(saved as ExtendedPage)) return saved as ExtendedPage;
+  } catch {
+    // ignore
+  }
+  return 'home';
+}
+
 function AppContent() {
-  const [page, setPage] = useState<ExtendedPage>('home');
+  const [page, setPage] = useState<ExtendedPage>(getInitialPage);
   const [showAccount, setShowAccount] = useState(false);
   const { user, loading, isAdmin, checkedAdmin, username, signOut } = useAuth();
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('selah-page', page);
+    } catch {
+      // ignore
+    }
+  }, [page]);
 
   useEffect(() => {
     if (!loading && page !== 'home' && page !== 'login' && !user) {
