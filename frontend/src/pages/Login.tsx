@@ -1,38 +1,30 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/AuthContext';
+import { api } from '@/lib/api';
 
-export default function Login() {
+interface LoginProps {
+  onDone?: () => void;
+}
+
+export default function Login({ onDone }: LoginProps = {}) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [resetSent, setResetSent] = useState(false);
-  const { user, loading } = useAuth();
-  const navigate = useNavigate();
+  const { user, loading, signIn } = useAuth();
 
   useEffect(() => {
-    if (!loading && user) {
-      const shield = import.meta.env.VITE_ADMIN_EMAIL_SHIELD?.trim().toLowerCase();
-      if (shield && user.email?.trim().toLowerCase() === shield) {
-        navigate('/priestess', { replace: true });
-      } else {
-        navigate('/feed', { replace: true });
-      }
-    }
-  }, [user, loading, navigate]);
+    if (!loading && user && onDone) onDone();
+  }, [user, loading, onDone]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSubmitting(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email.trim(),
-      password,
-    });
+    const { error } = await signIn(email.trim(), password);
 
     setSubmitting(false);
 
@@ -40,13 +32,7 @@ export default function Login() {
       setError(error.message);
       return;
     }
-
-    const shield = import.meta.env.VITE_ADMIN_EMAIL_SHIELD?.trim().toLowerCase();
-    if (shield && email.trim().toLowerCase() === shield) {
-      navigate('/priestess', { replace: true });
-    } else {
-      navigate('/feed', { replace: true });
-    }
+    if (onDone) onDone();
   };
 
   const handleForgotPassword = async () => {
@@ -56,15 +42,13 @@ export default function Login() {
     }
     setSubmitting(true);
     setError(null);
-    const { error } = await supabase.auth.resetPasswordForEmail(email.trim(), {
-      redirectTo: `${window.location.origin}/reset-password`,
-    });
-    setSubmitting(false);
-    if (error) {
-      setError(error.message);
-    } else {
+    try {
+      await api.post('/api/auth/forgot-password', { email: email.trim() });
       setResetSent(true);
+    } catch (e: any) {
+      setError(e?.message || 'Unable to request password reset.');
     }
+    setSubmitting(false);
   };
 
   if (loading) {
@@ -124,16 +108,12 @@ export default function Login() {
           {resetSent && (
             <div className="flex items-start gap-2 rounded-lg bg-lavender-50 px-4 py-3 text-sm text-lavender-700">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>Check your email for a password reset link.</span>
+              <span>If an account exists for that email, password reset instructions have been recorded. Please contact the administrator if you need help resetting your password.</span>
             </div>
           )}
 
           <button type="submit" disabled={submitting} className="btn-primary w-full">
-            {submitting ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              'Sign in'
-            )}
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Sign in'}
           </button>
 
           {!resetSent && (
@@ -149,13 +129,7 @@ export default function Login() {
         </form>
 
         <p className="mt-6 text-center text-sm text-ink-500">
-          Don't have an account?{' '}
-          <button
-            onClick={() => navigate('/')}
-            className="font-medium text-lavender-600 hover:text-lavender-700"
-          >
-            Sign up from the home page
-          </button>
+          Don't have an account? Use the sign in button to open the account dialog.
         </p>
       </div>
     </div>

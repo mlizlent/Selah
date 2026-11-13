@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Loader2, User, Mail, CalendarHeart, Clock, CheckCircle2 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { PrayerRequest, Appointment } from '@/lib/supabase';
 
@@ -26,12 +26,17 @@ export default function MyRequests() {
   const load = async () => {
     if (!user) return;
     setLoading(true);
-    const [reqRes, apptRes] = await Promise.all([
-      supabase.from('prayer_requests').select('*').order('created_at', { ascending: false }),
-      supabase.from('appointments').select('*').order('created_at', { ascending: false }),
-    ]);
-    if (reqRes.data) setRequests(reqRes.data as PrayerRequest[]);
-    if (apptRes.data) setAppointments(apptRes.data as Appointment[]);
+    try {
+      const [reqRes, apptRes] = await Promise.all([
+        api.get<{ requests: PrayerRequest[] }>('/api/prayer-requests/mine'),
+        api.get<{ appointments: Appointment[] }>('/api/appointments/mine'),
+      ]);
+      setRequests(reqRes.requests || []);
+      setAppointments(apptRes.appointments || []);
+    } catch {
+      setRequests([]);
+      setAppointments([]);
+    }
     setLoading(false);
   };
 

@@ -130,7 +130,7 @@ function AppContent() {
           </Suspense>
         );
       case 'login':
-        return <Login />;
+        return <Login onDone={() => setPage(isAdmin ? 'priestess' : 'home')} />;
       default:
         return <Home onNavigate={navigateTo} />;
     }
@@ -138,7 +138,7 @@ function AppContent() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Nav page={page} onNavigate={navigateTo} user={user} username={username} isAdmin={isAdmin} onAccountClick={() => setShowAccount(true)} onSignOut={signOut} />
+      <Nav page={page as any} onNavigate={navigateTo as any} user={user} username={username} isAdmin={isAdmin} onAccountClick={() => setShowAccount(true)} onSignOut={signOut} />
       <main className="flex-1">
         <ErrorBoundary fallback={<PageErrorFallback page={page} />}>
           {renderPage()}

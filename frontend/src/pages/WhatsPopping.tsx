@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { X, Loader2 } from 'lucide-react';
 import type { PriestessPost } from '@/lib/supabase';
 import { PostCardSkeleton } from '@/components/Skeletons';
+import { api } from '@/lib/api';
 
 function timeAgo(dateString: string): string {
   const date = new Date(dateString);
@@ -29,9 +30,8 @@ export default function WhatsPopping() {
 
   const load = async () => {
     try {
-      const res = await fetch('/api/posts');
-      const json = await res.json();
-      if (json.posts) setPosts(json.posts);
+      const res = await api.get<{ posts: PriestessPost[] }>('/api/posts');
+      if (res.posts) setPosts(res.posts);
     } catch {
       // silent
     }

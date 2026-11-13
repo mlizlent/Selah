@@ -15,8 +15,8 @@ import { fetchCompanionReply } from '@/lib/ai';
 import { generateReply, GREETING } from '@/lib/companion';
 import type { CompanionReply } from '@/lib/companion';
 import { CRISIS_RESOURCES } from '@/lib/crisis';
-import { supabase } from '@/lib/supabase';
 import type { PrayerCategory } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface Message {
@@ -322,41 +322,33 @@ function EscalationModal({
   const submitPrayer = async () => {
     setSubmitting(true);
     setError(null);
-    const { data, error } = await supabase
-      .from('prayer_requests')
-      .insert({
+    try {
+      const res = await api.post<{ request: { id: string } }>('/api/prayer-requests', {
         name: anonymous ? null : name.trim() || null,
         category,
         body: lastUserText,
-      })
-      .select()
-      .single();
-    setSubmitting(false);
-    if (error) {
+      });
+      setDone(res.request.id);
+    } catch {
       setError('Something went wrong. Please try again.');
-      return;
     }
-    setDone((data as { id: string }).id);
+    setSubmitting(false);
   };
 
   const submitAppointment = async () => {
     setSubmitting(true);
     setError(null);
-    const { data, error } = await supabase
-      .from('appointments')
-      .insert({
+    try {
+      const res = await api.post<{ appointment: { id: string } }>('/api/appointments', {
         name: anonymous ? null : name.trim() || null,
         contact: contact.trim(),
         reason: lastUserText,
-      })
-      .select()
-      .single();
-    setSubmitting(false);
-    if (error) {
+      });
+      setDone(res.appointment.id);
+    } catch {
       setError('Something went wrong. Please try again.');
-      return;
     }
-    setDone((data as { id: string }).id);
+    setSubmitting(false);
   };
 
   return (

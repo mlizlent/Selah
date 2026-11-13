@@ -10,10 +10,11 @@ import {
   CalendarHeart,
   Mail,
 } from 'lucide-react';
-import { supabase, PRAYER_CATEGORIES } from '@/lib/supabase';
+import { PRAYER_CATEGORIES } from '@/lib/supabase';
 import type { PrayerCategory, PrayerRequest } from '@/lib/supabase';
 import { detectCrisis, CRISIS_RESOURCES } from '@/lib/crisis';
 import { useAuth } from '@/contexts/AuthContext';
+import { api } from '@/lib/api';
 
 const STATUS_META: Record<string, { label: string; icon: typeof Clock; color: string; bg: string }> = {
   pending: { label: 'Pending', icon: Clock, color: 'text-ink-500', bg: 'bg-parchment-100' },
@@ -48,31 +49,25 @@ export default function PrayerRequestPage() {
     setSubmitting(true);
     setError(null);
 
-    const { data, error } = await supabase
-      .from('prayer_requests')
-      .insert({
+    try {
+      const res = await api.post<{ request: PrayerRequest }>('/api/prayer-requests', {
         name: anonymous ? null : name.trim() || null,
         category,
         body: body.trim(),
-      })
-      .select()
-      .single();
-
-    setSubmitting(false);
-    if (error) {
-      console.error('Prayer request submit error:', error);
-      const message = typeof error.message === 'string' ? error.message : 'Something went wrong sending your request. Please try again.';
-      setError(message);
-      return;
+      });
+      const newRequest = res.request;
+      setSubmitted(newRequest);
+      setTrackedRequests((prev) => {
+        const updated = [newRequest, ...prev.filter((r) => r.id !== newRequest.id)];
+        localStorage.setItem('selah-prayer-requests', JSON.stringify(updated));
+        return updated;
+      });
+    } catch (err: any) {
+      console.error('Prayer request submit error:', err);
+      setError(err?.message || 'Something went wrong sending your request. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
-
-    const newRequest = data as PrayerRequest;
-    setSubmitted(newRequest);
-    setTrackedRequests((prev) => {
-      const updated = [newRequest, ...prev];
-      localStorage.setItem('selah-prayer-requests', JSON.stringify(updated));
-      return updated;
-    });
   };
 
   useEffect(() => {
@@ -88,28 +83,22 @@ export default function PrayerRequestPage() {
     setApptSubmitting(true);
     setApptError(null);
 
-    const { data, error } = await supabase
-      .from('appointments')
-      .insert({
+    try {
+      const res = await api.post<{ appointment: { id: string } }>('/api/appointments', {
         name: apptName.trim(),
         contact: apptContact.trim(),
         reason: apptReason.trim(),
-      })
-      .select()
-      .single();
-
-    setApptSubmitting(false);
-    if (error) {
-      console.error('Appointment submit error:', error);
-      const message = typeof error.message === 'string' ? error.message : 'Something went wrong. Please try again.';
-      setApptError(message);
-      return;
+      });
+      setApptSubmitted(res.appointment.id);
+      setApptName('');
+      setApptContact('');
+      setApptReason('');
+    } catch (err: any) {
+      console.error('Appointment submit error:', err);
+      setApptError(err?.message || 'Something went wrong. Please try again.');
+    } finally {
+      setApptSubmitting(false);
     }
-
-    setApptSubmitted(data.id);
-    setApptName('');
-    setApptContact('');
-    setApptReason('');
   };
 
   useEffect(() => {
@@ -127,20 +116,22 @@ export default function PrayerRequestPage() {
     if (trackedRequests.length === 0) return;
     const interval = setInterval(async () => {
       setLoadingStatus(true);
-      const ids = trackedRequests.map((r) => r.id);
-      const { data } = await supabase
-        .from('prayer_requests')
-        .select('*')
-        .in('id', ids);
-      if (data) {
-        const updated = data as PrayerRequest[];
-        setTrackedRequests((prev) => {
-          const merged = prev.map((r) => updated.find((u) => u.id === r.id) || r);
-          localStorage.setItem('selah-prayer-requests', JSON.stringify(merged));
-          return merged;
-        });
+      try {
+        const ids = trackedRequests.map((r) => r.id);
+        const results = await Promise.all(
+          ids.map((id) => api.get<{ request: PrayerRequest }>(`/api/prayer-requests/${id}`).catch(() => null))
+        );
+        const updated = results.map((r) => r?.request).filter(Boolean) as PrayerRequest[];
+        if (updated.length) {
+          setTrackedRequests((prev) => {
+            const merged = prev.map((r) => updated.find((u) => u.id === r.id) || r);
+            localStorage.setItem('selah-prayer-requests', JSON.stringify(merged));
+            return merged;
+          });
+        }
+      } finally {
+        setLoadingStatus(false);
       }
-      setLoadingStatus(false);
     }, 30000);
     return () => clearInterval(interval);
   }, [trackedRequests]);

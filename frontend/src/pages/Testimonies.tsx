@@ -8,7 +8,7 @@ import {
   Sparkles,
   Heart,
 } from 'lucide-react';
-import { supabase } from '@/lib/supabase';
+import { api } from '@/lib/api';
 import type { Testimony } from '@/lib/supabase';
 
 export default function Testimonies() {
@@ -22,12 +22,12 @@ export default function Testimonies() {
 
   const load = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('testimonies')
-      .select('*')
-      .eq('approved', true)
-      .order('created_at', { ascending: false });
-    if (!error && data) setTestimonies(data as Testimony[]);
+    try {
+      const res = await api.get<{ testimonies: Testimony[] }>('/api/testimonies');
+      setTestimonies(res.testimonies || []);
+    } catch {
+      setTestimonies([]);
+    }
     setLoading(false);
   };
 
@@ -120,18 +120,17 @@ function TestimonyForm({ onClose, onSubmitted }: { onClose: () => void; onSubmit
     if (!title.trim() || !body.trim()) return;
     setSubmitting(true);
     setError(null);
-    const { error } = await supabase.from('testimonies').insert({
-      author_name: anonymous ? null : name.trim() || null,
-      title: title.trim(),
-      body: body.trim(),
-      approved: false,
-    });
-    setSubmitting(false);
-    if (error) {
-      setError('Something went wrong. Please try again.');
-      return;
+    try {
+      await api.post('/api/testimonies', {
+        author_name: anonymous ? null : name.trim() || null,
+        title: title.trim(),
+        body: body.trim(),
+      });
+      setDone(true);
+    } catch (e: any) {
+      setError(e?.message || 'Something went wrong. Please try again.');
     }
-    setDone(true);
+    setSubmitting(false);
   };
 
   return (

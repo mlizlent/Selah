@@ -6,34 +6,20 @@ Selah is a secure, AI-assisted spiritual support platform and prayer companion d
 
 ---
 
-## Core Features (Phase 1 MVP)
+## Project Structure
 
-*   **Secure Prayer Requests** — Submit named or fully anonymous requests tagged by struggle profiles (e.g., anxiety, grief, finance).
-*   **Priestess Dashboard** — A live administrative queue tracking requests across structural stages (`Pending` → `Praying` → `Answered`).
-*   **Empathetic AI Companion** — Chat interface that responds to distress with contextual empathy and 1–3 highly tailored, curated Bible verses.
-*   **Safe Escalation Pathways** — Direct, low-friction integration to turn an active AI chat session into a formal prayer request or book a consultation appointment.
-*   **Moderated Testimonies** — Public, read-only feed showcasing verified faith updates and answered prayers to foster communal hope.
-*   **Crisis Detection Guardrails** — Automated semantic scanning intercepts safety emergencies and redirects users directly to critical assistance lines.
+- `frontend/` — React + Vite + TypeScript client (`src/`, configs, `index.html`)
+- `backend/` — Express API server (`server.ts`), server modules (`src/server`, `src/middleware`), and PostgreSQL schema (`db/schema.sql`)
+- `.env` / `.env.example` — environment configuration (read from repo root)
 
 ---
 
 ## Tech Stack
 
-*   **Frontend & Logic**: React 18, TypeScript, Vite, Tailwind CSS
-*   **Backend & Infrastructure**: Supabase (PostgreSQL, Realtime, and Edge Functions)
-*   **Database Management**: PostgreSQL + Database Migrations via Supabase CLI
-*   **AI Integration**: Anthropic Claude API (Orchestrated through secure serverless pipelines)
-
----
-
-## Core Data Model Blueprint (PostgreSQL / Supabase)
-
-*   `users`: Principal profiles synced with Supabase Auth handling access control and roles (`seeker`, `counselor`, `admin`).
-*   `prayer_requests`: Structural ledger containing intent tags, anonymous flags, and workflow statuses protected by Row Level Security (RLS).
-*   `verses`: Scriptural database indexed with explicit thematic metadata strings and full-text search capability (`anxiety`, `finances`).
-*   `chat_sessions` & `chat_messages`: Auditable transactional message chains tracking AI-matched verses and runtime crisis flags.
-*   `appointments`: Calendar slot allocations connecting seekers to designated ministerial care desks.
-*   `devotions`: Dedicated daily content logs cleanly splitting human-written and AI-generated streams.
+*   **Frontend**: React 18, TypeScript, Vite, Tailwind CSS (`frontend/`)
+*   **Backend**: Node.js, Express (`backend/`)
+*   **Database**: PostgreSQL (`pg`) — schema in `backend/db/schema.sql`
+*   **AI Integration**: Groq chat completions for the companion
 
 ---
 
@@ -41,45 +27,67 @@ Selah is a secure, AI-assisted spiritual support platform and prayer companion d
 
 ### Prerequisites
 *   Node.js (v18+) & npm
-*   Supabase CLI (Recommended for running migrations locally)
+*   PostgreSQL (local or hosted)
 
-### 1. Project Initialization
+### 1. Install
 ```bash
-# Clone the repository and move to directory
-cd selah
-
-# Clean installation of dependencies
 npm install
-
-# Start the Vite local development engine
-npm run dev
 ```
 
-### 2. Environment Variables Configuration
-Never commit plaintext credentials to Git. Ensure your local workspace contains a `.env` file referencing your Supabase project keys and your OpenAI API key:
+### 2. Environment Variables
+Create a `.env` file in the project root (see `.env.example`):
+
 ```text
-VITE_SUPABASE_URL=https://supabase.co
-VITE_SUPABASE_ANON_KEY=your-public-anon-key
+DATABASE_URL=postgresql://user:password@localhost:5432/selah
+SESSION_SECRET=change-me-to-a-long-random-secret
+ADMIN_EMAIL_SHIELD=admin@example.com
 GROQ_API_KEY=your-groq-api-key
+# Optional
+# DATABASE_SSL=true
+# DEV_ORIGIN=http://localhost:5173
 ```
 
-If you want the new LLM companion backend to run locally, start the API server in a second terminal:
+`ADMIN_EMAIL_SHIELD` marks that account as admin/priestess on login/signup.
+
+### 3. Database Schema
+Apply the plain-Postgres schema:
+
 ```bash
-npm run dev:api
+psql "$DATABASE_URL" -f backend/db/schema.sql
 ```
 
-Then start the Vite app in a separate terminal:
+This creates `users`, `profiles`, `prayer_requests`, `testimonies`, `appointments`, and `priestess_posts`.
+
+### 4. Run
+Start the API server and Vite dev server together (from repo root):
+
 ```bash
 npm run dev
 ```
 
-The companion calls the local backend directly in development at `http://127.0.0.1:5178/api/companion`, so the API server needs to remain running while you use the companion.
+- API server: `http://localhost:5178` (`backend/server.ts`)
+- Vite app: `http://localhost:5173` (proxies `/api` to the server)
 
-### 3. Running Database Migrations
-Apply your local schemas directly to your active database profile using the tracking directory:
+Run separately if preferred:
+
 ```bash
-# Apply schemas found inside /supabase/migrations
-supabase db push
+npm run dev:api       # backend
+npm run dev:frontend  # frontend (Vite)
 ```
+
+The companion calls `/api/companion` (proxied in dev), so the API server must be running while using the companion.
+
+### 5. Build / Start
+```bash
+npm run build
+npm start
+```
+
+`npm start` runs the Express server (`tsx backend/server.ts`), which serves `frontend/dist/` when present.
 
 ---
+
+## Notes
+- Auth uses server-side sessions (HTTP-only cookie) backed by the `users`/`profiles` tables; passwords are hashed with `scrypt`.
+- Public flows: submit prayer requests/appointments/testimonies and read approved testimonies and posts. Priestess/admin actions are enforced server-side.
+- Password reset email delivery is not configured in this setup; `/api/auth/forgot-password` is a placeholder response.

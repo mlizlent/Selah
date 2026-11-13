@@ -19,11 +19,11 @@ import {
   Trash2,
   type LucideIcon,
 } from 'lucide-react';
-import { supabase, PRAYER_CATEGORIES } from '@/lib/supabase';
+import { PRAYER_CATEGORIES } from '@/lib/supabase';
 import type { PrayerRequest, Testimony, Appointment, PrayerStatus, PrayerCategory, PriestessPost } from '@/lib/supabase';
 import ConfirmDialog from '@/components/ConfirmDialog';
-import { CardSkeleton, VerseSkeleton } from '@/components/Skeletons';
-import { useAuth } from '@/contexts/AuthContext';
+import { CardSkeleton } from '@/components/Skeletons';
+import { api } from '@/lib/api';
 
 type Tab = 'prayer' | 'appointments' | 'testimonies' | 'posts';
 
@@ -37,21 +37,19 @@ export default function Priestess() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    const [reqRes, apptRes, testRes] = await Promise.all([
-      supabase.from('prayer_requests').select('*').order('created_at', { ascending: false }),
-      supabase.from('appointments').select('*').order('created_at', { ascending: false }),
-      supabase.from('testimonies').select('*').order('created_at', { ascending: false }),
-    ]);
-    if (reqRes.data) setRequests(reqRes.data as PrayerRequest[]);
-    if (apptRes.data) setAppointments(apptRes.data as Appointment[]);
-    if (testRes.data) setTestimonies(testRes.data as Testimony[]);
-
     try {
-      const postRes = await fetch('/api/posts');
-      const json = await postRes.json();
-      if (json.posts) setPosts(json.posts);
+      const data = await api.get<{
+        prayerRequests: PrayerRequest[];
+        appointments: Appointment[];
+        testimonies: Testimony[];
+        posts: PriestessPost[];
+      }>('/api/admin/dashboard');
+      setRequests(data.prayerRequests || []);
+      setAppointments(data.appointments || []);
+      setTestimonies(data.testimonies || []);
+      setPosts(data.posts || []);
     } catch {
-      // silent
+      // keep existing state on failure
     }
     setLoading(false);
   }, []);
@@ -156,22 +154,19 @@ function PrayerQueue({ requests, onUpdate }: { requests: PrayerRequest[]; onUpda
 
   const updateStatus = async (id: string, status: PrayerStatus, prayedNote?: string) => {
     setBusy(id);
-    const patch: Record<string, unknown> = { status };
-    if (status === 'prayed') {
-      patch.prayed_at = new Date().toISOString();
-      if (prayedNote !== undefined) patch.prayed_note = prayedNote;
+    try {
+      await api.patch(`/api/admin/prayer-requests/${id}`, { status, prayed_note: prayedNote });
+      onUpdate();
+    } finally {
+      setBusy(null);
     }
-    await supabase.from('prayer_requests').update(patch).eq('id', id);
-    setBusy(null);
-    onUpdate();
   };
 
   const handleClearAll = async () => {
     setClearBusy(true);
     setClearMessage(null);
     try {
-      const { error } = await supabase.from('prayer_requests').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      if (error) throw error;
+      await api.post('/api/admin/clear-prayer-requests');
       setClearMessage('Prayer queue cleared.');
       onUpdate();
     } catch {
@@ -262,7 +257,7 @@ function PrayerQueue({ requests, onUpdate }: { requests: PrayerRequest[]; onUpda
         message="This will permanently delete all prayer requests. This action cannot be undone."
         confirmLabel="Clear all"
         cancelLabel="Cancel"
-        onConfirm={handleClearAll}
+        onConfirm={() => { setShowClearConfirm(false); handleClearAll(); }}
         onCancel={() => setShowClearConfirm(false)}
         danger
       />
@@ -283,17 +278,19 @@ function AppointmentList({ appointments, onUpdate }: { appointments: Appointment
 
   const updateStatus = async (id: string, status: 'scheduled' | 'completed') => {
     setBusy(id);
-    await supabase.from('appointments').update({ status }).eq('id', id);
-    setBusy(null);
-    onUpdate();
+    try {
+      await api.patch(`/api/admin/appointments/${id}`, { status });
+      onUpdate();
+    } finally {
+      setBusy(null);
+    }
   };
 
   const handleClearAll = async () => {
     setClearBusy(true);
     setClearMessage(null);
     try {
-      const { error } = await supabase.from('appointments').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      if (error) throw error;
+      await api.post('/api/admin/clear-appointments');
       setClearMessage('Appointments cleared.');
       onUpdate();
     } catch {
@@ -365,7 +362,7 @@ function AppointmentList({ appointments, onUpdate }: { appointments: Appointment
         message="This will permanently delete all appointments. This action cannot be undone."
         confirmLabel="Clear all"
         cancelLabel="Cancel"
-        onConfirm={handleClearAll}
+        onConfirm={() => { setShowClearConfirm(false); handleClearAll(); }}
         onCancel={() => setShowClearConfirm(false)}
         danger
       />
@@ -379,7 +376,6 @@ function AppointmentList({ appointments, onUpdate }: { appointments: Appointment
 }
 
 function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate: () => void }) {
-  const { session } = useAuth();
   const [title, setTitle] = useState('');
   const [body, setBody] = useState('');
   const [busy, setBusy] = useState(false);
@@ -395,37 +391,21 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
   const [clearBusy, setClearBusy] = useState(false);
   const [clearMessage, setClearMessage] = useState<string | null>(null);
 
-  const getHeaders = () => {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (session?.access_token) {
-      headers.Authorization = `Bearer ${session.access_token}`;
-    }
-    return headers;
-  };
-
   const submitPost = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !body.trim()) return;
     setBusy(true);
     setMessage(null);
     try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: getHeaders(),
-        body: JSON.stringify({ title: title.trim(), message: body.trim() }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
+      await api.post('/api/posts', { title: title.trim(), message: body.trim() });
+      setTitle('');
+      setBody('');
+      setMessage('Posted!');
+      onUpdate();
     } catch {
       setMessage('Could not post right now.');
-      setBusy(false);
-      return;
     }
     setBusy(false);
-    setTitle('');
-    setBody('');
-    setMessage('Posted!');
-    onUpdate();
   };
 
   const startEdit = (post: PriestessPost) => {
@@ -444,40 +424,25 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
     if (!editTitle.trim() || !editBody.trim()) return;
     setEditBusy(id);
     try {
-      const res = await fetch(`/api/posts/${id}`, {
-        method: 'PUT',
-        headers: getHeaders(),
-        body: JSON.stringify({ title: editTitle.trim(), message: editBody.trim() }),
-      });
-      const json = await res.json();
-      if (!res.ok) throw new Error(json.error);
+      await api.put(`/api/posts/${id}`, { title: editTitle.trim(), message: editBody.trim() });
+      setEditingId(null);
+      onUpdate();
     } catch {
-      setEditBusy(null);
-      return;
+      // ignore
     }
     setEditBusy(null);
-    setEditingId(null);
-    onUpdate();
   };
 
   const deletePost = async (id: string) => {
     setDeleteBusy(id);
     try {
-      const res = await fetch(`/api/posts/${id}`, {
-        method: 'DELETE',
-        headers: session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {},
-      });
-      if (!res.ok) {
-        const json = await res.json();
-        throw new Error(json.error);
-      }
+      await api.del(`/api/posts/${id}`);
+      if (editingId === id) cancelEdit();
+      onUpdate();
     } catch {
-      setDeleteBusy(null);
-      return;
+      // ignore
     }
     setDeleteBusy(null);
-    if (editingId === id) cancelEdit();
-    onUpdate();
   };
 
   const askDelete = (id: string) => {
@@ -486,9 +451,7 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
   };
 
   const confirmDelete = () => {
-    if (deleteTarget) {
-      deletePost(deleteTarget);
-    }
+    if (deleteTarget) deletePost(deleteTarget);
     setShowDeleteConfirm(false);
     setDeleteTarget(null);
   };
@@ -497,8 +460,7 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
     setClearBusy(true);
     setClearMessage(null);
     try {
-      const { error } = await supabase.from('priestess_posts').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      if (error) throw error;
+      await api.post('/api/admin/clear-posts');
       setClearMessage('All posts cleared.');
       onUpdate();
     } catch {
@@ -610,7 +572,7 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
         message="This will permanently delete all posts from the community feed. This action cannot be undone."
         confirmLabel="Clear all"
         cancelLabel="Cancel"
-        onConfirm={handleClearAll}
+        onConfirm={() => { setShowClearConfirm(false); handleClearAll(); }}
         onCancel={() => setShowClearConfirm(false)}
         danger
       />
@@ -625,7 +587,6 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
 }
 
 function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; onUpdate: () => void }) {
-  const { session } = useAuth();
   const [busy, setBusy] = useState<string | null>(null);
   const [showRejectConfirm, setShowRejectConfirm] = useState(false);
   const [rejectTarget, setRejectTarget] = useState<string | null>(null);
@@ -633,26 +594,24 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
   const [clearBusy, setClearBusy] = useState(false);
   const [clearMessage, setClearMessage] = useState<string | null>(null);
 
-  const getHeaders = () => {
-    const headers: Record<string, string> = { 'Content-Type': 'application/json' };
-    if (session?.access_token) {
-      headers.Authorization = `Bearer ${session.access_token}`;
-    }
-    return headers;
-  };
-
   const approve = async (id: string) => {
     setBusy(id);
-    await supabase.from('testimonies').update({ approved: true }).eq('id', id);
-    setBusy(null);
-    onUpdate();
+    try {
+      await api.patch(`/api/admin/testimonies/${id}`, { approved: true });
+      onUpdate();
+    } finally {
+      setBusy(null);
+    }
   };
 
   const reject = async (id: string) => {
     setBusy(id);
-    await supabase.from('testimonies').delete().eq('id', id);
-    setBusy(null);
-    onUpdate();
+    try {
+      await api.del(`/api/admin/testimonies/${id}`);
+      onUpdate();
+    } finally {
+      setBusy(null);
+    }
   };
 
   const askReject = (id: string) => {
@@ -661,9 +620,7 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
   };
 
   const confirmReject = () => {
-    if (rejectTarget) {
-      reject(rejectTarget);
-    }
+    if (rejectTarget) reject(rejectTarget);
     setShowRejectConfirm(false);
     setRejectTarget(null);
   };
@@ -672,8 +629,7 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
     setClearBusy(true);
     setClearMessage(null);
     try {
-      const { error } = await supabase.from('testimonies').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-      if (error) throw error;
+      await api.post('/api/admin/clear-testimonies');
       setClearMessage('All testimonies cleared.');
       onUpdate();
     } catch {
@@ -759,7 +715,7 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
           </div>
         </div>
       )}
-      
+
       <ConfirmDialog
         open={showRejectConfirm}
         title="Remove testimony?"
@@ -777,7 +733,7 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
         message="This will permanently delete all testimonies from the database. This action cannot be undone."
         confirmLabel="Clear all"
         cancelLabel="Cancel"
-        onConfirm={handleClearAll}
+        onConfirm={() => { setShowClearConfirm(false); handleClearAll(); }}
         onCancel={() => setShowClearConfirm(false)}
         danger
       />

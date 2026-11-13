@@ -6,21 +6,17 @@ services:
     envVars:
       - key: NODE_ENV
         value: production
-      - key: VITE_SUPABASE_URL
+      - key: DATABASE_URL
         sync: false
-      - key: VITE_SUPABASE_ANON_KEY
+      - key: DATABASE_SSL
         sync: false
-      - key: VITE_COMPANION_API_URL
+      - key: SESSION_SECRET
         sync: false
-      - key: VITE_ADMIN_EMAIL_SHIELD
-        sync: false
-      - key: SUPABASE_URL
-        sync: false
-      - key: SUPABASE_SERVICE_ROLE_KEY
+      - key: ADMIN_EMAIL_SHIELD
         sync: false
       - key: GROQ_API_KEY
         sync: false
-      - key: ADMIN_EMAIL_SHIELD
+      - key: DEV_ORIGIN
         sync: false
     healthCheckPath: /api/health
     autoDeploy: true
