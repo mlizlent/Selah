@@ -1,6 +1,8 @@
 import { Heart } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 export default function Footer() {
+  const { t } = useTranslation();
   return (
     <footer className="border-t border-parchment-200 bg-parchment-100/50">
       <div className="mx-auto max-w-6xl px-6 py-10">
@@ -9,16 +11,13 @@ export default function Footer() {
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-lavender-600 text-parchment-50">
               <Heart className="h-3.5 w-3.5" strokeWidth={1.5} />
             </span>
-            <span className="font-display text-d-title font-semibold text-ink-800">Selah</span>
+            <span className="font-display text-d-title font-semibold text-ink-800">{t('common.appName')}</span>
           </div>
           <p className="max-w-md text-d-body text-ink-500">
-            A pause for the soul. Selah is a place to be heard, prayed for, and gently pointed
-            toward something steadying.
+            {t('footer.tagline')}
           </p>
           <p className="text-d-label text-ink-400">
-            Selah is not a substitute for professional counseling, medical care, or emergency
-            services. If you are in crisis, please reach out to a crisis line or emergency
-            services near you.
+            {t('footer.disclaimer')}
           </p>
         </div>
       </div>

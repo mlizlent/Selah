@@ -10,7 +10,7 @@
     "build": "vite build --config frontend/vite.config.ts",
     "lint": "cd frontend && eslint .",
     "preview": "vite preview --config frontend/vite.config.ts",
-    "test": "node --import tsx --test backend/server.test.js",
+    "test": "node --import tsx --test backend/server.test.js backend/auth.test.js frontend/src/lib/bible.test.ts frontend/src/lib/verses.test.ts",
     "typecheck": "tsc --noEmit -p frontend/tsconfig.app.json",
     "dev:frontend": "vite --config frontend/vite.config.ts --host"
   },
@@ -19,10 +19,13 @@
     "@types/react-router-dom": "^5.3.3",
     "cookie-parser": "^1.4.7",
     "express": "^5.2.1",
+    "i18next": "^27.1.1",
+    "i18next-browser-languagedetector": "^8.3.0",
     "lucide-react": "^0.344.0",
     "pg": "^8.16.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-i18next": "^18.0.1",
     "react-router-dom": "^7.18.2",
     "tsx": "^4.7.4"
   },

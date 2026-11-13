@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Mail, Lock, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 import { api } from '@/lib/api';
 
@@ -14,6 +15,7 @@ export default function Login({ onDone }: LoginProps = {}) {
   const [submitting, setSubmitting] = useState(false);
   const [resetSent, setResetSent] = useState(false);
   const { user, loading, signIn } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!loading && user && onDone) onDone();
@@ -37,7 +39,7 @@ export default function Login({ onDone }: LoginProps = {}) {
 
   const handleForgotPassword = async () => {
     if (!email.trim()) {
-      setError('Enter your email address first.');
+      setError(t('auth.enterEmailFirst'));
       return;
     }
     setSubmitting(true);
@@ -46,7 +48,7 @@ export default function Login({ onDone }: LoginProps = {}) {
       await api.post('/api/auth/forgot-password', { email: email.trim() });
       setResetSent(true);
     } catch (e: unknown) {
-      setError(e instanceof Error ? e.message : 'Unable to request password reset.');
+      setError(e instanceof Error ? e.message : t('auth.resetError'));
     }
     setSubmitting(false);
   };
@@ -63,20 +65,20 @@ export default function Login({ onDone }: LoginProps = {}) {
     <div className="mx-auto max-w-md px-6 pt-8 pb-24">
       <div className="card p-8">
         <div className="mb-8 text-center">
-          <h1 className="font-display text-d-headline font-semibold text-ink-800">Welcome back</h1>
-          <p className="mt-2 text-d-body text-ink-500">Sign in to access your prayer requests and account.</p>
+          <h1 className="font-display text-d-headline font-semibold text-ink-800">{t('auth.signInTitle')}</h1>
+          <p className="mt-2 text-d-body text-ink-500">{t('auth.signInSubtitlePage')}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="mb-2 block text-d-body font-medium text-ink-700">Email</label>
+            <label className="mb-2 block text-d-body font-medium text-ink-700">{t('auth.email')}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t('auth.emailPlaceholder')}
                 className="input-field pl-11"
                 required
               />
@@ -84,14 +86,14 @@ export default function Login({ onDone }: LoginProps = {}) {
           </div>
 
           <div>
-            <label className="mb-2 block text-d-body font-medium text-ink-700">Password</label>
+            <label className="mb-2 block text-d-body font-medium text-ink-700">{t('auth.password')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter your password"
+                placeholder={t('auth.passwordPlaceholderPage')}
                 className="input-field pl-11"
                 required
               />
@@ -108,12 +110,12 @@ export default function Login({ onDone }: LoginProps = {}) {
           {resetSent && (
             <div className="flex items-start gap-2 rounded-lg bg-lavender-50 px-4 py-3 text-d-body text-lavender-700">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
-              <span>If an account exists for that email, password reset instructions have been recorded. Please contact the administrator if you need help resetting your password.</span>
+              <span>{t('auth.resetSent')}</span>
             </div>
           )}
 
           <button type="submit" disabled={submitting} className="btn-primary w-full">
-            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Sign in'}
+            {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : t('auth.signIn')}
           </button>
 
           {!resetSent && (
@@ -123,13 +125,13 @@ export default function Login({ onDone }: LoginProps = {}) {
               disabled={submitting}
               className="w-full text-center text-d-body font-medium text-lavender-600 hover:text-lavender-700 disabled:opacity-50"
             >
-              Forgot password?
+              {t('auth.forgotPassword')}
             </button>
           )}
         </form>
 
         <p className="mt-6 text-center text-d-body text-ink-500">
-          Don't have an account? Use the sign in button to open the account dialog.
+          {t('auth.loginHint')}
         </p>
       </div>
     </div>

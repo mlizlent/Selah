@@ -1,0 +1,131 @@
+{
+  "common": {
+    "appName": "Selah",
+    "loading": "Loading…",
+    "refresh": "Refresh page",
+    "cancel": "Cancel",
+    "close": "Close",
+    "submit": "Submit",
+    "send": "Send",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "or": "or",
+    "go": "Go",
+    "clear": "Clear",
+    "saved": "Saved",
+    "chapters": "Chapters"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "sw": "Kiswahili",
+    "toggleToSw": "Switch to Kiswahili",
+    "toggleToEn": "Switch to English"
+  },
+  "nav": {
+    "openMenu": "Open navigation menu",
+    "closeMenu": "Close navigation menu",
+    "ariaLabel": "Site navigation",
+    "home": "Home",
+    "request": "Prayer Request",
+    "companion": "Nia",
+    "testimonies": "Testimonies",
+    "whatsPopping": "What's popping",
+    "bible": "Bible",
+    "priestess": "Priestess",
+    "myRequests": "My Requests",
+    "signIn": "Sign in",
+    "signOut": "Sign out"
+  },
+  "footer": {
+    "tagline": "A pause for the soul. Selah is a place to be heard, prayed for, and gently pointed toward something steadying.",
+    "disclaimer": "Selah is not a substitute for professional counseling, medical care, or emergency services. If you are in crisis, please reach out to a crisis line or emergency services near you."
+  },
+  "app": {
+    "errorTitle": "Something went wrong",
+    "errorBody": "We hit an unexpected error loading {{page}}. Please try again."
+  },
+  "home": {
+    "badge": "A sacred pause for your soul",
+    "titleLine1": "Find peace in the Word.",
+    "titleLine2": "Let Scripture meet your heart.",
+    "subtitle": "Selah is a calm place to bring your burdens, fear, grief, confusion, or hope and meet gentle guidance, comforting scripture, and prayerful care rooted in the Bible.",
+    "talkCta": "Talk with the Companion",
+    "requestCta": "Send a Prayer Request",
+    "features": {
+      "companion": {
+        "title": "A Companion Who Listens",
+        "desc": "Tell Nia what is weighing on you. She responds with empathy and gently offers scripture that fits your moment.",
+        "cta": "Talk with Nia"
+      },
+      "prayer": {
+        "title": "A Real Prayer, From a Real Person",
+        "desc": "Submit a prayer request anonymously if you wish. A spiritual leader receives it and prays over it, and you will know when she has.",
+        "cta": "Send a Prayer Request"
+      },
+      "testimonies": {
+        "title": "Testimonies of Hope",
+        "desc": "Read what happened for others after a prayer was answered. Share your own story when the time is right.",
+        "cta": "Read Testimonies"
+      },
+      "bible": {
+        "title": "Read the Bible",
+        "desc": "Browse every book and chapter in KJV, WEB, BSB, or Swahili, and search by reference.",
+        "cta": "Open the Bible"
+      }
+    },
+    "verseText": "Cast all your anxiety on him, because he cares for you.",
+    "verseRef": "1 Peter 5:7",
+    "boundaryTitle": "A gentle boundary",
+    "boundaryBody": "Nia is here to listen and point you toward scripture she is not a counselor, a therapist, or a crisis service. If you are in immediate danger, please contact emergency services or a crisis line. Nia will always help you find those resources."
+  },
+  "auth": {
+    "signInTitle": "Welcome back",
+    "signInSubtitleModal": "Sign in to view your prayer requests and appointments.",
+    "signInSubtitlePage": "Sign in to access your prayer requests and account.",
+    "signUpTitle": "Create your account",
+    "signUpSubtitle": "Sign up to track your prayer requests and appointments.",
+    "email": "Email",
+    "emailPlaceholder": "you@example.com",
+    "username": "Username",
+    "usernamePlaceholder": "Choose a username",
+    "password": "Password",
+    "passwordPlaceholder": "Min. 6 characters",
+    "passwordPlaceholderPage": "Enter your password",
+    "confirmPassword": "Confirm Password",
+    "confirmPasswordPlaceholder": "Repeat your password",
+    "createAccount": "Create account",
+    "signIn": "Sign in",
+    "haveAccount": "Already have an account?",
+    "noAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "forgotPassword": "Forgot password?",
+    "passwordMismatch": "Passwords do not match.",
+    "enterEmailFirst": "Enter your email address first.",
+    "resetSent": "If an account exists for that email, password reset instructions have been recorded. Please contact the administrator if you need help resetting your password.",
+    "resetError": "Unable to request password reset.",
+    "loginHint": "Don't have an account? Use the sign in button to open the account dialog."
+  },
+  "bible": {
+    "title": "The Holy Bible",
+    "subtitle": "Read, search, and meditate on Scripture. Choose a translation, browse by book and chapter, or jump directly to a passage.",
+    "searchPlaceholder": "Jump to a passage — \"John 3:16\", \"Psalm 23\", \"Romans 8:28-30\"",
+    "searchResult": "Search Result",
+    "reading": "Reading",
+    "currentPassage": "Current passage",
+    "continueReading": "Continue {{book}} {{chapter}}",
+    "quickPassages": "Quick passages",
+    "chooseBook": "Choose a book",
+    "oldTestament": "Old Testament",
+    "newTestament": "New Testament",
+    "selectChapter": "{{book}} — Select chapter",
+    "yourBookmarks": "Your bookmarks",
+    "noBookmarks": "No bookmarks yet. Save a verse from the reading view to keep it here.",
+    "progress": "Progress",
+    "addBookmark": "Add bookmark",
+    "removeBookmark": "Remove bookmark",
+    "copyVerse": "Copy verse",
+    "closeBookPicker": "Close book picker"
+  }
+}

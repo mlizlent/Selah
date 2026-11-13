@@ -1,0 +1,131 @@
+{
+  "common": {
+    "appName": "Selah",
+    "loading": "Inapakia…",
+    "refresh": "Onyesha upya ukurasa",
+    "cancel": "Ghairi",
+    "close": "Funga",
+    "submit": "Wasilisha",
+    "send": "Tuma",
+    "back": "Rudi",
+    "next": "Ifuatayo",
+    "previous": "Iliyotangulia",
+    "or": "au",
+    "go": "Nenda",
+    "clear": "Futa",
+    "saved": "Zilizohifadhiwa",
+    "chapters": "Sura"
+  },
+  "language": {
+    "label": "Lugha",
+    "en": "Kiingereza",
+    "sw": "Kiswahili",
+    "toggleToSw": "Badili hadi Kiswahili",
+    "toggleToEn": "Badili hadi Kiingereza"
+  },
+  "nav": {
+    "openMenu": "Fungua menyu ya urambazaji",
+    "closeMenu": "Funga menyu ya urambazaji",
+    "ariaLabel": "Urambazaji wa tovuti",
+    "home": "Mwanzo",
+    "request": "Ombi la Maombi",
+    "companion": "Nia",
+    "testimonies": "Ushuhuda",
+    "whatsPopping": "Kinachojiri",
+    "bible": "Biblia",
+    "priestess": "Kuhani",
+    "myRequests": "Maombi Yangu",
+    "signIn": "Ingia",
+    "signOut": "Toka"
+  },
+  "footer": {
+    "tagline": "Pumziko la roho. Selah ni mahali pa kusikilizwa, kuombewa, na kuelekezwa kwa upole kwenye jambo thabiti.",
+    "disclaimer": "Selah si mbadala wa ushauri wa kitaalamu, matibabu, au huduma za dharura. Ukiwa katika hatari, tafadhali wasiliana na huduma za dharura au mstari wa msaada karibu nawe."
+  },
+  "app": {
+    "errorTitle": "Kuna hitilafu imetokea",
+    "errorBody": "Tumekutana na hitilafu isiyotarajiwa wakati wa kupakia {{page}}. Tafadhali jaribu tena."
+  },
+  "home": {
+    "badge": "Pumziko takatifu kwa roho yako",
+    "titleLine1": "Pata amani katika Neno.",
+    "titleLine2": "Acha Maandiko yaguse moyo wako.",
+    "subtitle": "Selah ni mahali patulivu pa kuleta mizigo yako, hofu, huzuni, kuchanganyikiwa, au tumaini na kukutana na mwongozo wa upole, maandiko ya kufariji, na uangalizi wa maombi ulio na msingi katika Biblia.",
+    "talkCta": "Zungumza na Mwenzako",
+    "requestCta": "Tuma Ombi la Maombi",
+    "features": {
+      "companion": {
+        "title": "Mwenzako Anayesikiliza",
+        "desc": "Mwambie Nia kinachokulemea. Atajibu kwa huruma na kukuonyesha maandiko yanayolingana na hali yako.",
+        "cta": "Zungumza na Nia"
+      },
+      "prayer": {
+        "title": "Maombi Halisi, Kutoka kwa Mtu Halisi",
+        "desc": "Tuma ombi la maombi bila kujitambulisha ukipenda. Kiongozi wa kiroho atalipokea na kukuombea, na utajulishwa atakapomaliza.",
+        "cta": "Tuma Ombi la Maombi"
+      },
+      "testimonies": {
+        "title": "Ushuhuda wa Tumaini",
+        "desc": "Soma kilichowatokea wengine baada ya maombi kujibiwa. Shiriki hadithi yako wakati muafaka utakapofika.",
+        "cta": "Soma Ushuhuda"
+      },
+      "bible": {
+        "title": "Soma Biblia",
+        "desc": "Vinjari kila kitabu na sura katika KJV, WEB, BSB, au Kiswahili, na tafuta kwa rejea.",
+        "cta": "Fungua Biblia"
+      }
+    },
+    "verseText": "Mtwikeni yeye fadhaa zenu zote, kwa maana yeye hujishughulisha sana kwa mambo yenu.",
+    "verseRef": "1 Petro 5:7",
+    "boundaryTitle": "Mpaka wa upole",
+    "boundaryBody": "Nia yuko hapa kukusikiliza na kukuonyesha maandiko si mshauri, mtaalamu wa tiba, wala huduma ya dharura. Uko katika hatari ya papo hapo, tafadhali wasiliana na huduma za dharura au mstari wa msaada. Nia atakusaidia kila wakati kupata rasilimali hizo."
+  },
+  "auth": {
+    "signInTitle": "Karibu tena",
+    "signInSubtitleModal": "Ingia ili kuona maombi yako ya sala na miadi.",
+    "signInSubtitlePage": "Ingia ili kufikia maombi yako ya sala na akaunti yako.",
+    "signUpTitle": "Fungua akaunti yako",
+    "signUpSubtitle": "Jisajili ili kufuatilia maombi yako ya sala na miadi.",
+    "email": "Barua pepe",
+    "emailPlaceholder": "wewe@mfano.com",
+    "username": "Jina la mtumiaji",
+    "usernamePlaceholder": "Chagua jina la mtumiaji",
+    "password": "Nenosiri",
+    "passwordPlaceholder": "Angalau herufi 6",
+    "passwordPlaceholderPage": "Weka nenosiri lako",
+    "confirmPassword": "Thibitisha nenosiri",
+    "confirmPasswordPlaceholder": "Rudia nenosiri lako",
+    "createAccount": "Fungua akaunti",
+    "signIn": "Ingia",
+    "haveAccount": "Tayari una akaunti?",
+    "noAccount": "Huna akaunti?",
+    "signUp": "Jisajili",
+    "forgotPassword": "Umesahau nenosiri?",
+    "passwordMismatch": "Manenosiri hayalingani.",
+    "enterEmailFirst": "Weka anwani yako ya barua pepe kwanza.",
+    "resetSent": "Ikiwa akaunti ipo kwa barua pepe hiyo, maelekezo ya kuweka upya nenosiri yamerekodiwa. Tafadhali wasiliana na msimamizi ukihitaji msaada.",
+    "resetError": "Imeshindikana kuomba kuweka upya nenosiri.",
+    "loginHint": "Huna akaunti? Tumia kitufe cha kuingia kufungua kidirisha cha akaunti."
+  },
+  "bible": {
+    "title": "Biblia Takatifu",
+    "subtitle": "Soma, tafuta, na tafakari Maandiko. Chagua tafsiri, vinjari kwa kitabu na sura, au nenda moja kwa moja kwenye kifungu.",
+    "searchPlaceholder": "Nenda kwenye kifungu — \"Yohana 3:16\", \"Zaburi 23\", \"Warumi 8:28-30\"",
+    "searchResult": "Matokeo ya Utafutaji",
+    "reading": "Unayosoma",
+    "currentPassage": "Kifungu cha sasa",
+    "continueReading": "Endelea {{book}} {{chapter}}",
+    "quickPassages": "Vifungu vya haraka",
+    "chooseBook": "Chagua kitabu",
+    "oldTestament": "Agano la Kale",
+    "newTestament": "Agano Jipya",
+    "selectChapter": "{{book}} — Chagua sura",
+    "yourBookmarks": "Vialamisho vyako",
+    "noBookmarks": "Bado hakuna vialamisho. Hifadhi aya kutoka kwenye mwonekano wa kusoma ili uiweke hapa.",
+    "progress": "Maendeleo",
+    "addBookmark": "Ongeza alamisho",
+    "removeBookmark": "Ondoa alamisho",
+    "copyVerse": "Nakili aya",
+    "closeBookPicker": "Funga kichaguzi cha vitabu"
+  }
+}

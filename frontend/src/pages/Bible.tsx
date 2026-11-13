@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   BookOpen,
   ChevronLeft,
@@ -57,6 +58,7 @@ export default function Bible() {
   const [progress, setProgress] = useState(0);
   const versesRef = useRef<HTMLDivElement>(null);
   const userNavigated = useRef(false);
+  const { t } = useTranslation();
 
   const translation = getTranslation(translationId);
 
@@ -218,11 +220,10 @@ export default function Bible() {
             {translation.label}
           </span>
           <h1 className="font-display text-d-headline font-semibold text-parchment-50 drop-shadow-sm sm:text-d-display">
-            The Holy Bible
+            {t('bible.title')}
           </h1>
           <p className="mx-auto mt-4 max-w-2xl text-d-body leading-relaxed text-parchment-100/90">
-            Read, search, and meditate on Scripture. Choose a translation, browse by book and chapter,
-            or jump directly to a passage.
+            {t('bible.subtitle')}
           </p>
         </div>
       </div>
@@ -236,7 +237,7 @@ export default function Bible() {
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder='Jump to a passage — "John 3:16", "Psalm 23", "Romans 8:28-30"'
+                placeholder={t('bible.searchPlaceholder')}
                 className="input-field h-12 pl-11"
               />
             </div>
@@ -260,7 +261,7 @@ export default function Bible() {
               </select>
               <button type="submit" className="btn-primary h-12 shrink-0 px-5" disabled={searchLoading}>
                 {searchLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-                <span className="hidden sm:inline">Go</span>
+                <span className="hidden sm:inline">{t('common.go')}</span>
               </button>
             </div>
           </form>
@@ -274,7 +275,7 @@ export default function Bible() {
           <div className="card mb-8 overflow-hidden">
             <div className="flex items-center justify-between border-b border-parchment-200 bg-parchment-100/50 px-6 py-4">
               <div>
-                <p className="eyebrow mb-1">Search Result</p>
+                <p className="eyebrow mb-1">{t('bible.searchResult')}</p>
                 <h2 className="font-display text-d-title font-semibold text-ink-800">
                   {searchQuery.trim()} <span className="text-d-body font-normal text-ink-400">({translation.short})</span>
                 </h2>
@@ -287,7 +288,7 @@ export default function Bible() {
                 className="inline-flex items-center gap-1.5 rounded-full border border-parchment-200 bg-parchment-50 px-3 py-1.5 text-d-label font-medium text-ink-500 transition-colors hover:border-lavender-300 hover:text-lavender-700"
               >
                 <X className="h-3.5 w-3.5" />
-                Clear
+                {t('common.clear')}
               </button>
             </div>
             <div className="space-y-3 p-6">
@@ -304,7 +305,7 @@ export default function Bible() {
         <div className="grid gap-6 lg:grid-cols-[280px,minmax(0,1fr)] lg:items-start">
           <aside className="space-y-4 lg:sticky lg:top-24">
             <div className="card p-4 sm:p-5">
-              <p className="eyebrow mb-3">Reading</p>
+              <p className="eyebrow mb-3">{t('bible.reading')}</p>
               <button
                 onClick={() => {
                   setShowBookPicker((s) => !s);
@@ -314,7 +315,7 @@ export default function Bible() {
                 className="group w-full rounded-xl border border-parchment-200 bg-parchment-100/40 p-4 text-left transition-all hover:border-lavender-300 hover:bg-lavender-50/40"
               >
                 <div className="flex items-center justify-between">
-                  <span className="text-d-label font-medium uppercase tracking-wide text-ink-400">Current passage</span>
+                  <span className="text-d-label font-medium uppercase tracking-wide text-ink-400">{t('bible.currentPassage')}</span>
                   <BookOpen className="h-4 w-4 text-lavender-600" />
                 </div>
                 <p className="mt-2 font-display text-d-headline font-semibold leading-tight text-ink-800">{selectedBook.name}</p>
@@ -334,7 +335,7 @@ export default function Bible() {
                       : 'border-parchment-200 bg-parchment-50 text-ink-600 hover:border-lavender-300 hover:text-lavender-700'
                   }`}
                 >
-                  Chapters
+                  {t('common.chapters')}
                 </button>
                 <button
                   onClick={() => {
@@ -349,7 +350,7 @@ export default function Bible() {
                   }`}
                 >
                   <Bookmark className="h-3.5 w-3.5" fill={showBookmarks ? 'currentColor' : 'none'} />
-                  Saved
+                  {t('common.saved')}
                 </button>
               </div>
 
@@ -362,13 +363,13 @@ export default function Bible() {
                   className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-lavender-600/10 px-4 py-2.5 text-d-body font-medium text-lavender-700 transition-colors hover:bg-lavender-600/15"
                 >
                   <Play className="h-4 w-4" />
-                  Continue {lastRead.book} {lastRead.chapter}
+                  {t('bible.continueReading', { book: lastRead.book, chapter: lastRead.chapter })}
                 </button>
               )}
             </div>
 
             <div className="card p-4 sm:p-5">
-              <p className="eyebrow mb-3">Quick passages</p>
+              <p className="eyebrow mb-3">{t('bible.quickPassages')}</p>
               <div className="flex flex-wrap gap-2">
                 {[
                   { ref: 'John 3:16', label: 'John 3:16' },
@@ -401,17 +402,17 @@ export default function Bible() {
             {showBookPicker && (
               <div className="card mb-6 max-h-[460px] overflow-y-auto p-6">
                 <div className="mb-5 flex items-center justify-between">
-                  <h2 className="font-display text-d-title font-semibold text-ink-800">Choose a book</h2>
+                  <h2 className="font-display text-d-title font-semibold text-ink-800">{t('bible.chooseBook')}</h2>
                   <button
                     onClick={() => setShowBookPicker(false)}
                     className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100"
-                    aria-label="Close book picker"
+                    aria-label={t('bible.closeBookPicker')}
                   >
                     <X className="h-5 w-5" />
                   </button>
                 </div>
                 <div className="mb-6">
-                  <p className="eyebrow mb-3">Old Testament</p>
+                  <p className="eyebrow mb-3">{t('bible.oldTestament')}</p>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {OT_BOOKS.map((book) => (
                       <button
@@ -429,7 +430,7 @@ export default function Bible() {
                   </div>
                 </div>
                 <div>
-                  <p className="eyebrow mb-3">New Testament</p>
+                  <p className="eyebrow mb-3">{t('bible.newTestament')}</p>
                   <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
                     {NT_BOOKS.map((book) => (
                       <button
@@ -453,7 +454,7 @@ export default function Bible() {
               <div className="card mb-6 p-6">
                 <div className="mb-4 flex items-center justify-between">
                   <h3 className="font-display text-d-title font-semibold text-ink-800">
-                    {selectedBook.name} — Select chapter
+                    {t('bible.selectChapter', { book: selectedBook.name })}
                   </h3>
                   <button
                     onClick={() => setShowChapterPicker(false)}
@@ -483,7 +484,7 @@ export default function Bible() {
             {showBookmarks && (
               <div className="card mb-6 p-6">
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="font-display text-d-title font-semibold text-ink-800">Your bookmarks</h2>
+                  <h2 className="font-display text-d-title font-semibold text-ink-800">{t('bible.yourBookmarks')}</h2>
                   <button
                     onClick={() => setShowBookmarks(false)}
                     className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100"
@@ -494,7 +495,7 @@ export default function Bible() {
                 {bookmarks.length === 0 ? (
                   <div className="rounded-xl border border-dashed border-parchment-300 bg-parchment-100/40 px-5 py-8 text-center">
                     <Bookmark className="mx-auto mb-3 h-6 w-6 text-ink-300" />
-                    <p className="text-d-body text-ink-500">No bookmarks yet. Save a verse from the reading view to keep it here.</p>
+                    <p className="text-d-body text-ink-500">{t('bible.noBookmarks')}</p>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -517,7 +518,7 @@ export default function Bible() {
                           <button
                             onClick={() => removeBookmark(bm.id)}
                             className="shrink-0 rounded-full p-2 text-ink-400 transition-colors hover:bg-red-50 hover:text-red-600"
-                            aria-label="Remove bookmark"
+                            aria-label={t('bible.removeBookmark')}
                           >
                             <X className="h-4 w-4" />
                           </button>
@@ -540,13 +541,13 @@ export default function Bible() {
             ) : (
               <div className="card overflow-hidden">
                 <div className="border-b border-parchment-200 bg-gradient-to-b from-parchment-100/70 to-parchment-50 px-6 py-6 text-center sm:px-10 sm:py-8">
-                  <p className="eyebrow mb-2">{selectedBook.testament === 'OT' ? 'Old Testament' : 'New Testament'}</p>
+                  <p className="eyebrow mb-2">{selectedBook.testament === 'OT' ? t('bible.oldTestament') : t('bible.newTestament')}</p>
                   <h2 className="font-display text-d-headline font-semibold text-ink-800">
                     {selectedBook.name} {chapter}
                   </h2>
                   <p className="mt-1 text-d-label uppercase tracking-[0.18em] text-ink-400">{translation.label}</p>
                   <div className="mx-auto mt-5 flex max-w-md items-center gap-3">
-                    <span className="text-d-label text-ink-400">Progress</span>
+                    <span className="text-d-label text-ink-400">{t('bible.progress')}</span>
                     <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-parchment-200">
                       <div
                         className="h-full rounded-full bg-gradient-to-r from-lavender-500 to-gold-500 transition-all duration-300"
@@ -580,14 +581,14 @@ export default function Bible() {
                                 ? 'bg-gold-400/15 text-gold-600 opacity-100'
                                 : 'text-ink-400 hover:bg-parchment-200 hover:text-gold-600'
                             }`}
-                            aria-label={isBookmarked(v) ? 'Remove bookmark' : 'Add bookmark'}
+                            aria-label={isBookmarked(v) ? t('bible.removeBookmark') : t('bible.addBookmark')}
                           >
                             <Bookmark className="h-4 w-4" fill={isBookmarked(v) ? 'currentColor' : 'none'} />
                           </button>
                           <button
                             onClick={() => copyVerse(v)}
                             className="rounded-full p-2 text-ink-400 transition-colors hover:bg-parchment-200 hover:text-lavender-700"
-                            aria-label="Copy verse"
+                            aria-label={t('bible.copyVerse')}
                           >
                             {copiedVerse === v.verse ? (
                               <Check className="h-4 w-4 text-green-600" />
@@ -620,7 +621,7 @@ export default function Bible() {
                     className="inline-flex items-center gap-2 rounded-full border border-parchment-200 bg-parchment-50 px-4 py-2.5 text-d-body font-medium text-ink-600 transition-all hover:border-lavender-300 hover:text-lavender-700 disabled:opacity-30 disabled:hover:border-parchment-200 disabled:hover:text-ink-600"
                   >
                     <ChevronLeft className="h-4 w-4" />
-                    Previous
+                    {t('common.previous')}
                   </button>
                   <p className="hidden text-d-label font-medium uppercase tracking-wide text-ink-400 sm:block">
                     {selectedBook.name} {chapter}
@@ -642,7 +643,7 @@ export default function Bible() {
                     disabled={loading || (selectedBook.name === 'Revelation' && chapter === selectedBook.chapters)}
                     className="inline-flex items-center gap-2 rounded-full border border-parchment-200 bg-parchment-50 px-4 py-2.5 text-d-body font-medium text-ink-600 transition-all hover:border-lavender-300 hover:text-lavender-700 disabled:opacity-30 disabled:hover:border-parchment-200 disabled:hover:text-ink-600"
                   >
-                    Next
+                    {t('common.next')}
                     <ChevronRight className="h-4 w-4" />
                   </button>
                 </div>

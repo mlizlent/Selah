@@ -1,4 +1,5 @@
 import { useState, useEffect, Suspense, lazy } from 'react';
+import { useTranslation } from 'react-i18next';
 import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import type { Page } from '@/components/Nav';
@@ -17,23 +18,26 @@ const LazyWhatsPopping = lazy(() => import('@/pages/WhatsPopping'));
 const LazyPrayerRequest = lazy(() => import('@/pages/PrayerRequest'));
 const LazyMyRequests = lazy(() => import('@/pages/MyRequests'));
 
-const PageErrorFallback = ({ page }: { page: string }) => (
-  <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
-    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-500">
-      <span className="text-d-headline">⚠️</span>
-    </span>
-    <h2 className="font-display text-d-title font-semibold text-ink-800">Something went wrong</h2>
-    <p className="max-w-sm text-d-body text-ink-500">
-      We hit an unexpected error loading {page}. Please try again.
-    </p>
-    <button
-      onClick={() => window.location.reload()}
-      className="btn-primary"
-    >
-      Refresh page
-    </button>
-  </div>
-);
+const PageErrorFallback = ({ page }: { page: string }) => {
+  const { t } = useTranslation();
+  return (
+    <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-500">
+        <span className="text-d-headline">⚠️</span>
+      </span>
+      <h2 className="font-display text-d-title font-semibold text-ink-800">{t('app.errorTitle')}</h2>
+      <p className="max-w-sm text-d-body text-ink-500">
+        {t('app.errorBody', { page })}
+      </p>
+      <button
+        onClick={() => window.location.reload()}
+        className="btn-primary"
+      >
+        {t('common.refresh')}
+      </button>
+    </div>
+  );
+};
 
 type ExtendedPage = Page | 'my requests' | 'login';
 
@@ -53,6 +57,11 @@ function AppContent() {
   const [page, setPage] = useState<ExtendedPage>(getInitialPage);
   const [showAccount, setShowAccount] = useState(false);
   const { user, loading, isAdmin, checkedAdmin, username, signOut } = useAuth();
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    document.documentElement.lang = i18n.resolvedLanguage || i18n.language || 'en';
+  }, [i18n.resolvedLanguage, i18n.language]);
 
   useEffect(() => {
     try {

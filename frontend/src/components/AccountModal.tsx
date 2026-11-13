@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2, Mail, Lock, UserPlus, LogIn, User } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
 
 interface AccountModalProps {
@@ -17,6 +18,7 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
   const [message, setMessage] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const { signUp, signIn } = useAuth();
+  const { t } = useTranslation();
 
   useEffect(() => {
     if (!open) {
@@ -41,7 +43,7 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
 
     if (isSignUp) {
       if (password !== confirmPassword) {
-        setError('Passwords do not match.');
+        setError(t('auth.passwordMismatch'));
         setSubmitting(false);
         return;
       }
@@ -79,31 +81,30 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
         <button
           onClick={onClose}
           className="absolute top-4 right-4 rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100 hover:text-ink-800"
+          aria-label={t('common.close')}
         >
           <X className="h-5 w-5" />
         </button>
 
         <div className="mb-6">
           <h2 className="font-display text-d-headline font-semibold text-ink-800">
-            {isSignUp ? 'Create your account' : 'Welcome back'}
+            {isSignUp ? t('auth.signUpTitle') : t('auth.signInTitle')}
           </h2>
           <p className="mt-1 text-d-body text-ink-500">
-            {isSignUp
-              ? 'Sign up to track your prayer requests and appointments.'
-              : 'Sign in to view your prayer requests and appointments.'}
+            {isSignUp ? t('auth.signUpSubtitle') : t('auth.signInSubtitleModal')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-d-body font-medium text-ink-700">Email</label>
+            <label className="mb-2 block text-d-body font-medium text-ink-700">{t('auth.email')}</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@example.com"
+                placeholder={t('auth.emailPlaceholder')}
                 className="input-field pl-11"
                 required
               />
@@ -112,14 +113,14 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
 
           {isSignUp && (
             <div>
-              <label className="mb-2 block text-d-body font-medium text-ink-700">Username</label>
+              <label className="mb-2 block text-d-body font-medium text-ink-700">{t('auth.username')}</label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
                 <input
                   type="text"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="Choose a username"
+                  placeholder={t('auth.usernamePlaceholder')}
                   className="input-field pl-11"
                   required
                   minLength={3}
@@ -129,14 +130,14 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
           )}
 
           <div>
-            <label className="mb-2 block text-d-body font-medium text-ink-700">Password</label>
+            <label className="mb-2 block text-d-body font-medium text-ink-700">{t('auth.password')}</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Min. 6 characters"
+                placeholder={t('auth.passwordPlaceholder')}
                 className="input-field pl-11"
                 required
                 minLength={6}
@@ -146,14 +147,14 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
 
           {isSignUp && (
             <div>
-              <label className="mb-2 block text-d-body font-medium text-ink-700">Confirm Password</label>
+              <label className="mb-2 block text-d-body font-medium text-ink-700">{t('auth.confirmPassword')}</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Repeat your password"
+                  placeholder={t('auth.confirmPasswordPlaceholder')}
                   className="input-field pl-11"
                   required
                   minLength={6}
@@ -171,24 +172,24 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
             ) : isSignUp ? (
               <>
                 <UserPlus className="h-4 w-4" />
-                Create account
+                {t('auth.createAccount')}
               </>
             ) : (
               <>
                 <LogIn className="h-4 w-4" />
-                Sign in
+                {t('auth.signIn')}
               </>
             )}
           </button>
         </form>
 
         <p className="mt-4 text-center text-d-body text-ink-500">
-          {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+          {isSignUp ? t('auth.haveAccount') : t('auth.noAccount')}{' '}
           <button
             onClick={resetForm}
             className="font-medium text-lavender-600 hover:text-lavender-700"
           >
-            {isSignUp ? 'Sign in' : 'Sign up'}
+            {isSignUp ? t('auth.signIn') : t('auth.signUp')}
           </button>
         </p>
       </div>
