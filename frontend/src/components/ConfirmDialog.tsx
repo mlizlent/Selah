@@ -28,15 +28,15 @@ export default function ConfirmDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-sm" onClick={onCancel} />
       <div className="relative w-full max-w-sm rounded-2xl border border-parchment-200 bg-parchment-50 p-6 shadow-2xl">
-        <h3 className="font-display text-lg font-semibold text-ink-800">{title}</h3>
-        <p className="mt-2 text-sm text-ink-600">{message}</p>
+        <h3 className="font-display text-title font-semibold text-ink-800">{title}</h3>
+        <p className="mt-2 text-body text-ink-600">{message}</p>
         <div className="mt-6 flex gap-2">
-          <button onClick={onCancel} className="btn-ghost flex-1 py-2 text-xs">
+          <button onClick={onCancel} className="btn-ghost flex-1 py-2 text-label">
             {cancelLabel}
           </button>
           <button
             onClick={onConfirm}
-            className={`flex-1 py-2 text-xs font-medium text-parchment-50 ${
+            className={`flex-1 py-2 text-label font-medium text-parchment-50 ${
               danger ? 'bg-red-600 hover:bg-red-700' : 'btn-primary'
             }`}
           >

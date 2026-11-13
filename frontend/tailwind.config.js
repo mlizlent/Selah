@@ -55,6 +55,13 @@ export default {
         sans: ['"Inter"', 'system-ui', 'sans-serif'],
         explanation: ['"Times New Roman"', 'Times', 'serif'],
       },
+      fontSize: {
+        display: ['45px', { lineHeight: '1.1', letterSpacing: '-0.01em' }],
+        headline: ['28px', { lineHeight: '1.2' }],
+        title: ['16px', { lineHeight: '1.4' }],
+        body: ['14px', { lineHeight: '1.6' }],
+        label: ['12px', { lineHeight: '1.4' }],
+      },
       letterSpacing: {
         wide2: '0.15em',
         wide3: '0.25em',

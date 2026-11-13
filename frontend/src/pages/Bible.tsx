@@ -211,10 +211,10 @@ export default function Bible() {
         <div className="absolute inset-0 bg-gradient-to-b from-ink-900/70 via-ink-900/55 to-parchment-50/95" />
         <div className="relative z-10 px-6 pt-8 pb-16 text-center">
           <span className="eyebrow mb-3 text-purple-900 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">{translation.label}</span>
-          <h1 className="font-display text-4xl font-medium drop-shadow-sm sm:text-6xl" style={{ color: '#6b0099' }}>
+          <h1 className="font-display text-headline font-medium drop-shadow-sm sm:text-display" style={{ color: '#6b0099' }}>
             The Holy Bible
           </h1>
-          <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed drop-shadow-sm" style={{ color: '#6b0099' }}>
+          <p className="mx-auto mt-4 max-w-lg text-body leading-relaxed drop-shadow-sm" style={{ color: '#6b0099' }}>
             Read, search, and meditate on scripture. Choose a version, select a book and chapter,
             or jump straight to a verse reference.
           </p>
@@ -242,7 +242,7 @@ export default function Bible() {
       </form>
 
       <div className="mb-6 flex flex-wrap items-center gap-3">
-        <label htmlFor="bible-translation" className="text-sm font-medium text-ink-600">Version</label>
+        <label htmlFor="bible-translation" className="text-body font-medium text-ink-600">Version</label>
         <select
           id="bible-translation"
           value={translationId}
@@ -262,22 +262,22 @@ export default function Bible() {
       </div>
 
       {searchError && (
-        <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{searchError}</p>
+        <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-body text-red-700">{searchError}</p>
       )}
 
       {/* Search results */}
       {searchResults && (
         <div className="card mb-8 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-lg font-semibold text-ink-800">
-              {searchQuery.trim()} <span className="text-sm font-normal text-ink-400">({translation.short})</span>
+            <h2 className="font-display text-title font-semibold text-ink-800">
+              {searchQuery.trim()} <span className="text-body font-normal text-ink-400">({translation.short})</span>
             </h2>
             <button
               onClick={() => {
                 setSearchResults(null);
                 setSearchQuery('');
               }}
-              className="text-sm text-lavender-600 hover:text-lavender-700"
+              className="text-body text-lavender-600 hover:text-lavender-700"
             >
               Clear
             </button>
@@ -285,8 +285,8 @@ export default function Bible() {
           <div className="space-y-3">
             {searchResults.map((v, i) => (
               <div key={i} className="verse-card flex items-start gap-3">
-                <span className="mt-0.5 text-xs font-semibold text-gold-600">{v.verse}</span>
-                <p className="flex-1 font-display text-lg leading-relaxed text-ink-700">{v.text}</p>
+                <span className="mt-0.5 text-label font-semibold text-gold-600">{v.verse}</span>
+                <p className="flex-1 font-display text-title leading-relaxed text-ink-700">{v.text}</p>
               </div>
             ))}
           </div>
@@ -300,7 +300,7 @@ export default function Bible() {
             setShowBookPicker((s) => !s);
             setShowChapterPicker(false);
           }}
-          className="inline-flex items-center gap-2 rounded-full bg-lavender-50 px-5 py-2.5 text-sm font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
+          className="inline-flex items-center gap-2 rounded-full bg-lavender-50 px-5 py-2.5 text-body font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
         >
           <BookOpen className="h-4 w-4" strokeWidth={1.5} />
           {selectedBook.name}
@@ -339,7 +339,7 @@ export default function Bible() {
                 <button
                   key={book.name}
                   onClick={() => goToChapter(book, 1)}
-                  className={`rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                  className={`rounded-lg px-3 py-2 text-left text-body transition-colors ${
                     book.name === selectedBook.name
                       ? 'bg-lavender-600 text-parchment-50'
                       : 'text-ink-600 hover:bg-lavender-50'
@@ -357,7 +357,7 @@ export default function Bible() {
                 <button
                   key={book.name}
                   onClick={() => goToChapter(book, 1)}
-                  className={`rounded-lg px-3 py-2 text-left text-sm transition-colors ${
+                  className={`rounded-lg px-3 py-2 text-left text-body transition-colors ${
                     book.name === selectedBook.name
                       ? 'bg-lavender-600 text-parchment-50'
                       : 'text-ink-600 hover:bg-lavender-50'
@@ -375,7 +375,7 @@ export default function Bible() {
       {showBookmarks && (
         <div className="card mb-8 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-display text-lg font-semibold text-ink-800">Your Bookmarks</h2>
+            <h2 className="font-display text-title font-semibold text-ink-800">Your Bookmarks</h2>
             <button
               onClick={() => setShowBookmarks(false)}
               className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100"
@@ -384,7 +384,7 @@ export default function Bible() {
             </button>
           </div>
           {bookmarks.length === 0 ? (
-            <p className="text-sm text-ink-500">No bookmarks yet. Click the bookmark icon next to any verse to save it here.</p>
+            <p className="text-body text-ink-500">No bookmarks yet. Click the bookmark icon next to any verse to save it here.</p>
           ) : (
             <div className="space-y-3">
               {bookmarks.map((bm) => {
@@ -395,11 +395,11 @@ export default function Bible() {
                     <div className="flex-1">
                       <button
                         onClick={() => book && goToBookmark(book, bm.chapter)}
-                        className="text-sm font-medium text-lavender-600 hover:text-lavender-700"
+                        className="text-body font-medium text-lavender-600 hover:text-lavender-700"
                       >
                         {bm.book} {bm.chapter}:{bm.verse}
                       </button>
-                      <p className="mt-1 font-display text-sm leading-relaxed text-ink-600 line-clamp-2">{bm.text}</p>
+                      <p className="mt-1 font-display text-body leading-relaxed text-ink-600 line-clamp-2">{bm.text}</p>
                     </div>
                     <button
                       onClick={() => removeBookmark(bm.id)}
@@ -423,7 +423,7 @@ export default function Bible() {
               const book = BIBLE_BOOKS.find((b) => b.name === lastRead.book);
               if (book) goToChapter(book, lastRead.chapter);
             }}
-            className="inline-flex items-center gap-2 rounded-full bg-lavender-50 px-5 py-2.5 text-sm font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
+            className="inline-flex items-center gap-2 rounded-full bg-lavender-50 px-5 py-2.5 text-body font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
           >
             <Play className="h-4 w-4" strokeWidth={1.5} />
             Continue reading {lastRead.book} {lastRead.chapter}
@@ -436,7 +436,7 @@ export default function Bible() {
         <div className="mb-6">
           <button
             onClick={() => setShowChapterPicker(true)}
-            className="rounded-lg bg-lavender-50 px-4 py-2 text-xs font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
+            className="rounded-lg bg-lavender-50 px-4 py-2 text-label font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
           >
             Chapters
           </button>
@@ -446,7 +446,7 @@ export default function Bible() {
       {showChapterPicker && (
         <div className="card mb-8 p-6">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="font-display text-lg font-semibold text-ink-800">
+            <h3 className="font-display text-title font-semibold text-ink-800">
               {selectedBook.name} — Select Chapter
             </h3>
             <button
@@ -461,7 +461,7 @@ export default function Bible() {
               <button
                 key={ch}
                 onClick={() => goToChapter(selectedBook, ch)}
-                className={`rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
+                className={`rounded-lg px-3 py-2.5 text-body font-medium transition-colors ${
                   ch === chapter
                     ? 'bg-lavender-600 text-parchment-50'
                     : 'text-ink-600 hover:bg-lavender-50'
@@ -480,7 +480,7 @@ export default function Bible() {
           <VerseSkeleton />
         </div>
       ) : error ? (
-        <div className="rounded-lg bg-red-50 px-5 py-4 text-center text-sm text-red-700">
+        <div className="rounded-lg bg-red-50 px-5 py-4 text-center text-body text-red-700">
           {error}
         </div>
       ) : (
@@ -494,10 +494,10 @@ export default function Bible() {
           </div>
 
           <div className="mb-6 border-b border-parchment-200 pb-4 text-center">
-            <h2 className="font-display text-2xl font-semibold text-ink-800">
+            <h2 className="font-display text-headline font-semibold text-ink-800">
               {selectedBook.name} {chapter}
             </h2>
-            <p className="mt-1 text-xs uppercase tracking-wide text-ink-400">{translation.label}</p>
+            <p className="mt-1 text-label uppercase tracking-wide text-ink-400">{translation.label}</p>
           </div>
 
           <div ref={versesRef} className="max-h-[60vh] overflow-y-auto space-y-4 pr-1">
@@ -508,10 +508,10 @@ export default function Bible() {
                   isBookmarked(v) ? 'bg-gold-400/10 ring-1 ring-inset ring-gold-400/40' : ''
                 }`}
               >
-                <span className="mt-1 min-w-[28px] text-right text-xs font-semibold text-gold-600">
+                <span className="mt-1 min-w-[28px] text-right text-label font-semibold text-gold-600">
                   {v.verse}
                 </span>
-                <p className="flex-1 font-display text-lg leading-[1.7] text-ink-700">
+                <p className="flex-1 font-display text-title leading-[1.7] text-ink-700">
                   {v.text}
                 </p>
                 <div className="mt-1 shrink-0 flex items-center gap-1">
@@ -558,7 +558,7 @@ export default function Bible() {
                 }
               }}
               disabled={loading || (selectedBook.name === 'Genesis' && chapter === 1)}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
+              className="inline-flex items-center gap-1.5 text-body font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
             >
               <ChevronLeft className="h-4 w-4" />
               Previous
@@ -577,7 +577,7 @@ export default function Bible() {
                 }
               }}
               disabled={loading || (selectedBook.name === 'Revelation' && chapter === selectedBook.chapters)}
-              className="inline-flex items-center gap-1.5 text-sm font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
+              className="inline-flex items-center gap-1.5 text-body font-medium text-lavender-600 transition-colors hover:text-lavender-700 disabled:opacity-30"
             >
               Next
               <ChevronRight className="h-4 w-4" />
@@ -605,7 +605,7 @@ export default function Bible() {
                 if (book) goToChapter(book, parsed.chapter);
               }
             }}
-            className="inline-flex items-center gap-1.5 rounded-full border border-parchment-200 bg-parchment-50/60 px-4 py-2 text-xs font-medium text-ink-500 transition-colors hover:border-lavender-300 hover:text-lavender-600"
+            className="inline-flex items-center gap-1.5 rounded-full border border-parchment-200 bg-parchment-50/60 px-4 py-2 text-label font-medium text-ink-500 transition-colors hover:border-lavender-300 hover:text-lavender-600"
           >
             <Bookmark className="h-3 w-3" strokeWidth={1.5} />
             {q.label}

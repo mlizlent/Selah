@@ -67,8 +67,8 @@ export default function Priestess() {
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
           <p className="eyebrow mb-2">Spiritual care</p>
-          <h1 className="font-display text-3xl font-medium text-ink-800 sm:text-4xl">Priestess Dashboard</h1>
-          <p className="mt-1 text-sm text-ink-500">Tend the queue. Pray. Respond. Approve.</p>
+          <h1 className="font-display text-headline font-medium text-ink-800 sm:text-headline">Priestess Dashboard</h1>
+          <p className="mt-1 text-body text-ink-500">Tend the queue. Pray. Respond. Approve.</p>
         </div>
         <button onClick={load} className="btn-ghost py-2.5">
           <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
@@ -119,7 +119,7 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`relative flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-medium transition-all ${
+      className={`relative flex flex-1 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-body font-medium transition-all ${
         active ? 'bg-lavender-600 text-parchment-50 shadow-sm' : 'text-ink-500 hover:text-lavender-600'
       }`}
     >
@@ -127,7 +127,7 @@ function TabButton({
       <span className="hidden sm:inline">{label}</span>
       <span className="sm:hidden">{label.split(' ')[0]}</span>
       {badge > 0 && (
-        <span className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-xs font-semibold ${
+        <span className={`flex h-5 min-w-5 items-center justify-center rounded-full px-1.5 text-label font-semibold ${
           active ? 'bg-parchment-50/25 text-parchment-50' : 'bg-gold-500 text-ink-900'
         }`}>
           {badge}
@@ -182,11 +182,11 @@ function PrayerQueue({ requests, onUpdate }: { requests: PrayerRequest[]; onUpda
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-lg font-semibold text-ink-800">Prayer Queue ({requests.length})</h3>
+        <h3 className="font-display text-title font-semibold text-ink-800">Prayer Queue ({requests.length})</h3>
         <button
           onClick={() => setShowClearConfirm(true)}
           disabled={clearBusy}
-          className="btn-ghost py-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+          className="btn-ghost py-2 text-label text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
         >
           <Trash2 className="h-3.5 w-3.5" />
           Clear all
@@ -199,20 +199,20 @@ function PrayerQueue({ requests, onUpdate }: { requests: PrayerRequest[]; onUpda
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="flex-1">
                 <div className="flex flex-wrap items-center gap-2">
-                  <span className={`inline-flex items-center gap-1.5 rounded-full ${meta.bg} px-2.5 py-1 text-xs font-medium ${meta.color}`}>
+                  <span className={`inline-flex items-center gap-1.5 rounded-full ${meta.bg} px-2.5 py-1 text-label font-medium ${meta.color}`}>
                     <meta.icon className="h-3 w-3" strokeWidth={2} />
                     {meta.label}
                   </span>
-                  <span className="rounded-full bg-parchment-100 px-2.5 py-1 text-xs text-ink-600">{CAT_LABEL(r.category)}</span>
-                  <span className="text-xs text-ink-400">
+                  <span className="rounded-full bg-parchment-100 px-2.5 py-1 text-label text-ink-600">{CAT_LABEL(r.category)}</span>
+                  <span className="text-label text-ink-400">
                     {r.name ? `from ${r.name}` : 'anonymous'} · {new Date(r.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                   </span>
                 </div>
-                <p className="mt-3 text-sm leading-relaxed text-ink-700">{r.body}</p>
+                <p className="mt-3 text-body leading-relaxed text-ink-700">{r.body}</p>
                 {r.prayed_note && (
                   <div className="mt-3 verse-card">
                     <p className="eyebrow text-gold-600">Your note</p>
-                    <p className="mt-1 font-display text-sm italic text-ink-700">"{r.prayed_note}"</p>
+                    <p className="mt-1 font-display text-body italic text-ink-700">"{r.prayed_note}"</p>
                   </div>
                 )}
               </div>
@@ -224,14 +224,14 @@ function PrayerQueue({ requests, onUpdate }: { requests: PrayerRequest[]; onUpda
                   value={note[r.id] ?? ''}
                   onChange={(e) => setNote((n) => ({ ...n, [r.id]: e.target.value }))}
                   placeholder="A short note for the seeker (optional)..."
-                  className="input-field py-2 text-sm"
+                  className="input-field py-2 text-body"
                 />
                 <div className="mt-3 flex flex-wrap gap-2">
                   {r.status === 'pending' && (
                     <button
                       onClick={() => updateStatus(r.id, 'praying')}
                       disabled={busy === r.id}
-                      className="btn-ghost py-2 text-xs"
+                      className="btn-ghost py-2 text-label"
                     >
                       {busy === r.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <HandHeart className="h-3.5 w-3.5" />}
                       Mark as praying
@@ -240,7 +240,7 @@ function PrayerQueue({ requests, onUpdate }: { requests: PrayerRequest[]; onUpda
                   <button
                     onClick={() => updateStatus(r.id, 'prayed', note[r.id]?.trim() || undefined)}
                     disabled={busy === r.id}
-                    className="btn-primary py-2 text-xs"
+                    className="btn-primary py-2 text-label"
                   >
                     {busy === r.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                     Mark as prayed
@@ -262,7 +262,7 @@ function PrayerQueue({ requests, onUpdate }: { requests: PrayerRequest[]; onUpda
         danger
       />
       {clearMessage && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-sm shadow-lg">
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-body shadow-lg">
           {clearMessage}
         </div>
       )}
@@ -312,11 +312,11 @@ function AppointmentList({ appointments, onUpdate }: { appointments: Appointment
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="font-display text-lg font-semibold text-ink-800">Appointments ({appointments.length})</h3>
+        <h3 className="font-display text-title font-semibold text-ink-800">Appointments ({appointments.length})</h3>
         <button
           onClick={() => setShowClearConfirm(true)}
           disabled={clearBusy}
-          className="btn-ghost py-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+          className="btn-ghost py-2 text-label text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
         >
           <Trash2 className="h-3.5 w-3.5" />
           Clear all
@@ -327,27 +327,27 @@ function AppointmentList({ appointments, onUpdate }: { appointments: Appointment
         return (
           <div key={a.id} className="card p-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`inline-flex items-center gap-1.5 rounded-full ${meta.bg} px-2.5 py-1 text-xs font-medium ${meta.color}`}>
+              <span className={`inline-flex items-center gap-1.5 rounded-full ${meta.bg} px-2.5 py-1 text-label font-medium ${meta.color}`}>
                 {meta.label}
               </span>
-              <span className="text-xs text-ink-400">
+              <span className="text-label text-ink-400">
                 {a.name ? a.name : 'anonymous'} · {new Date(a.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
               </span>
             </div>
-            <p className="mt-3 text-sm leading-relaxed text-ink-700">{a.reason}</p>
-            <div className="mt-3 flex items-center gap-2 rounded-lg bg-parchment-100 px-3 py-2 text-sm text-ink-700">
+            <p className="mt-3 text-body leading-relaxed text-ink-700">{a.reason}</p>
+            <div className="mt-3 flex items-center gap-2 rounded-lg bg-parchment-100 px-3 py-2 text-body text-ink-700">
               <Mail className="h-4 w-4 text-lavender-600" />
               <span className="font-medium">{a.contact}</span>
             </div>
             {a.status !== 'completed' && (
               <div className="mt-3 flex flex-wrap gap-2">
                 {a.status === 'pending' && (
-                  <button onClick={() => updateStatus(a.id, 'scheduled')} disabled={busy === a.id} className="btn-ghost py-2 text-xs">
+                  <button onClick={() => updateStatus(a.id, 'scheduled')} disabled={busy === a.id} className="btn-ghost py-2 text-label">
                     {busy === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CalendarHeart className="h-3.5 w-3.5" />}
                     Mark scheduled
                   </button>
                 )}
-                <button onClick={() => updateStatus(a.id, 'completed')} disabled={busy === a.id} className="btn-primary py-2 text-xs">
+                <button onClick={() => updateStatus(a.id, 'completed')} disabled={busy === a.id} className="btn-primary py-2 text-label">
                   {busy === a.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCircle2 className="h-3.5 w-3.5" />}
                   Mark completed
                 </button>
@@ -367,7 +367,7 @@ function AppointmentList({ appointments, onUpdate }: { appointments: Appointment
         danger
       />
       {clearMessage && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-sm shadow-lg">
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-body shadow-lg">
           {clearMessage}
         </div>
       )}
@@ -474,18 +474,18 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
       <form onSubmit={submitPost} className="card space-y-4 p-6">
         <div>
           <p className="eyebrow text-lavender-600">Community updates</p>
-          <h3 className="font-display text-xl font-semibold text-ink-800">Create a post</h3>
-          <p className="mt-1 text-sm text-ink-500">Share something with the Selah community. It will appear on the "What's popping" page.</p>
+          <h3 className="font-display text-title font-semibold text-ink-800">Create a post</h3>
+          <p className="mt-1 text-body text-ink-500">Share something with the Selah community. It will appear on the "What's popping" page.</p>
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-ink-700">Title</label>
+          <label className="mb-2 block text-body font-medium text-ink-700">Title</label>
           <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="What's on your heart?" className="input-field" />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-ink-700">Message</label>
+          <label className="mb-2 block text-body font-medium text-ink-700">Message</label>
           <textarea value={body} onChange={(e) => setBody(e.target.value)} rows={4} placeholder="Write a message for the community..." className="input-field resize-none" />
         </div>
-        {message && <p className="rounded-lg bg-lavender-50 px-4 py-3 text-sm text-lavender-700">{message}</p>}
+        {message && <p className="rounded-lg bg-lavender-50 px-4 py-3 text-body text-lavender-700">{message}</p>}
         <button type="submit" disabled={busy || !title.trim() || !body.trim()} className="btn-primary">
           {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
           Publish post
@@ -497,11 +497,11 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
       ) : (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="font-display text-lg font-semibold text-ink-800">Posts ({posts.length})</h3>
+            <h3 className="font-display text-title font-semibold text-ink-800">Posts ({posts.length})</h3>
             <button
               onClick={() => setShowClearConfirm(true)}
               disabled={clearBusy}
-              className="btn-ghost py-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+              className="btn-ghost py-2 text-label text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Clear all
@@ -512,19 +512,19 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
               {editingId === post.id ? (
                 <div className="space-y-3">
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-ink-700">Title</label>
+                    <label className="mb-2 block text-body font-medium text-ink-700">Title</label>
                     <input value={editTitle} onChange={(e) => setEditTitle(e.target.value)} className="input-field" />
                   </div>
                   <div>
-                    <label className="mb-2 block text-sm font-medium text-ink-700">Message</label>
+                    <label className="mb-2 block text-body font-medium text-ink-700">Message</label>
                     <textarea value={editBody} onChange={(e) => setEditBody(e.target.value)} rows={4} className="input-field resize-none" />
                   </div>
                   <div className="flex gap-2">
-                    <button onClick={() => saveEdit(post.id)} disabled={editBusy === post.id || !editTitle.trim() || !editBody.trim()} className="btn-primary py-2.5 text-xs">
+                    <button onClick={() => saveEdit(post.id)} disabled={editBusy === post.id || !editTitle.trim() || !editBody.trim()} className="btn-primary py-2.5 text-label">
                       {editBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                       Save
                     </button>
-                    <button onClick={cancelEdit} className="btn-ghost py-2.5 text-xs">
+                    <button onClick={cancelEdit} className="btn-ghost py-2.5 text-label">
                       Cancel
                     </button>
                   </div>
@@ -532,18 +532,18 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
               ) : (
                 <div>
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h4 className="font-display text-lg font-semibold text-ink-800">{post.title}</h4>
-                    <span className="text-xs text-ink-400">
+                    <h4 className="font-display text-title font-semibold text-ink-800">{post.title}</h4>
+                    <span className="text-label text-ink-400">
                       {new Date(post.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                     </span>
                   </div>
-                  <p className="mt-3 text-sm leading-relaxed text-ink-600">{post.body}</p>
+                  <p className="mt-3 text-body leading-relaxed text-ink-600">{post.body}</p>
                   <div className="mt-4 flex gap-2">
-                    <button onClick={() => startEdit(post)} className="btn-ghost py-2.5 text-xs">
+                    <button onClick={() => startEdit(post)} className="btn-ghost py-2.5 text-label">
                       <Pencil className="h-3.5 w-3.5" />
                       Edit
                     </button>
-                    <button onClick={() => askDelete(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2.5 text-xs text-red-600 hover:text-red-700">
+                    <button onClick={() => askDelete(post.id)} disabled={deleteBusy === post.id} className="btn-ghost py-2.5 text-label text-red-600 hover:text-red-700">
                       {deleteBusy === post.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Trash2 className="h-3.5 w-3.5" />}
                       Delete
                     </button>
@@ -578,7 +578,7 @@ function PriestessPosts({ posts, onUpdate }: { posts: PriestessPost[]; onUpdate:
       />
 
       {clearMessage && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-sm shadow-lg">
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-body shadow-lg">
           {clearMessage}
         </div>
       )}
@@ -650,14 +650,14 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
       {pending.length > 0 && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-ink-800">
+            <h3 className="flex items-center gap-2 font-display text-title font-semibold text-ink-800">
               <Sparkles className="h-4 w-4 text-gold-500" />
               Awaiting review ({pending.length})
             </h3>
             <button
               onClick={() => setShowClearConfirm(true)}
               disabled={clearBusy}
-              className="btn-ghost py-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+              className="btn-ghost py-2 text-label text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Clear all
@@ -666,17 +666,17 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
           <div className="space-y-4">
             {pending.map((t) => (
               <div key={t.id} className="card border-gold-400/40 p-5">
-                <h4 className="font-display text-base font-semibold text-ink-800">{t.title}</h4>
-                <p className="mt-2 text-sm leading-relaxed text-ink-600">{t.body}</p>
-                <p className="mt-2 text-xs text-ink-400">
+                <h4 className="font-display text-body font-semibold text-ink-800">{t.title}</h4>
+                <p className="mt-2 text-body leading-relaxed text-ink-600">{t.body}</p>
+                <p className="mt-2 text-label text-ink-400">
                   {t.author_name || 'Anonymous'} · {new Date(t.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                 </p>
                 <div className="mt-4 flex gap-2">
-                  <button onClick={() => approve(t.id)} disabled={busy === t.id} className="btn-primary py-2.5 text-xs">
+                  <button onClick={() => approve(t.id)} disabled={busy === t.id} className="btn-primary py-2.5 text-label">
                     {busy === t.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />}
                     Approve
                   </button>
-                  <button onClick={() => askReject(t.id)} disabled={busy === t.id} className="btn-ghost py-2.5 text-xs">
+                  <button onClick={() => askReject(t.id)} disabled={busy === t.id} className="btn-ghost py-2.5 text-label">
                     {busy === t.id ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <X className="h-3.5 w-3.5" />}
                     Remove
                   </button>
@@ -690,14 +690,14 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
       {approved.length > 0 && (
         <div>
           <div className="mb-3 flex items-center justify-between">
-            <h3 className="flex items-center gap-2 font-display text-lg font-semibold text-ink-800">
+            <h3 className="flex items-center gap-2 font-display text-title font-semibold text-ink-800">
               <CheckCircle2 className="h-4 w-4 text-lavender-500" />
               Published ({approved.length})
             </h3>
             <button
               onClick={() => setShowClearConfirm(true)}
               disabled={clearBusy}
-              className="btn-ghost py-2 text-xs text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
+              className="btn-ghost py-2 text-label text-red-600 hover:bg-red-50 hover:text-red-700 disabled:opacity-50"
             >
               <Trash2 className="h-3.5 w-3.5" />
               Clear all
@@ -706,8 +706,8 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
           <div className="space-y-3">
             {approved.map((t) => (
               <div key={t.id} className="card p-4 opacity-75">
-                <h4 className="font-display text-sm font-semibold text-ink-700">{t.title}</h4>
-                <p className="mt-1 text-xs text-ink-400">
+                <h4 className="font-display text-body font-semibold text-ink-700">{t.title}</h4>
+                <p className="mt-1 text-label text-ink-400">
                   {t.author_name || 'Anonymous'} · {new Date(t.created_at).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                 </p>
               </div>
@@ -739,7 +739,7 @@ function TestimonyReview({ testimonies, onUpdate }: { testimonies: Testimony[]; 
       />
 
       {clearMessage && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-sm shadow-lg">
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-parchment-200 bg-parchment-50 px-5 py-3 text-body shadow-lg">
           {clearMessage}
         </div>
       )}
@@ -761,8 +761,8 @@ function EmptyState({
       <span className="flex h-12 w-12 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
         <Icon className="h-5 w-5" strokeWidth={1.5} />
       </span>
-      <h3 className="font-display text-lg font-semibold text-ink-800">{title}</h3>
-      <p className="max-w-xs text-sm text-ink-500">{desc}</p>
+      <h3 className="font-display text-title font-semibold text-ink-800">{title}</h3>
+      <p className="max-w-xs text-body text-ink-500">{desc}</p>
     </div>
   );
 }

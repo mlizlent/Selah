@@ -26,10 +26,10 @@ const LazyMyRequests = lazy(() => import('@/pages/MyRequests'));
 const PageErrorFallback = ({ page }: { page: string }) => (
   <div className="flex min-h-[50vh] flex-col items-center justify-center gap-4 px-6 text-center">
     <span className="flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-500">
-      <span className="text-2xl">⚠️</span>
+      <span className="text-headline">⚠️</span>
     </span>
-    <h2 className="font-display text-xl font-semibold text-ink-800">Something went wrong</h2>
-    <p className="max-w-sm text-sm text-ink-500">
+    <h2 className="font-display text-title font-semibold text-ink-800">Something went wrong</h2>
+    <p className="max-w-sm text-body text-ink-500">
       We hit an unexpected error loading {page}. Please try again.
     </p>
     <button
