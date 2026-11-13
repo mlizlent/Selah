@@ -2,16 +2,17 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 
 process.env.SESSION_SECRET = 'test-session-secret';
+process.env.AUTH_USER_CACHE_TTL_MS = '0';
 
 const auth = await import('./src/server/auth.ts');
 
-test('hashPassword and verifyPassword round-trip', () => {
-  const hash = auth.hashPassword('correct horse battery staple');
+test('hashPassword and verifyPassword round-trip', async () => {
+  const hash = await auth.hashPassword('correct horse battery staple');
   assert.equal(typeof hash, 'string');
   assert.match(hash, /^scrypt:/);
-  assert.equal(auth.verifyPassword('correct horse battery staple', hash), true);
-  assert.equal(auth.verifyPassword('wrong-password', hash), false);
-  assert.equal(auth.verifyPassword('correct horse battery staple', 'scrypt:bad:hash'), false);
+  assert.equal(await auth.verifyPassword('correct horse battery staple', hash), true);
+  assert.equal(await auth.verifyPassword('wrong-password', hash), false);
+  assert.equal(await auth.verifyPassword('correct horse battery staple', 'scrypt:bad:hash'), false);
 });
 
 test('createSessionToken and verifySessionToken round-trip', () => {

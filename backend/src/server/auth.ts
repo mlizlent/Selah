@@ -14,6 +14,35 @@ export type DbUser = {
 const SESSION_COOKIE = 'selah_session';
 const SESSION_TTL_MS = 1000 * 60 * 60 * 24 * 7; // 7 days
 
+const USER_CACHE_TTL_MS = Math.max(0, Number(process.env.AUTH_USER_CACHE_TTL_MS || 30000));
+const USER_CACHE_MAX = Math.max(100, Number(process.env.AUTH_USER_CACHE_MAX || 10000));
+const userCache = new Map<string, { user: DbUser | null; exp: number }>();
+
+function cacheGet(id: string): DbUser | null | undefined {
+  if (USER_CACHE_TTL_MS <= 0) return undefined;
+  const entry = userCache.get(id);
+  if (!entry) return undefined;
+  if (Date.now() > entry.exp) {
+    userCache.delete(id);
+    return undefined;
+  }
+  return entry.user;
+}
+
+function cacheSet(id: string, user: DbUser | null) {
+  if (USER_CACHE_TTL_MS <= 0) return;
+  if (userCache.size >= USER_CACHE_MAX) {
+    const first = userCache.keys().next().value;
+    if (first) userCache.delete(first);
+  }
+  userCache.set(id, { user, exp: Date.now() + USER_CACHE_TTL_MS });
+}
+
+export function invalidateUserCache(id?: string) {
+  if (id) userCache.delete(id);
+  else userCache.clear();
+}
+
 function getSecret(): string {
   const secret = process.env.SESSION_SECRET || process.env.AUTH_SECRET || process.env.JWT_SECRET;
   if (!secret) {
@@ -31,19 +60,28 @@ function sign(data: string) {
   return b64url(crypto.createHmac('sha256', getSecret()).update(data).digest());
 }
 
-export function hashPassword(password: string): string {
+function scryptAsync(password: string, salt: Buffer, keylen: number): Promise<Buffer> {
+  return new Promise((resolve, reject) => {
+    crypto.scrypt(password, salt, keylen, (err, derivedKey) => {
+      if (err) reject(err);
+      else resolve(derivedKey as Buffer);
+    });
+  });
+}
+
+export async function hashPassword(password: string): Promise<string> {
   const salt = crypto.randomBytes(16);
-  const derived = crypto.scryptSync(password, salt, 64);
+  const derived = await scryptAsync(password, salt, 64);
   return `scrypt:${b64url(salt)}:${b64url(derived)}`;
 }
 
-export function verifyPassword(password: string, stored: string): boolean {
+export async function verifyPassword(password: string, stored: string): Promise<boolean> {
   try {
     const [algo, saltB64, hashB64] = stored.split(':');
     if (algo !== 'scrypt' || !saltB64 || !hashB64) return false;
     const salt = Buffer.from(saltB64, 'base64url');
     const expected = Buffer.from(hashB64, 'base64url');
-    const derived = crypto.scryptSync(password, salt, expected.length);
+    const derived = await scryptAsync(password, salt, expected.length);
     return crypto.timingSafeEqual(derived, expected);
   } catch {
     return false;
@@ -106,6 +144,8 @@ export function getTokenFromRequest(req: Request): string | undefined {
 }
 
 export async function getUserById(id: string): Promise<DbUser | null> {
+  const cached = cacheGet(id);
+  if (cached !== undefined) return cached;
   const { rows } = await query<DbUser>(
     `SELECT u.id, u.email, u.username, COALESCE(p.role, u.role, 'user') AS role, u.created_at
      FROM users u
@@ -113,7 +153,9 @@ export async function getUserById(id: string): Promise<DbUser | null> {
      WHERE u.id = $1`,
     [id]
   );
-  return rows[0] || null;
+  const user = rows[0] || null;
+  cacheSet(id, user);
+  return user;
 }
 
 export async function getUserFromRequest(req: Request): Promise<DbUser | null> {

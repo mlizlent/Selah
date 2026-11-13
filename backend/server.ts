@@ -3,6 +3,7 @@ import http from 'http';
 import path from 'path';
 import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
+import compression from 'compression';
 import { access } from 'fs/promises';
 import { pathToFileURL } from 'url';
 import { readFile } from 'fs/promises';
@@ -126,9 +127,12 @@ async function ensureAdminShield(userId: string, email: string) {
 }
 
 const app = express();
+app.disable('x-powered-by');
+app.set('trust proxy', 1);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(compression());
+app.use(express.json({ limit: '256kb' }));
+app.use(express.urlencoded({ extended: true, limit: '256kb' }));
 app.use(cookieParser());
 app.use((req, res, next) => {
   const origin = req.headers.origin;
@@ -158,7 +162,7 @@ app.post('/api/auth/signup', async (req, res) => {
     if (existing.rowCount) {
       return sendJson(res, 409, { error: 'An account with this email already exists.' });
     }
-    const passwordHash = hashPassword(password);
+    const passwordHash = await hashPassword(password);
     const shield = (process.env.ADMIN_EMAIL_SHIELD || '').trim().toLowerCase();
     const role = shield && email === shield ? 'admin' : 'user';
     const uname = shield && email === shield ? 'RoyalDiadem' : username;
@@ -197,7 +201,7 @@ app.post('/api/auth/login', async (req, res) => {
       [email]
     );
     const user = rows[0];
-    if (!user || !verifyPassword(password, user.password_hash)) {
+    if (!user || !(await verifyPassword(password, user.password_hash))) {
       return sendJson(res, 401, { error: 'Invalid email or password.' });
     }
     await ensureAdminShield(user.id, user.email);
@@ -642,34 +646,59 @@ app.get('/api/health', (_req, res) => {
 const DIST_DIR =
   process.env.DIST_DIR ||
   path.resolve(process.cwd(), 'frontend/dist');
-const server = http.createServer(app);
+
+function configureServer(server: http.Server) {
+  server.keepAliveTimeout = Math.max(1000, Number(process.env.KEEP_ALIVE_TIMEOUT_MS || 65000));
+  server.headersTimeout = server.keepAliveTimeout + 1000;
+  server.requestTimeout = Math.max(0, Number(process.env.REQUEST_TIMEOUT_MS || 30000));
+  server.maxRequestsPerSocket = Math.max(0, Number(process.env.MAX_REQUESTS_PER_SOCKET || 0));
+  return server;
+}
+
+async function bootstrap() {
+  await loadDotEnv();
+  GROQ_API_KEY = process.env.GROQ_API_KEY;
+  GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
+  GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
+  ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
+
+  console.log('[server] DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
+  console.log('[server] ADMIN_EMAIL_SHIELD:', process.env.ADMIN_EMAIL_SHIELD ? 'SET' : 'NOT SET');
+  console.log('[server] GROQ_API_KEY:', process.env.GROQ_API_KEY ? 'SET' : 'NOT SET');
+  console.log('[server] GROQ_MODEL:', GROQ_MODEL);
+
+  const hasDist = await access(DIST_DIR).then(() => true).catch(() => false);
+  if (hasDist) {
+    app.use(express.static(DIST_DIR, {
+      maxAge: process.env.NODE_ENV === 'production' ? '1h' : 0,
+      etag: true,
+    }));
+    app.use((_req, res) => {
+      res.sendFile(path.join(DIST_DIR, 'index.html'));
+    });
+  }
+}
 
 if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
-  server.listen(PORT, '0.0.0.0', () => {
-    console.log(`Server running on http://0.0.0.0:${PORT}`);
-  });
+  const { default: cluster } = await import('cluster');
+  const { availableParallelism } = await import('os');
+  const wantCluster = process.env.CLUSTER === 'true' || Number(process.env.WEB_CONCURRENCY || 0) > 1;
+  const workers = Math.max(1, Number(process.env.WEB_CONCURRENCY || 0) || (wantCluster ? availableParallelism() : 1));
 
-  loadDotEnv().then(async () => {
-    GROQ_API_KEY = process.env.GROQ_API_KEY;
-    GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
-    GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
-    ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
-
-    console.log('[server] DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
-    console.log('[server] ADMIN_EMAIL_SHIELD:', process.env.ADMIN_EMAIL_SHIELD ? 'SET' : 'NOT SET');
-    console.log('[server] GROQ_API_KEY:', process.env.GROQ_API_KEY ? 'SET' : 'NOT SET');
-    console.log('[server] GROQ_MODEL:', GROQ_MODEL);
-
-    const hasDist = await access(DIST_DIR).then(() => true).catch(() => false);
-    if (hasDist) {
-      app.use(express.static(DIST_DIR));
-      app.use((_req, res) => {
-        res.sendFile(path.join(DIST_DIR, 'index.html'));
-      });
-    }
-  }).catch((err) => {
-    console.error('[server] startup error:', err);
-  });
+  if (cluster.isPrimary && workers > 1) {
+    console.log(`[server] starting ${workers} workers`);
+    for (let i = 0; i < workers; i++) cluster.fork();
+    cluster.on('exit', (worker, code, signal) => {
+      console.error(`[server] worker ${worker.process.pid} exited (${signal || code}), restarting`);
+      cluster.fork();
+    });
+  } else {
+    await bootstrap();
+    const server = configureServer(http.createServer(app));
+    server.listen(PORT, '0.0.0.0', () => {
+      console.log(`Server running on http://0.0.0.0:${PORT} (pid ${process.pid})`);
+    });
+  }
 }
 
 export default app;
