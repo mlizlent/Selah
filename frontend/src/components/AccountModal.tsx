@@ -49,10 +49,7 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
       if (error) {
         setError(error.message);
       } else {
-        setMessage('Account created! Check your email to confirm, then come back and sign in.');
-        setTimeout(() => {
-          onClose();
-        }, 3000);
+        onClose();
       }
     } else {
       const { error } = await signIn(email, password);
