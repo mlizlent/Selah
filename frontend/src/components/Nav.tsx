@@ -76,7 +76,7 @@ export default function Nav({ page, onNavigate, user, username, isAdmin, onAccou
             <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-700 text-parchment-50 shadow-sm">
               <Heart className="h-4 w-4" strokeWidth={1.5} />
             </span>
-            <span className="font-display text-headline font-semibold tracking-wide text-ink-900">Selah</span>
+            <span className="font-display text-d-headline font-semibold tracking-wide text-ink-900">Selah</span>
           </div>
 
           <nav className="flex-1 space-y-1 px-3 py-4">
@@ -84,7 +84,7 @@ export default function Nav({ page, onNavigate, user, username, isAdmin, onAccou
               <button
                 key={link.id}
                 onClick={() => go(link.id)}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-body font-medium transition-all ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-d-body font-medium transition-all ${
                   page === link.id
                     ? 'bg-lavender-100 text-lavender-700 shadow-[inset_0_-2px_0_0_#c8a2ff]'
                     : 'text-ink-700 hover:bg-lavender-50/70 hover:text-lavender-700'
@@ -99,7 +99,7 @@ export default function Nav({ page, onNavigate, user, username, isAdmin, onAccou
             {isAdmin && (
               <button
                 onClick={() => go('priestess')}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-body font-medium transition-all ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-d-body font-medium transition-all ${
                   page === 'priestess'
                     ? 'bg-lavender-100 text-lavender-700 shadow-[inset_0_-2px_0_0_#c8a2ff]'
                     : 'text-ink-700 hover:bg-lavender-50/70 hover:text-lavender-700'
@@ -114,7 +114,7 @@ export default function Nav({ page, onNavigate, user, username, isAdmin, onAccou
             {user && (
               <button
                 onClick={() => go('my requests')}
-                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-body font-medium transition-all ${
+                className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-d-body font-medium transition-all ${
                   page === 'my requests'
                     ? 'bg-lavender-100 text-lavender-700 shadow-[inset_0_-2px_0_0_#c8a2ff]'
                     : 'text-ink-700 hover:bg-lavender-50/70 hover:text-lavender-700'
@@ -131,13 +131,13 @@ export default function Nav({ page, onNavigate, user, username, isAdmin, onAccou
           <div className="border-t border-parchment-200 p-4">
             {user ? (
               <div className="flex items-center justify-between gap-2">
-                <p className="truncate text-label text-ink-500">{username || user.email}</p>
+                <p className="truncate text-d-label text-ink-500">{username || user.email}</p>
                 <button
                   onClick={() => {
                     onSignOut();
                     setOpen(false);
                   }}
-                  className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-label font-medium text-red-600 transition-colors hover:bg-red-50"
+                  className="flex shrink-0 items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-d-label font-medium text-red-600 transition-colors hover:bg-red-50"
                 >
                   <LogOut className="h-3.5 w-3.5" strokeWidth={1.5} />
                   Sign out

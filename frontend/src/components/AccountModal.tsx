@@ -84,10 +84,10 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
         </button>
 
         <div className="mb-6">
-          <h2 className="font-display text-headline font-semibold text-ink-800">
+          <h2 className="font-display text-d-headline font-semibold text-ink-800">
             {isSignUp ? 'Create your account' : 'Welcome back'}
           </h2>
-          <p className="mt-1 text-body text-ink-500">
+          <p className="mt-1 text-d-body text-ink-500">
             {isSignUp
               ? 'Sign up to track your prayer requests and appointments.'
               : 'Sign in to view your prayer requests and appointments.'}
@@ -96,7 +96,7 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="mb-2 block text-body font-medium text-ink-700">Email</label>
+            <label className="mb-2 block text-d-body font-medium text-ink-700">Email</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
@@ -112,7 +112,7 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
 
           {isSignUp && (
             <div>
-              <label className="mb-2 block text-body font-medium text-ink-700">Username</label>
+              <label className="mb-2 block text-d-body font-medium text-ink-700">Username</label>
               <div className="relative">
                 <User className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
                 <input
@@ -129,7 +129,7 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
           )}
 
           <div>
-            <label className="mb-2 block text-body font-medium text-ink-700">Password</label>
+            <label className="mb-2 block text-d-body font-medium text-ink-700">Password</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
@@ -146,7 +146,7 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
 
           {isSignUp && (
             <div>
-              <label className="mb-2 block text-body font-medium text-ink-700">Confirm Password</label>
+              <label className="mb-2 block text-d-body font-medium text-ink-700">Confirm Password</label>
               <div className="relative">
                 <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
                 <input
@@ -162,8 +162,8 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
             </div>
           )}
 
-          {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-body text-red-700">{error}</p>}
-          {message && <p className="rounded-lg bg-lavender-50 px-4 py-3 text-body text-lavender-700">{message}</p>}
+          {error && <p className="rounded-lg bg-red-50 px-4 py-3 text-d-body text-red-700">{error}</p>}
+          {message && <p className="rounded-lg bg-lavender-50 px-4 py-3 text-d-body text-lavender-700">{message}</p>}
 
           <button type="submit" disabled={submitting} className="btn-primary w-full">
             {submitting ? (
@@ -182,7 +182,7 @@ export default function AccountModal({ open, onClose }: AccountModalProps) {
           </button>
         </form>
 
-        <p className="mt-4 text-center text-body text-ink-500">
+        <p className="mt-4 text-center text-d-body text-ink-500">
           {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
           <button
             onClick={resetForm}

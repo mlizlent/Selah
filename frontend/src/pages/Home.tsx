@@ -73,17 +73,17 @@ export default function Home({ onNavigate }: HomeProps) {
           }`}
         >
           <div className="mb-8 flex justify-center">
-            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-body font-semibold uppercase tracking-[0.28em] text-white shadow-[0_0_35px_rgba(255,255,255,0.12)] backdrop-blur-md">
+            <div className="inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-5 py-2.5 text-d-body font-semibold uppercase tracking-[0.28em] text-white shadow-[0_0_35px_rgba(255,255,255,0.12)] backdrop-blur-md">
               <BookOpen className="h-4 w-4" />
               A sacred pause for your soul
             </div>
           </div>
-          <h1 className="font-display text-display font-medium leading-[1.05] text-white sm:text-display md:text-7xl">
+          <h1 className="font-display text-d-display font-medium leading-[1.05] text-white sm:text-d-display md:text-7xl">
             Find peace in the Word.
             <br />
             <span className="italic text-gold-400">Let Scripture meet your heart.</span>
           </h1>
-          <p className="mx-auto mt-7 max-w-2xl text-title leading-relaxed text-white/90">
+          <p className="mx-auto mt-7 max-w-2xl text-d-title leading-relaxed text-white/90">
             Selah is a calm place to bring your burdens, fear, grief, confusion, or hope and meet
             gentle guidance, comforting scripture, and prayerful care rooted in the Bible.
           </p>
@@ -119,11 +119,11 @@ export default function Home({ onNavigate }: HomeProps) {
               <span className="mb-5 flex h-12 w-12 items-center justify-center rounded-full bg-lavender-100 text-lavender-600 transition-colors group-hover:bg-lavender-600 group-hover:text-parchment-50">
                 <f.icon className="h-5 w-5" strokeWidth={1.5} />
               </span>
-              <h3 className="font-display text-title font-semibold text-ink-800">{f.title}</h3>
-              <p className="mt-3 flex-1 text-body leading-relaxed text-ink-500">{f.desc}</p>
+              <h3 className="font-display text-d-title font-semibold text-ink-800">{f.title}</h3>
+              <p className="mt-3 flex-1 text-d-body leading-relaxed text-ink-500">{f.desc}</p>
               <button
                 onClick={() => onNavigate(f.page)}
-                className="mt-6 inline-flex items-center gap-1.5 text-body font-medium text-lavender-600 transition-colors hover:text-lavender-700"
+                className="mt-6 inline-flex items-center gap-1.5 text-d-body font-medium text-lavender-600 transition-colors hover:text-lavender-700"
               >
                 {f.cta}
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -141,10 +141,10 @@ export default function Home({ onNavigate }: HomeProps) {
         </div>
         <div className="relative mx-auto max-w-2xl px-6 text-center">
           <Quote className="mx-auto mb-6 h-8 w-8 text-gold-400/80" strokeWidth={1} />
-          <p className="font-display text-headline font-medium italic leading-relaxed text-parchment-50 sm:text-headline">
+          <p className="font-display text-d-headline font-medium italic leading-relaxed text-parchment-50 sm:text-d-headline">
             Cast all your anxiety on him, because he cares for you.
           </p>
-          <p className="mt-5 text-body uppercase tracking-wide3 text-parchment-200">1 Peter 5:7</p>
+          <p className="mt-5 text-d-body uppercase tracking-wide3 text-parchment-200">1 Peter 5:7</p>
         </div>
       </section>
 
@@ -155,8 +155,8 @@ export default function Home({ onNavigate }: HomeProps) {
             <ShieldCheck className="h-5 w-5" strokeWidth={1.5} />
           </span>
           <div>
-            <h3 className="font-display text-title font-semibold text-ink-800">A gentle boundary</h3>
-            <p className="mt-1 text-body leading-relaxed text-ink-500">
+            <h3 className="font-display text-d-title font-semibold text-ink-800">A gentle boundary</h3>
+            <p className="mt-1 text-d-body leading-relaxed text-ink-500">
               Nia is here to listen and point you toward scripture she is not a
               counselor, a therapist, or a crisis service. If you are in immediate danger, please
               contact emergency services or a crisis line. Nia will always help you find

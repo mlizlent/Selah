@@ -35,7 +35,7 @@ export default function Testimonies() {
     <div className="mx-auto max-w-5xl px-6 pt-8 pb-24">
       <div className="mb-12 text-center">
         <p className="eyebrow mb-3">Stories of hope</p>
-        <h1 className="font-display text-headline font-medium text-ink-800 sm:text-display">Testimonies</h1>
+        <h1 className="font-display text-d-headline font-medium text-ink-800 sm:text-d-display">Testimonies</h1>
         <p className="mx-auto mt-4 max-w-xl text-ink-500">
           What happened after a prayer was answered. Read what others have shared and when the
           time is right, share your own.
@@ -55,8 +55,8 @@ export default function Testimonies() {
           <span className="flex h-14 w-14 items-center justify-center rounded-full bg-lavender-100 text-lavender-500">
             <Quote className="h-6 w-6" strokeWidth={1.5} />
           </span>
-          <h3 className="font-display text-title font-medium text-ink-700">No testimonies yet</h3>
-          <p className="max-w-sm text-body text-ink-500">
+          <h3 className="font-display text-d-title font-medium text-ink-700">No testimonies yet</h3>
+          <p className="max-w-sm text-d-body text-ink-500">
             Be the first to share what God has done. Your story could be exactly what someone else
             needs to read.
           </p>
@@ -88,14 +88,14 @@ function TestimonyCard({ testimony, index }: { testimony: Testimony; index: numb
   return (
     <div className={`card ${tint} mb-6 break-inside-avoid p-6 transition-all duration-500 hover:shadow-md`}>
       <Quote className="mb-3 h-5 w-5 text-gold-500/60" strokeWidth={1} />
-      <h3 className="font-display text-title font-semibold leading-snug text-ink-800">{testimony.title}</h3>
-      <p className="mt-3 text-body leading-relaxed text-ink-600">{testimony.body}</p>
+      <h3 className="font-display text-d-title font-semibold leading-snug text-ink-800">{testimony.title}</h3>
+      <p className="mt-3 text-d-body leading-relaxed text-ink-600">{testimony.body}</p>
       <div className="mt-5 flex items-center gap-2 border-t border-parchment-200 pt-4">
         <span className="flex h-7 w-7 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
           <Heart className="h-3 w-3" strokeWidth={1.5} />
         </span>
         <div>
-          <p className="text-label font-medium text-ink-700">
+          <p className="text-d-label font-medium text-ink-700">
             {testimony.author_name || 'Anonymous'}
           </p>
           <p className="text-[11px] text-ink-400">
@@ -141,8 +141,8 @@ function TestimonyForm({ onClose, onSubmitted }: { onClose: () => void; onSubmit
             <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
               <CheckCircle2 className="h-6 w-6" strokeWidth={1.5} />
             </span>
-            <h3 className="font-display text-title font-semibold text-ink-800">Thank you for sharing</h3>
-            <p className="mt-2 text-body text-ink-500">
+            <h3 className="font-display text-d-title font-semibold text-ink-800">Thank you for sharing</h3>
+            <p className="mt-2 text-d-body text-ink-500">
               Your testimony has been received. A spiritual leader will review it before it appears
               publicly, to keep this space safe for everyone.
             </p>
@@ -156,7 +156,7 @@ function TestimonyForm({ onClose, onSubmitted }: { onClose: () => void; onSubmit
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
                 <Sparkles className="h-4 w-4" />
               </span>
-              <h3 className="font-display text-title font-semibold text-ink-800">Share your testimony</h3>
+              <h3 className="font-display text-d-title font-semibold text-ink-800">Share your testimony</h3>
             </div>
 
             <div className="space-y-4">
@@ -164,7 +164,7 @@ function TestimonyForm({ onClose, onSubmitted }: { onClose: () => void; onSubmit
                 <button
                   type="button"
                   onClick={() => setAnonymous(true)}
-                  className={`flex-1 rounded-lg border px-3 py-2 text-label font-medium transition-all ${
+                  className={`flex-1 rounded-lg border px-3 py-2 text-d-label font-medium transition-all ${
                     anonymous ? 'border-lavender-500 bg-lavender-50' : 'border-parchment-200'
                   }`}
                 >
@@ -173,7 +173,7 @@ function TestimonyForm({ onClose, onSubmitted }: { onClose: () => void; onSubmit
                 <button
                   type="button"
                   onClick={() => setAnonymous(false)}
-                  className={`flex-1 rounded-lg border px-3 py-2 text-label font-medium transition-all ${
+                  className={`flex-1 rounded-lg border px-3 py-2 text-d-label font-medium transition-all ${
                     !anonymous ? 'border-lavender-500 bg-lavender-50' : 'border-parchment-200'
                   }`}
                 >
@@ -186,7 +186,7 @@ function TestimonyForm({ onClose, onSubmitted }: { onClose: () => void; onSubmit
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="Your name"
-                  className="input-field py-2 text-body"
+                  className="input-field py-2 text-d-body"
                 />
               )}
 
@@ -194,17 +194,17 @@ function TestimonyForm({ onClose, onSubmitted }: { onClose: () => void; onSubmit
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="A short title — what happened?"
-                className="input-field py-2 text-body"
+                className="input-field py-2 text-d-body"
               />
               <textarea
                 value={body}
                 onChange={(e) => setBody(e.target.value)}
                 rows={5}
                 placeholder="Share what God did, how the prayer was answered, what changed..."
-                className="input-field resize-none text-body"
+                className="input-field resize-none text-d-body"
               />
 
-              {error && <p className="text-body text-red-600">{error}</p>}
+              {error && <p className="text-d-body text-red-600">{error}</p>}
 
               <div className="flex gap-2 pt-1">
                 <button onClick={onClose} className="btn-ghost flex-1 py-2.5">
@@ -219,7 +219,7 @@ function TestimonyForm({ onClose, onSubmitted }: { onClose: () => void; onSubmit
                   Submit
                 </button>
               </div>
-              <p className="text-center text-label text-ink-400">
+              <p className="text-center text-d-label text-ink-400">
                 Testimonies are reviewed before they appear publicly.
               </p>
             </div>

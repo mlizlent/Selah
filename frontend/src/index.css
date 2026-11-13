@@ -45,7 +45,7 @@
     font-size: 16px;
   }
   body {
-    @apply bg-parchment-50 text-ink-800 font-sans text-body antialiased;
+    @apply bg-parchment-50 text-ink-800 font-sans text-d-body antialiased;
   }
   ::selection {
     @apply bg-lavender-300/40 text-ink-900;
@@ -57,16 +57,16 @@
     @apply font-serif;
   }
   .eyebrow {
-    @apply text-label uppercase tracking-widest text-lavender-600 font-medium;
+    @apply text-d-label uppercase tracking-widest text-lavender-600 font-medium;
   }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-lavender-600 px-6 py-3 text-label font-medium text-parchment-50 transition-all duration-300 hover:bg-lavender-700 hover:shadow-lg hover:shadow-lavender-600/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-lavender-400 focus-visible:ring-offset-2 focus-visible:ring-offset-parchment-50 disabled:opacity-50 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-lavender-600 px-6 py-3 text-d-label font-medium text-parchment-50 transition-all duration-300 hover:bg-lavender-700 hover:shadow-lg hover:shadow-lavender-600/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-lavender-400 focus-visible:ring-offset-2 focus-visible:ring-offset-parchment-50 disabled:opacity-50 disabled:cursor-not-allowed;
   }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-lavender-300 bg-parchment-50/60 px-6 py-3 text-label font-medium text-lavender-700 transition-all duration-300 hover:bg-lavender-50 hover:border-lavender-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-lavender-400 focus-visible:ring-offset-2 focus-visible:ring-offset-parchment-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-lavender-300 bg-parchment-50/60 px-6 py-3 text-d-label font-medium text-lavender-700 transition-all duration-300 hover:bg-lavender-50 hover:border-lavender-400 focus:outline-none focus-visible:ring-2 focus-visible:ring-lavender-400 focus-visible:ring-offset-2 focus-visible:ring-offset-parchment-50;
   }
   .btn-gold {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gold-500 px-6 py-3 text-label font-medium text-ink-900 transition-all duration-300 hover:bg-gold-400 hover:shadow-lg hover:shadow-gold-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-parchment-50;
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-gold-500 px-6 py-3 text-d-label font-medium text-ink-900 transition-all duration-300 hover:bg-gold-400 hover:shadow-lg hover:shadow-gold-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-gold-400 focus-visible:ring-offset-2 focus-visible:ring-offset-parchment-50;
   }
   .card {
     @apply rounded-2xl border border-parchment-200 bg-parchment-50/80 backdrop-blur-sm shadow-sm;

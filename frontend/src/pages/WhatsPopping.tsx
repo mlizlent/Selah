@@ -46,10 +46,10 @@ export default function WhatsPopping() {
     <div className="mx-auto max-w-5xl px-6 pt-8 pb-24">
       <div className="mb-10 text-center">
         <p className="eyebrow mb-2">Community</p>
-        <h1 className="font-display text-headline font-medium text-ink-800 sm:text-headline">
+        <h1 className="font-display text-d-headline font-medium text-ink-800 sm:text-d-headline">
           What's popping
         </h1>
-        <p className="mt-2 text-body text-ink-500">Our Weapon Is Prayer</p>
+        <p className="mt-2 text-d-body text-ink-500">Our Weapon Is Prayer</p>
       </div>
 
       {loading ? (
@@ -60,8 +60,8 @@ export default function WhatsPopping() {
         </div>
       ) : posts.length === 0 ? (
         <div className="card flex flex-col items-center gap-3 p-8 text-center sm:p-16">
-          <h3 className="font-display text-title font-medium text-ink-700">No updates yet</h3>
-          <p className="max-w-sm text-body text-ink-500">Check back soon for community updates.</p>
+          <h3 className="font-display text-d-title font-medium text-ink-700">No updates yet</h3>
+          <p className="max-w-sm text-d-body text-ink-500">Check back soon for community updates.</p>
         </div>
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -71,9 +71,9 @@ export default function WhatsPopping() {
               onClick={() => setActivePost(post)}
               className="card h-full p-6 text-left transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-lavender-600/10"
             >
-              <h3 className="font-display text-title font-semibold text-ink-800 line-clamp-2">{post.title}</h3>
-              <p className="mt-3 text-body leading-relaxed text-ink-500 line-clamp-3">{post.body}</p>
-              <p className="mt-4 text-label uppercase tracking-[0.24em] text-ink-400">
+              <h3 className="font-display text-d-title font-semibold text-ink-800 line-clamp-2">{post.title}</h3>
+              <p className="mt-3 text-d-body leading-relaxed text-ink-500 line-clamp-3">{post.body}</p>
+              <p className="mt-4 text-d-label uppercase tracking-[0.24em] text-ink-400">
                 {timeAgo(post.created_at)}
               </p>
             </button>
@@ -86,7 +86,7 @@ export default function WhatsPopping() {
           <div className="absolute inset-0 bg-ink-950/60 backdrop-blur-sm" onClick={() => setActivePost(null)} />
           <div className="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-parchment-200 bg-parchment-50 shadow-2xl">
             <div className="sticky top-0 z-10 flex items-center justify-between border-b border-parchment-200 bg-parchment-50/95 px-6 py-4 backdrop-blur-sm">
-              <h2 className="font-display text-title font-semibold text-ink-800">{activePost.title}</h2>
+              <h2 className="font-display text-d-title font-semibold text-ink-800">{activePost.title}</h2>
               <button
                 onClick={() => setActivePost(null)}
                 className="rounded-full p-2 text-ink-500 transition-colors hover:bg-parchment-100 hover:text-ink-800"
@@ -95,10 +95,10 @@ export default function WhatsPopping() {
               </button>
             </div>
             <div className="px-6 py-6">
-              <p className="text-label uppercase tracking-wide text-ink-400 mb-4">
+              <p className="text-d-label uppercase tracking-wide text-ink-400 mb-4">
                 {timeAgo(activePost.created_at)}
               </p>
-              <p className="whitespace-pre-line text-body leading-relaxed text-ink-700">{activePost.body}</p>
+              <p className="whitespace-pre-line text-d-body leading-relaxed text-ink-700">{activePost.body}</p>
             </div>
           </div>
         </div>

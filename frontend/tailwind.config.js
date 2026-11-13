@@ -56,11 +56,11 @@ export default {
         explanation: ['"Times New Roman"', 'Times', 'serif'],
       },
       fontSize: {
-        display: ['45px', { lineHeight: '1.1', letterSpacing: '-0.01em' }],
-        headline: ['28px', { lineHeight: '1.2' }],
-        title: ['16px', { lineHeight: '1.4' }],
-        body: ['14px', { lineHeight: '1.6' }],
-        label: ['12px', { lineHeight: '1.4' }],
+        'd-display': ['45px', { lineHeight: '1.1', letterSpacing: '-0.01em' }],
+        'd-headline': ['28px', { lineHeight: '1.2' }],
+        'd-title': ['16px', { lineHeight: '1.4' }],
+        'd-body': ['14px', { lineHeight: '1.6' }],
+        'd-label': ['12px', { lineHeight: '1.4' }],
       },
       letterSpacing: {
         wide2: '0.15em',

@@ -90,8 +90,8 @@ export default function Companion() {
     <div className="mx-auto max-w-3xl px-3 pt-6 pb-12 sm:px-6 sm:pt-8">
       <div className="mb-4 text-center sm:mb-6">
         <p className="eyebrow mb-2">A quiet space</p>
-        <h1 className="font-display text-headline font-medium text-ink-800 sm:text-headline md:text-headline">Nia</h1>
-        <p className="mx-auto mt-2 max-w-lg text-body text-ink-500">
+        <h1 className="font-display text-d-headline font-medium text-ink-800 sm:text-d-headline md:text-d-headline">Nia</h1>
+        <p className="mx-auto mt-2 max-w-lg text-d-body text-ink-500">
           Share a struggle, ask a Bible question, or explore a topic in Scripture. Nia
           will respond with comfort, insight, and verses that fit your situation.
         </p>
@@ -99,7 +99,7 @@ export default function Companion() {
 
       <div className="card flex h-[70vh] min-h-[360px] flex-col overflow-hidden sm:h-[62vh] sm:min-h-[460px]">
         {apiNotice && (
-          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-body text-amber-700">
+          <div className="border-b border-amber-200 bg-amber-50 px-4 py-2 text-d-body text-amber-700">
             {apiNotice}
           </div>
         )}
@@ -125,13 +125,13 @@ export default function Companion() {
         {/* suggestions (only at start) */}
         {messages.length <= 1 && (
           <div className="border-t border-parchment-200 px-5 pt-4 sm:px-6">
-            <p className="mb-2 text-label text-ink-400">Not sure where to start? Try one of these:</p>
+            <p className="mb-2 text-d-label text-ink-400">Not sure where to start? Try one of these:</p>
             <div className="flex flex-wrap gap-2 pb-3">
               {SUGGESTIONS.map((s) => (
                 <button
                   key={s}
                   onClick={() => send(s)}
-                  className="rounded-full border border-parchment-200 bg-parchment-50 px-3 py-1.5 text-label text-ink-600 transition-colors hover:border-lavender-300 hover:bg-lavender-50"
+                  className="rounded-full border border-parchment-200 bg-parchment-50 px-3 py-1.5 text-d-label text-ink-600 transition-colors hover:border-lavender-300 hover:bg-lavender-50"
                 >
                   {s}
                 </button>
@@ -154,7 +154,7 @@ export default function Companion() {
               onChange={(e) => setInput(e.target.value)}
               rows={1}
               placeholder="Share a struggle, ask a Bible question, or explore a topic in Scripture..."
-              className="input-field max-h-32 resize-none py-2.5 placeholder:text-body"
+              className="input-field max-h-32 resize-none py-2.5 placeholder:text-d-body"
               onKeyDown={(e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                   e.preventDefault();
@@ -196,7 +196,7 @@ function MessageBubble({
   if (isUser) {
     return (
       <div className="flex justify-end animate-fade-up">
-        <div className="max-w-[85%] rounded-2xl rounded-br-md bg-lavender-600 px-4 py-3 text-body leading-relaxed text-parchment-50">
+        <div className="max-w-[85%] rounded-2xl rounded-br-md bg-lavender-600 px-4 py-3 text-d-body leading-relaxed text-parchment-50">
           {message.text}
         </div>
       </div>
@@ -209,7 +209,7 @@ function MessageBubble({
         <Sparkles className="h-4 w-4" strokeWidth={1.5} />
       </span>
         <div className="max-w-[85%] space-y-3">
-          <div className="rounded-2xl rounded-bl-md bg-parchment-100 px-4 py-3 text-body leading-relaxed text-ink-700">
+          <div className="rounded-2xl rounded-bl-md bg-parchment-100 px-4 py-3 text-d-body leading-relaxed text-ink-700">
             {splitIntoParagraphs(message.text).map((para, i) => (
               <p key={i} className={i > 0 ? 'mt-3' : ''}>{para}</p>
             ))}
@@ -219,11 +219,11 @@ function MessageBubble({
           <div className="rounded-xl border border-red-200 bg-red-50 p-4">
             <div className="flex items-center gap-2 text-red-700">
               <AlertCircle className="h-4 w-4" />
-              <p className="text-label font-semibold uppercase tracking-wide2">Please reach out now</p>
+              <p className="text-d-label font-semibold uppercase tracking-wide2">Please reach out now</p>
             </div>
             <ul className="mt-3 space-y-1.5">
               {CRISIS_RESOURCES.map((r) => (
-                <li key={r.name} className="text-body text-red-700">
+                <li key={r.name} className="text-d-body text-red-700">
                   <span className="font-medium">{r.name}</span> — {r.contact}
                   <a href={r.url} target="_blank" rel="noreferrer" className="ml-1 underline">
                     {r.url}
@@ -236,14 +236,14 @@ function MessageBubble({
 
         {message.verses && message.verses.length > 0 && (
           <div className="space-y-2">
-            <p className="flex items-center gap-1.5 text-label uppercase tracking-wide2 text-gold-600">
+            <p className="flex items-center gap-1.5 text-d-label uppercase tracking-wide2 text-gold-600">
               <BookOpen className="h-3.5 w-3.5" />
               Scripture for this moment
             </p>
             {message.verses.map((v) => (
               <div key={v.reference} className="verse-card">
-                <p className="font-display text-body italic leading-relaxed text-ink-700">"{v.text}"</p>
-                <p className="mt-1.5 text-label font-medium uppercase tracking-wide2 text-gold-600">{v.reference}</p>
+                <p className="font-display text-d-body italic leading-relaxed text-ink-700">"{v.text}"</p>
+                <p className="mt-1.5 text-d-label font-medium uppercase tracking-wide2 text-gold-600">{v.reference}</p>
                 {v.explanation && (
                   <ExplanationText text={v.explanation} />
                 )}
@@ -256,14 +256,14 @@ function MessageBubble({
           <div className="flex flex-wrap gap-2 pt-1">
             <button
               onClick={() => onEscalate('prayer')}
-              className="inline-flex items-center gap-1.5 rounded-full border border-lavender-300 bg-lavender-50 px-3 py-1.5 text-label font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
+              className="inline-flex items-center gap-1.5 rounded-full border border-lavender-300 bg-lavender-50 px-3 py-1.5 text-d-label font-medium text-lavender-700 transition-colors hover:bg-lavender-100"
             >
               <HandHeart className="h-3.5 w-3.5" />
               Send this as a prayer request
             </button>
             <button
               onClick={() => onEscalate('appointment')}
-              className="inline-flex items-center gap-1.5 rounded-full border border-gold-400 bg-gold-500/10 px-3 py-1.5 text-label font-medium text-gold-600 transition-colors hover:bg-gold-500/20"
+              className="inline-flex items-center gap-1.5 rounded-full border border-gold-400 bg-gold-500/10 px-3 py-1.5 text-d-label font-medium text-gold-600 transition-colors hover:bg-gold-500/20"
             >
               <CalendarHeart className="h-3.5 w-3.5" />
               Book an appointment with the Priestess
@@ -295,7 +295,7 @@ function ExplanationText({ text }: { text: string }) {
   return (
     <div className="mt-2 space-y-2">
       {paragraphs.map((para, i) => (
-        <p key={i} className="font-explanation text-body leading-relaxed text-ink-500">{para}</p>
+        <p key={i} className="font-explanation text-d-body leading-relaxed text-ink-500">{para}</p>
       ))}
     </div>
   );
@@ -359,15 +359,15 @@ function EscalationModal({
             <span className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
               <CheckCircle2 className="h-6 w-6" strokeWidth={1.5} />
             </span>
-            <h3 className="font-display text-title font-semibold text-ink-800">
+            <h3 className="font-display text-d-title font-semibold text-ink-800">
               {type === 'prayer' ? 'Your prayer request was sent' : 'Your appointment request was sent'}
             </h3>
-            <p className="mt-2 text-body text-ink-500">
+            <p className="mt-2 text-d-body text-ink-500">
               {type === 'prayer'
                 ? 'A spiritual leader will pray over what you shared.'
                 : 'The Priestess will reach out to schedule a time with you.'}
             </p>
-            <p className="mt-4 rounded-lg bg-lavender-50 px-3 py-2 font-mono text-label text-ink-600 select-all">{done}</p>
+            <p className="mt-4 rounded-lg bg-lavender-50 px-3 py-2 font-mono text-d-label text-ink-600 select-all">{done}</p>
             <button onClick={onClose} className="btn-primary mt-5 w-full">
               Close
             </button>
@@ -378,12 +378,12 @@ function EscalationModal({
               <span className="flex h-9 w-9 items-center justify-center rounded-full bg-lavender-100 text-lavender-600">
                 {type === 'prayer' ? <HandHeart className="h-4 w-4" /> : <CalendarHeart className="h-4 w-4" />}
               </span>
-              <h3 className="font-display text-title font-semibold text-ink-800">
+              <h3 className="font-display text-d-title font-semibold text-ink-800">
                 {type === 'prayer' ? 'Send as a prayer request' : 'Book an appointment'}
               </h3>
             </div>
 
-            <p className="mb-4 rounded-lg bg-parchment-100 px-3 py-2 text-label italic text-ink-500">
+            <p className="mb-4 rounded-lg bg-parchment-100 px-3 py-2 text-d-label italic text-ink-500">
               "{lastUserText.slice(0, 140)}{lastUserText.length > 140 ? '...' : ''}"
             </p>
 
@@ -393,7 +393,7 @@ function EscalationModal({
                   <button
                     type="button"
                     onClick={() => setAnonymous(true)}
-                    className={`flex-1 rounded-lg border px-3 py-2 text-label font-medium transition-all ${
+                    className={`flex-1 rounded-lg border px-3 py-2 text-d-label font-medium transition-all ${
                       anonymous ? 'border-lavender-500 bg-lavender-50' : 'border-parchment-200'
                     }`}
                   >
@@ -402,7 +402,7 @@ function EscalationModal({
                   <button
                     type="button"
                     onClick={() => setAnonymous(false)}
-                    className={`flex-1 rounded-lg border px-3 py-2 text-label font-medium transition-all ${
+                    className={`flex-1 rounded-lg border px-3 py-2 text-d-label font-medium transition-all ${
                       !anonymous ? 'border-lavender-500 bg-lavender-50' : 'border-parchment-200'
                     }`}
                   >
@@ -414,18 +414,18 @@ function EscalationModal({
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Your name"
-                    className="input-field py-2 text-body"
+                    className="input-field py-2 text-d-body"
                   />
                 )}
               </div>
 
               {type === 'prayer' ? (
                 <div>
-                  <label className="mb-1.5 block text-label font-medium text-ink-600">Category</label>
+                  <label className="mb-1.5 block text-d-label font-medium text-ink-600">Category</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as PrayerCategory)}
-                    className="input-field py-2 text-body"
+                    className="input-field py-2 text-d-body"
                   >
                     <option value="anxiety">Anxiety & Fear</option>
                     <option value="grief">Grief & Loss</option>
@@ -439,19 +439,19 @@ function EscalationModal({
                 </div>
               ) : (
                 <div>
-                  <label className="mb-1.5 block text-label font-medium text-ink-600">
+                  <label className="mb-1.5 block text-d-label font-medium text-ink-600">
                     How can the Priestess reach you? <span className="text-red-500">*</span>
                   </label>
                   <input
                     value={contact}
                     onChange={(e) => setContact(e.target.value)}
                     placeholder="Phone or email"
-                    className="input-field py-2 text-body"
+                    className="input-field py-2 text-d-body"
                   />
                 </div>
               )}
 
-              {error && <p className="text-body text-red-600">{error}</p>}
+              {error && <p className="text-d-body text-red-600">{error}</p>}
 
               <div className="flex gap-2 pt-1">
                 <button onClick={onClose} className="btn-ghost flex-1 py-2.5">

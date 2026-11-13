@@ -63,13 +63,13 @@ export default function Login({ onDone }: LoginProps = {}) {
     <div className="mx-auto max-w-md px-6 pt-8 pb-24">
       <div className="card p-8">
         <div className="mb-8 text-center">
-          <h1 className="font-display text-headline font-semibold text-ink-800">Welcome back</h1>
-          <p className="mt-2 text-body text-ink-500">Sign in to access your prayer requests and account.</p>
+          <h1 className="font-display text-d-headline font-semibold text-ink-800">Welcome back</h1>
+          <p className="mt-2 text-d-body text-ink-500">Sign in to access your prayer requests and account.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="mb-2 block text-body font-medium text-ink-700">Email</label>
+            <label className="mb-2 block text-d-body font-medium text-ink-700">Email</label>
             <div className="relative">
               <Mail className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
@@ -84,7 +84,7 @@ export default function Login({ onDone }: LoginProps = {}) {
           </div>
 
           <div>
-            <label className="mb-2 block text-body font-medium text-ink-700">Password</label>
+            <label className="mb-2 block text-d-body font-medium text-ink-700">Password</label>
             <div className="relative">
               <Lock className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-400" />
               <input
@@ -99,14 +99,14 @@ export default function Login({ onDone }: LoginProps = {}) {
           </div>
 
           {error && (
-            <div className="flex items-start gap-2 rounded-lg bg-red-50 px-4 py-3 text-body text-red-700">
+            <div className="flex items-start gap-2 rounded-lg bg-red-50 px-4 py-3 text-d-body text-red-700">
               <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
               <span>{error}</span>
             </div>
           )}
 
           {resetSent && (
-            <div className="flex items-start gap-2 rounded-lg bg-lavender-50 px-4 py-3 text-body text-lavender-700">
+            <div className="flex items-start gap-2 rounded-lg bg-lavender-50 px-4 py-3 text-d-body text-lavender-700">
               <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
               <span>If an account exists for that email, password reset instructions have been recorded. Please contact the administrator if you need help resetting your password.</span>
             </div>
@@ -121,14 +121,14 @@ export default function Login({ onDone }: LoginProps = {}) {
               type="button"
               onClick={handleForgotPassword}
               disabled={submitting}
-              className="w-full text-center text-body font-medium text-lavender-600 hover:text-lavender-700 disabled:opacity-50"
+              className="w-full text-center text-d-body font-medium text-lavender-600 hover:text-lavender-700 disabled:opacity-50"
             >
               Forgot password?
             </button>
           )}
         </form>
 
-        <p className="mt-6 text-center text-body text-ink-500">
+        <p className="mt-6 text-center text-d-body text-ink-500">
           Don't have an account? Use the sign in button to open the account dialog.
         </p>
       </div>
