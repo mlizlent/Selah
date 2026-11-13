@@ -79,14 +79,64 @@ export interface BibleVerse {
   text: string;
 }
 
-const API_BASE = 'https://bible-api.com';
+export interface BibleTranslation {
+  id: string;
+  label: string;
+  short: string;
+}
+
+export const BIBLE_TRANSLATIONS: BibleTranslation[] = [
+  { id: 'kjv', label: 'King James Version', short: 'KJV' },
+  { id: 'web', label: 'World English Bible', short: 'WEB' },
+  { id: 'bsb', label: 'Berean Standard Bible', short: 'BSB' },
+  { id: 'swahili', label: 'Swahili (Biblia Takatifu)', short: 'SWA' },
+];
+
+const BIBLE_API_BASE = 'https://bible-api.com';
+const HELLOAO_BASE = 'https://bible.helloao.org/api';
+
+export function getTranslation(id: string): BibleTranslation {
+  return BIBLE_TRANSLATIONS.find((t) => t.id === id) ?? BIBLE_TRANSLATIONS[0];
+}
+
+function extractHelloAoText(content: unknown): string {
+  if (typeof content === 'string') return content;
+  if (Array.isArray(content)) return content.map(extractHelloAoText).join('');
+  if (content && typeof content === 'object') {
+    const obj = content as { text?: unknown; content?: unknown; noteId?: unknown };
+    if (typeof obj.text === 'string') return obj.text;
+    if (obj.content !== undefined) return extractHelloAoText(obj.content);
+    if (obj.noteId !== undefined) return '';
+  }
+  return '';
+}
+
+async function fetchSwahiliChapter(book: BibleBook, chapter: number): Promise<BibleVerse[]> {
+  const res = await fetch(`${HELLOAO_BASE}/swh_ulb/${book.abbrev}/${chapter}.json`);
+  if (!res.ok) throw new Error(`Failed to load ${book.name} ${chapter}`);
+  const data = await res.json();
+  const items = Array.isArray(data?.chapter?.content) ? data.chapter.content : [];
+  const verses = items
+    .filter((item: { type?: string }) => item && item.type === 'verse')
+    .map((item: { number: number; content?: unknown }) => ({
+      verse: Number(item.number),
+      text: extractHelloAoText(item.content).replace(/\s+/g, ' ').trim(),
+    }))
+    .filter((v: BibleVerse) => Number.isFinite(v.verse) && v.text.length > 0);
+  if (verses.length === 0) throw new Error(`No verses found for ${book.name} ${chapter}`);
+  return verses;
+}
 
 export async function fetchChapter(
   book: string,
   chapter: number,
+  translationId = 'kjv',
 ): Promise<BibleVerse[]> {
-  const ref = `${book} ${chapter}`;
-  const res = await fetch(`${API_BASE}/${encodeURIComponent(ref)}?translation=kjv`);
+  const b = findBook(book);
+  if (!b) throw new Error(`Unknown book: ${book}`);
+  if (translationId === 'swahili') return fetchSwahiliChapter(b, chapter);
+  const ref = `${b.name} ${chapter}`;
+  const res = await fetch(`${BIBLE_API_BASE}/${encodeURIComponent(ref)}?translation=${encodeURIComponent(translationId)}`);
   if (!res.ok) throw new Error(`Failed to load ${ref}`);
   const data = await res.json();
   if (!data.verses || data.verses.length === 0) throw new Error(`No verses found for ${ref}`);
@@ -96,8 +146,23 @@ export async function fetchChapter(
   }));
 }
 
-export async function fetchReference(ref: string): Promise<BibleVerse[]> {
-  const res = await fetch(`${API_BASE}/${encodeURIComponent(ref)}?translation=kjv`);
+export async function fetchReference(ref: string, translationId = 'kjv'): Promise<BibleVerse[]> {
+  const parsed = parseReference(ref);
+  if (!parsed) throw new Error(`Could not understand reference "${ref}"`);
+  const b = findBook(parsed.book);
+  if (!b) throw new Error(`Unknown book in reference "${ref}"`);
+  if (translationId === 'swahili') {
+    const chapterVerses = await fetchSwahiliChapter(b, parsed.chapter);
+    if (parsed.verse == null) return chapterVerses;
+    const start = parsed.verse;
+    const end = parsed.endVerse ?? parsed.verse;
+    const filtered = chapterVerses.filter((v) => v.verse >= start && v.verse <= end);
+    if (filtered.length === 0) throw new Error(`No verses found for "${ref}"`);
+    return filtered;
+  }
+  const suffix = parsed.verse ? `:${parsed.verse}${parsed.endVerse ? `-${parsed.endVerse}` : ''}` : '';
+  const q = `${b.name} ${parsed.chapter}${suffix}`;
+  const res = await fetch(`${BIBLE_API_BASE}/${encodeURIComponent(q)}?translation=${encodeURIComponent(translationId)}`);
   if (!res.ok) throw new Error(`Failed to load ${ref}`);
   const data = await res.json();
   if (!data.verses || data.verses.length === 0) throw new Error(`No verses found for "${ref}"`);

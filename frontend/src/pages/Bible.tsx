@@ -15,8 +15,10 @@ import {
 } from 'lucide-react';
 import {
   BIBLE_BOOKS,
+  BIBLE_TRANSLATIONS,
   fetchChapter,
   fetchReference,
+  getTranslation,
   parseReference,
   type BibleBook,
   type BibleVerse,
@@ -36,6 +38,7 @@ interface Bookmark {
 }
 
 export default function Bible() {
+  const [translationId, setTranslationId] = useState('kjv');
   const [selectedBook, setSelectedBook] = useState<BibleBook>(BIBLE_BOOKS[18]); // Psalm
   const [chapter, setChapter] = useState(1);
   const [verses, setVerses] = useState<BibleVerse[]>([]);
@@ -54,11 +57,13 @@ export default function Bible() {
   const [progress, setProgress] = useState(0);
   const versesRef = useRef<HTMLDivElement>(null);
 
-  const loadChapter = useCallback(async (book: BibleBook, ch: number) => {
+  const translation = getTranslation(translationId);
+
+  const loadChapter = useCallback(async (book: BibleBook, ch: number, tr: string) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await fetchChapter(book.name, ch);
+      const data = await fetchChapter(book.name, ch, tr);
       setVerses(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Could not load this chapter.');
@@ -69,8 +74,8 @@ export default function Bible() {
   }, []);
 
   useEffect(() => {
-    loadChapter(selectedBook, chapter);
-  }, [selectedBook, chapter, loadChapter]);
+    loadChapter(selectedBook, chapter, translationId);
+  }, [selectedBook, chapter, translationId, loadChapter]);
 
   useEffect(() => {
     try {
@@ -125,7 +130,7 @@ export default function Bible() {
     setSearchLoading(true);
     setSearchError(null);
     try {
-      const data = await fetchReference(searchQuery);
+      const data = await fetchReference(searchQuery, translationId);
       setSearchResults(data);
     } catch (err) {
       setSearchError(
@@ -180,7 +185,7 @@ export default function Bible() {
   };
 
   const copyVerse = async (v: BibleVerse) => {
-    const text = `${selectedBook.name} ${chapter}:${v.verse} (KJV) — ${v.text}`;
+    const text = `${selectedBook.name} ${chapter}:${v.verse} (${translation.short}) — ${v.text}`;
     try {
       await navigator.clipboard.writeText(text);
       setCopiedVerse(v.verse);
@@ -205,12 +210,12 @@ export default function Bible() {
         />
         <div className="absolute inset-0 bg-gradient-to-b from-ink-900/70 via-ink-900/55 to-parchment-50/95" />
         <div className="relative z-10 px-6 pt-8 pb-16 text-center">
-          <span className="eyebrow mb-3 text-purple-900 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">King James Version</span>
+          <span className="eyebrow mb-3 text-purple-900 drop-shadow-[0_0_8px_rgba(255,255,255,0.6)]">{translation.label}</span>
           <h1 className="font-display text-4xl font-medium drop-shadow-sm sm:text-6xl" style={{ color: '#6b0099' }}>
             The Holy Bible
           </h1>
           <p className="mx-auto mt-4 max-w-lg text-sm leading-relaxed drop-shadow-sm" style={{ color: '#6b0099' }}>
-            Read, search, and meditate on scripture. Select a book and chapter,
+            Read, search, and meditate on scripture. Choose a version, select a book and chapter,
             or jump straight to a verse reference.
           </p>
         </div>
@@ -236,6 +241,26 @@ export default function Bible() {
         </button>
       </form>
 
+      <div className="mb-6 flex flex-wrap items-center gap-3">
+        <label htmlFor="bible-translation" className="text-sm font-medium text-ink-600">Version</label>
+        <select
+          id="bible-translation"
+          value={translationId}
+          onChange={(e) => {
+            setTranslationId(e.target.value);
+            setSearchResults(null);
+            setSearchError(null);
+          }}
+          className="input-field w-auto min-w-[220px] py-2"
+        >
+          {BIBLE_TRANSLATIONS.map((t) => (
+            <option key={t.id} value={t.id}>
+              {t.label}
+            </option>
+          ))}
+        </select>
+      </div>
+
       {searchError && (
         <p className="mb-4 rounded-lg bg-red-50 px-4 py-3 text-sm text-red-700">{searchError}</p>
       )}
@@ -245,7 +270,7 @@ export default function Bible() {
         <div className="card mb-8 p-6">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="font-display text-lg font-semibold text-ink-800">
-              {searchQuery.trim()} <span className="text-sm font-normal text-ink-400">(KJV)</span>
+              {searchQuery.trim()} <span className="text-sm font-normal text-ink-400">({translation.short})</span>
             </h2>
             <button
               onClick={() => {
@@ -472,7 +497,7 @@ export default function Bible() {
             <h2 className="font-display text-2xl font-semibold text-ink-800">
               {selectedBook.name} {chapter}
             </h2>
-            <p className="mt-1 text-xs uppercase tracking-wide text-ink-400">King James Version</p>
+            <p className="mt-1 text-xs uppercase tracking-wide text-ink-400">{translation.label}</p>
           </div>
 
           <div ref={versesRef} className="max-h-[60vh] overflow-y-auto space-y-4 pr-1">

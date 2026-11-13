@@ -42,8 +42,8 @@ const FEATURES = [
   },
   {
     icon: BookOpen,
-    title: 'Read the Bible (KJV)',
-    desc: 'Browse every book and chapter of the King James Version. Search a reference or read straight through.',
+    title: 'Read the Bible',
+    desc: 'Browse every book and chapter in KJV, WEB, BSB, or Swahili, and search by reference.',
     cta: 'Open the Bible',
     page: 'bible' as Page,
   },

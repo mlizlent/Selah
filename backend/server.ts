@@ -22,6 +22,7 @@ import {
 const PORT = Number(process.env.PORT || 5178);
 let GROQ_API_KEY = process.env.GROQ_API_KEY;
 let GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
+let GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
 let ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
 
 async function loadDotEnv() {
@@ -586,7 +587,7 @@ app.post('/api/companion', async (req, res) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'llama-3.1-8b-instant',
+        model: GROQ_MODEL,
         messages: [
           {
             role: 'system',
@@ -651,11 +652,13 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   loadDotEnv().then(async () => {
     GROQ_API_KEY = process.env.GROQ_API_KEY;
     GROQ_API_BASE = process.env.GROQ_API_BASE || 'https://api.groq.com/openai/v1';
+    GROQ_MODEL = process.env.GROQ_MODEL || 'openai/gpt-oss-20b';
     ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
 
     console.log('[server] DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
     console.log('[server] ADMIN_EMAIL_SHIELD:', process.env.ADMIN_EMAIL_SHIELD || 'NOT SET');
     console.log('[server] GROQ_API_KEY:', process.env.GROQ_API_KEY ? 'SET' : 'NOT SET');
+    console.log('[server] GROQ_MODEL:', GROQ_MODEL);
 
     const hasDist = await access(DIST_DIR).then(() => true).catch(() => false);
     if (hasDist) {
