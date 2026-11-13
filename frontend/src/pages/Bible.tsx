@@ -56,6 +56,7 @@ export default function Bible() {
   const [lastRead, setLastRead] = useState<{ book: string; chapter: number } | null>(null);
   const [progress, setProgress] = useState(0);
   const versesRef = useRef<HTMLDivElement>(null);
+  const userNavigated = useRef(false);
 
   const translation = getTranslation(translationId);
 
@@ -75,6 +76,9 @@ export default function Bible() {
 
   useEffect(() => {
     loadChapter(selectedBook, chapter, translationId);
+    if (userNavigated.current) saveLastRead(selectedBook.name, chapter);
+    if (versesRef.current) versesRef.current.scrollTop = 0;
+    setProgress(0);
   }, [selectedBook, chapter, translationId, loadChapter]);
 
   useEffect(() => {
@@ -145,13 +149,13 @@ export default function Bible() {
   };
 
   const goToChapter = (book: BibleBook, ch: number) => {
+    userNavigated.current = true;
     setSelectedBook(book);
     setChapter(ch);
     setSearchResults(null);
     setSearchQuery('');
     setShowBookPicker(false);
     setShowChapterPicker(false);
-    saveLastRead(book.name, ch);
   };
 
   const toggleBookmark = (v: BibleVerse) => {
@@ -600,6 +604,7 @@ export default function Bible() {
                 <div className="flex items-center justify-between gap-4 border-t border-parchment-200 bg-parchment-100/30 px-4 py-4 sm:px-8">
                   <button
                     onClick={() => {
+                      userNavigated.current = true;
                       if (chapter > 1) {
                         setChapter(chapter - 1);
                       } else {
@@ -622,6 +627,7 @@ export default function Bible() {
                   </p>
                   <button
                     onClick={() => {
+                      userNavigated.current = true;
                       if (chapter < selectedBook.chapters) {
                         setChapter(chapter + 1);
                       } else {

@@ -6,6 +6,7 @@
 
 @layer base {
   :root {
+    color-scheme: light dark;
     --parchment-50: 253 251 247;
     --parchment-100: 247 243 236;
     --parchment-200: 235 228 216;

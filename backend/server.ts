@@ -656,7 +656,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     ALLOWED_ORIGIN = process.env.DEV_ORIGIN || 'http://localhost:5173';
 
     console.log('[server] DATABASE_URL:', process.env.DATABASE_URL ? 'SET' : 'NOT SET');
-    console.log('[server] ADMIN_EMAIL_SHIELD:', process.env.ADMIN_EMAIL_SHIELD || 'NOT SET');
+    console.log('[server] ADMIN_EMAIL_SHIELD:', process.env.ADMIN_EMAIL_SHIELD ? 'SET' : 'NOT SET');
     console.log('[server] GROQ_API_KEY:', process.env.GROQ_API_KEY ? 'SET' : 'NOT SET');
     console.log('[server] GROQ_MODEL:', GROQ_MODEL);
 
