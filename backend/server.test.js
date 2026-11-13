@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { buildPrompt, getAllowedOrigin } from './server.js';
+import { buildPrompt, getAllowedOrigin } from './server.ts';
 
 test('buildPrompt instructs the model to help with Bible study and return richer scripture context', () => {
   const prompt = buildPrompt('What does the Bible say about purple?');

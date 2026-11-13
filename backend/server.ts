@@ -105,7 +105,7 @@ Do not use any hard-coded verse list. Use your knowledge of Scripture to answer 
 - showEscalation: true only if the user expresses crisis, self-harm, harm to others, abuse, or urgent danger
 - isCrisis: true only when the message indicates immediate crisis or danger
 
-When the user asks about Bible study, meanings, symbols, themes, or passages, take them deep into the Scripture — explain the background, the heart of the passage, and how it speaks into their specific situation. If the user mentions a feeling, struggle, or question, anchor your response in how the Bible addresses that exact experience. If there is no clear verse match, return an empty verses array and still provide a caring, thoughtful response.
+When the user asks about Bible study, meanings, symbols, themes, passages, or a color, take them deep into the Scripture — explain the background, the heart of the passage, and how it speaks into their specific situation. If the user asks about a color or other symbol, prioritize verses that directly mention that color or symbol when relevant. If the user mentions a feeling, struggle, or question, anchor your response in how the Bible addresses that exact experience. If there is no clear verse match, return an empty verses array and still provide a caring, thoughtful response.
 
 User message: ${userText}`;
 }

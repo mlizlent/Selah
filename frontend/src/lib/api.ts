@@ -1,7 +1,7 @@
 export class ApiError extends Error {
   status: number;
-  data: any;
-  constructor(message: string, status: number, data?: any) {
+  data: unknown;
+  constructor(message: string, status: number, data?: unknown) {
     super(message);
     this.status = status;
     this.data = data;
@@ -14,7 +14,7 @@ function getApiBase(): string {
   return '';
 }
 
-async function request<T = any>(path: string, options: RequestInit = {}): Promise<T> {
+async function request<T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
   const headers = new Headers(options.headers || {});
   if (options.body && !(options.body instanceof FormData) && !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json');
@@ -33,23 +33,26 @@ async function request<T = any>(path: string, options: RequestInit = {}): Promis
     throw new ApiError(`${message}${hint}`, 0, null);
   }
   const isJson = (res.headers.get('content-type') || '').includes('application/json');
-  const data = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null);
+  const data: unknown = isJson ? await res.json().catch(() => null) : await res.text().catch(() => null);
   if (!res.ok) {
-    const message = (data && typeof data === 'object' && (data as any).error) || res.statusText || 'Request failed';
+    const message =
+      data && typeof data === 'object' && 'error' in data && typeof (data as { error: unknown }).error === 'string'
+        ? (data as { error: string }).error
+        : res.statusText || 'Request failed';
     throw new ApiError(message, res.status, data);
   }
   return data as T;
 }
 
 export const api = {
-  get: <T = any>(path: string) => request<T>(path),
-  post: <T = any>(path: string, body?: any) =>
+  get: <T = unknown>(path: string) => request<T>(path),
+  post: <T = unknown>(path: string, body?: unknown) =>
     request<T>(path, { method: 'POST', body: body === undefined ? undefined : JSON.stringify(body) }),
-  put: <T = any>(path: string, body?: any) =>
+  put: <T = unknown>(path: string, body?: unknown) =>
     request<T>(path, { method: 'PUT', body: body === undefined ? undefined : JSON.stringify(body) }),
-  patch: <T = any>(path: string, body?: any) =>
+  patch: <T = unknown>(path: string, body?: unknown) =>
     request<T>(path, { method: 'PATCH', body: body === undefined ? undefined : JSON.stringify(body) }),
-  del: <T = any>(path: string) => request<T>(path, { method: 'DELETE' }),
+  del: <T = unknown>(path: string) => request<T>(path, { method: 'DELETE' }),
 };
 
 export type ApiUser = {

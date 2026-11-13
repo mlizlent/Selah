@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { Loader2, User, Mail, CalendarHeart, Clock, CheckCircle2 } from 'lucide-react';
+import { useState, useEffect, useCallback } from 'react';
+import { Loader2, Mail, CalendarHeart, Clock, CheckCircle2 } from 'lucide-react';
 import { api } from '@/lib/api';
 import { useAuth } from '@/contexts/AuthContext';
 import type { PrayerRequest, Appointment } from '@/lib/supabase';
@@ -18,12 +18,7 @@ export default function MyRequests() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    if (!user) return;
-    load();
-  }, [user]);
-
-  const load = async () => {
+  const load = useCallback(async () => {
     if (!user) return;
     setLoading(true);
     try {
@@ -38,7 +33,12 @@ export default function MyRequests() {
       setAppointments([]);
     }
     setLoading(false);
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (!user) return;
+    void load();
+  }, [user, load]);
 
   if (!user) {
     return (

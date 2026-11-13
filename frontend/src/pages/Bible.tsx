@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import {
   BookOpen,
   ChevronLeft,
@@ -155,7 +155,6 @@ export default function Bible() {
   };
 
   const toggleBookmark = (v: BibleVerse) => {
-    const ref = `${selectedBook.name} ${chapter}:${v.verse}`;
     const exists = bookmarks.find((b) => b.book === selectedBook.name && b.chapter === chapter && b.verse === v.verse);
     if (exists) {
       saveBookmarks(bookmarks.filter((b) => b.id !== exists.id));

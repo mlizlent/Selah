@@ -53,7 +53,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await api.post<{ user: ApiUser }>('/api/auth/signup', { email, password, username });
       setUser(res.user);
       return { error: null };
-    } catch (e: any) {
+    } catch (e: unknown) {
       return { error: e instanceof Error ? e : new Error(String(e)) };
     } finally {
       setCheckedAdmin(true);
@@ -65,7 +65,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const res = await api.post<{ user: ApiUser }>('/api/auth/login', { email, password });
       setUser(res.user);
       return { error: null };
-    } catch (e: any) {
+    } catch (e: unknown) {
       return { error: e instanceof Error ? e : new Error(String(e)) };
     } finally {
       setCheckedAdmin(true);
@@ -104,6 +104,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }

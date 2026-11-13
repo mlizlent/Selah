@@ -3,12 +3,6 @@ import Nav from '@/components/Nav';
 import Footer from '@/components/Footer';
 import type { Page } from '@/components/Nav';
 import Home from '@/pages/Home';
-import PrayerRequestPage from '@/pages/PrayerRequest';
-import Companion from '@/pages/Companion';
-import Testimonies from '@/pages/Testimonies';
-import WhatsPopping from '@/pages/WhatsPopping';
-import Priestess from '@/pages/Priestess';
-import Bible from '@/pages/Bible';
 import Login from '@/pages/Login';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import { CardSkeleton } from '@/components/Skeletons';
@@ -138,7 +132,7 @@ function AppContent() {
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Nav page={page as any} onNavigate={navigateTo as any} user={user} username={username} isAdmin={isAdmin} onAccountClick={() => setShowAccount(true)} onSignOut={signOut} />
+      <Nav page={page as Page} onNavigate={navigateTo as (p: Page) => void} user={user} username={username} isAdmin={isAdmin} onAccountClick={() => setShowAccount(true)} onSignOut={signOut} />
       <main className="flex-1">
         <ErrorBoundary fallback={<PageErrorFallback page={page} />}>
           {renderPage()}

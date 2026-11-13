@@ -9,7 +9,6 @@ import {
   Loader2,
   ArrowRight,
   CheckCircle2,
-  Phone,
 } from 'lucide-react';
 import { fetchCompanionReply } from '@/lib/ai';
 import { generateReply, GREETING } from '@/lib/companion';
@@ -66,7 +65,6 @@ export default function Companion() {
       reply = await fetchCompanionReply(trimmed);
       setApiNotice(null);
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Unknown error';
       console.warn('LLM companion failed, using fallback:', error);
       setApiNotice('Nia is temporarily unavailable right now, so a fallback response is being used.');
       reply = generateReply(trimmed);
@@ -310,7 +308,7 @@ function EscalationModal({
   onClose: () => void;
   lastUserText: string;
 }) {
-  const { user } = useAuth();
+  useAuth();
   const [name, setName] = useState('');
   const [anonymous, setAnonymous] = useState(true);
   const [category, setCategory] = useState<PrayerCategory>('other');

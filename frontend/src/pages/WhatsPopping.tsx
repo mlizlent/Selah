@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { X, Loader2 } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { X } from 'lucide-react';
 import type { PriestessPost } from '@/lib/supabase';
 import { PostCardSkeleton } from '@/components/Skeletons';
 import { api } from '@/lib/api';

@@ -127,8 +127,8 @@ function TestimonyForm({ onClose, onSubmitted }: { onClose: () => void; onSubmit
         body: body.trim(),
       });
       setDone(true);
-    } catch (e: any) {
-      setError(e?.message || 'Something went wrong. Please try again.');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Something went wrong. Please try again.');
     }
     setSubmitting(false);
   };

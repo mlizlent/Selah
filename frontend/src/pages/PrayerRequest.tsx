@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import {
-  Heart,
   Send,
   CheckCircle2,
   Loader2,
@@ -62,9 +61,9 @@ export default function PrayerRequestPage() {
         localStorage.setItem('selah-prayer-requests', JSON.stringify(updated));
         return updated;
       });
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Prayer request submit error:', err);
-      setError(err?.message || 'Something went wrong sending your request. Please try again.');
+      setError(err instanceof Error ? err.message : 'Something went wrong sending your request. Please try again.');
     } finally {
       setSubmitting(false);
     }
@@ -93,9 +92,9 @@ export default function PrayerRequestPage() {
       setApptName('');
       setApptContact('');
       setApptReason('');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Appointment submit error:', err);
-      setApptError(err?.message || 'Something went wrong. Please try again.');
+      setApptError(err instanceof Error ? err.message : 'Something went wrong. Please try again.');
     } finally {
       setApptSubmitting(false);
     }

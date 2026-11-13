@@ -8,8 +8,9 @@
     "dev:api": "tsx backend/server.ts",
     "start": "tsx backend/server.ts",
     "build": "vite build --config frontend/vite.config.ts",
-    "lint": "eslint frontend",
+    "lint": "cd frontend && eslint .",
     "preview": "vite preview --config frontend/vite.config.ts",
+    "test": "node --import tsx --test backend/server.test.js",
     "typecheck": "tsc --noEmit -p frontend/tsconfig.app.json",
     "dev:frontend": "vite --config frontend/vite.config.ts --host"
   },
@@ -44,8 +45,5 @@
     "typescript": "^5.5.3",
     "typescript-eslint": "^8.24.1",
     "vite": "^6.1.1"
-  },
-  "overrides": {
-    "brace-expansion": "^5.0.9"
   }
 }

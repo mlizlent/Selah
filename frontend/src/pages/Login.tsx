@@ -45,8 +45,8 @@ export default function Login({ onDone }: LoginProps = {}) {
     try {
       await api.post('/api/auth/forgot-password', { email: email.trim() });
       setResetSent(true);
-    } catch (e: any) {
-      setError(e?.message || 'Unable to request password reset.');
+    } catch (e: unknown) {
+      setError(e instanceof Error ? e.message : 'Unable to request password reset.');
     }
     setSubmitting(false);
   };

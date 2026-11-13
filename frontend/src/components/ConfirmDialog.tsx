@@ -1,6 +1,3 @@
-import { useState } from 'react';
-import { X } from 'lucide-react';
-
 interface ConfirmDialogProps {
   open: boolean;
   title: string;
